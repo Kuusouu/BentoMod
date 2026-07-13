@@ -102,6 +102,23 @@ try {
     $shortcut.Description = "BentoMod"
     $shortcut.Save()
 
+    # Register uninstaller
+    Write-Host "Registering uninstaller..." -ForegroundColor Yellow
+    $registryPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\BentoMod"
+    if (-not (Test-Path $registryPath)) {
+        New-Item -Path $registryPath -Force | Out-Null
+    }
+
+    $uninstallCmd = "powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -Command `"& '$installDir\Uninstall-BentoMod.ps1'`""
+
+    New-ItemProperty -Path $registryPath -Name "DisplayName" -Value "BentoMod" -PropertyType String -Force | Out-Null
+    New-ItemProperty -Path $registryPath -Name "DisplayVersion" -Value $release.tag_name -PropertyType String -Force | Out-Null
+    New-ItemProperty -Path $registryPath -Name "Publisher" -Value "Kuusouu" -PropertyType String -Force | Out-Null
+    New-ItemProperty -Path $registryPath -Name "DisplayIcon" -Value $exe.FullName -PropertyType String -Force | Out-Null
+    New-ItemProperty -Path $registryPath -Name "UninstallString" -Value $uninstallCmd -PropertyType String -Force | Out-Null
+    New-ItemProperty -Path $registryPath -Name "NoModify" -Value 1 -PropertyType DWord -Force | Out-Null
+    New-ItemProperty -Path $registryPath -Name "NoRepair" -Value 1 -PropertyType DWord -Force | Out-Null
+
     Write-Host ""
     Write-Host "Done! BentoMod $($release.tag_name) is installed." -ForegroundColor Green
     Write-Host "Files    : $installDir" -ForegroundColor White
