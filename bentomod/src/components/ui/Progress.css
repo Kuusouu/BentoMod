@@ -1,0 +1,92 @@
+/* Progress Component Styles */
+.bentomod-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.bentomod-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.bentomod-progress-label {
+  font-weight: 500;
+}
+
+.bentomod-progress-value {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.bentomod-progress-track {
+  width: 100%;
+  background-color: var(--bg-lighter, #e4e4e7);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+[data-theme="dark"] .bentomod-progress-track {
+  background-color: #3f3f46;
+}
+
+.bentomod-progress-indicator {
+  height: 100%;
+  background-color: var(--progress-color, #006fee);
+  border-radius: 999px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sizes */
+.bentomod-progress.sm .bentomod-progress-track { height: 4px; }
+.bentomod-progress.md .bentomod-progress-track { height: 8px; }
+.bentomod-progress.lg .bentomod-progress-track { height: 12px; }
+
+/* Colors */
+.bentomod-progress.default { --progress-color: #3f3f46; }
+[data-theme="dark"] .bentomod-progress.default { --progress-color: #a1a1aa; }
+
+.bentomod-progress.primary { --progress-color: #006fee; }
+.bentomod-progress.secondary { --progress-color: #7828c8; }
+.bentomod-progress.success { --progress-color: #17c964; }
+.bentomod-progress.warning { --progress-color: #f5a524; }
+.bentomod-progress.danger { --progress-color: #f31260; }
+
+/* Indeterminate Animation */
+.bentomod-progress.indeterminate .bentomod-progress-indicator {
+  width: 30% !important;
+  position: absolute;
+  left: -30%;
+  animation: indeterminate-anim 1.5s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite;
+}
+
+@keyframes indeterminate-anim {
+  0% { left: -30%; width: 30%; }
+  50% { width: 60%; }
+  100% { left: 100%; width: 30%; }
+}
+
+/* Striped Animation */
+.bentomod-progress.striped .bentomod-progress-indicator {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+  animation: striped-anim 1s linear infinite;
+}
+
+@keyframes striped-anim {
+  from { background-position: 1rem 0; }
+  to { background-position: 0 0; }
+}

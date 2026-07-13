@@ -1,0 +1,292 @@
+name: Build and Release BentoMod
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ============================================================================
+  # BUILD JOB - Builds the Windows release
+  # ============================================================================
+  build:
+    # The job will only run if the commit message contains the keyword '[release-windows]',
+    # or manually from GitHub
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[release-windows]'))
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            dotnet_rid: win-x64
+            artifact_name: BentoMod-Windows
+            artifact_ext: .zip
+            sccache_path: C:\Users\runneradmin\.cache\sccache
+
+    runs-on: ${{ matrix.os }}
+
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
+
+    env:
+      RUSTC_WRAPPER: sccache
+      SCCACHE_DIR: ${{ matrix.sccache_path }}
+      SCCACHE_IDLE_TIMEOUT: 0
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: recursive
+
+      # ========== Setup Tools ==========
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # ========== Caching ==========
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: bentomod/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('bentomod/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install Frontend Dependencies
+        working-directory: bentomod
+        run: npm install
+
+      - name: Cache Cargo Registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Rust Build (target folder)
+        uses: actions/cache@v4
+        with:
+          path: target/
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock', 'Cargo.toml', 'bentomod/tauri.conf.json', 'bentomod/package.json') }}-${{ hashFiles('**/*.rs') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock', 'Cargo.toml', 'bentomod/tauri.conf.json', 'bentomod/package.json') }}-
+            ${{ runner.os }}-cargo-target-
+
+      - name: Install sccache
+        uses: mozilla-actions/sccache-action@v0.0.4
+
+      - name: Cache sccache
+        uses: actions/cache@v4
+        with:
+          path: ${{ matrix.sccache_path }}
+          key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-
+
+      - name: Start sccache server
+        shell: bash
+        run: |
+          sccache --start-server
+          sccache --show-stats
+
+      # ========== Read Version ==========
+      - name: Read Version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/.*"\(.*\)".*/\1/')
+          echo "Version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      # ========== Build UAssetTool (NativeAOT) ==========
+      - name: Build UAssetTool (NativeAOT)
+        shell: bash
+        run: |
+          echo "Building UAssetTool NativeAOT library for ${{ matrix.dotnet_rid }}..."
+          dotnet publish UAssetToolRivals/src/UAssetTool/UAssetToolNative.csproj \
+            -c Release \
+            -r ${{ matrix.dotnet_rid }} \
+            -p:DebugType=none \
+            -p:DebugSymbols=false \
+            -o target/uassettool
+
+      # ========== Sync Version ==========
+      - name: Sync Tauri Config Version
+        shell: bash
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          cd bentomod
+          # Update version in tauri.conf.json to match Cargo.toml
+          sed -i'' -e "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" tauri.conf.json
+
+      # ========== Build Application ==========
+      - name: Build Frontend
+        working-directory: bentomod
+        run: npm run build
+
+      - name: Build Rust Application
+        shell: bash
+        env:
+          # The NativeAOT UAssetTool library was already published into target/uassettool
+          # above; tell build.rs not to rebuild it (it's bundled from there at package time).
+          SKIP_UASSET_TOOL_BUILD: "1"
+        run: |
+          cargo build --release --target ${{ matrix.target }} --features custom-protocol
+
+      # ========== Package - Windows ==========
+      - name: Package Windows Distribution
+        if: runner.os == 'Windows'
+        id: package_windows
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $distDir = "dist"
+          $packageDir = "$distDir/BentoMod-v$version-Windows"
+
+          # Create directories
+          New-Item -ItemType Directory -Force -Path $packageDir
+          New-Item -ItemType Directory -Force -Path "$packageDir/data"
+
+          # Copy main executable
+          Copy-Item "target/${{ matrix.target }}/release/BentoMod.exe" "$packageDir/"
+
+          # Copy UAssetTool and dependencies
+          Copy-Item "target/uassettool/*" "$packageDir/" -Recurse
+          if (Test-Path "$packageDir/*.pdb") { Remove-Item "$packageDir/*.pdb" }
+          if (Test-Path "$packageDir/UAssetTool.exe") { Remove-Item "$packageDir/UAssetTool.exe" }
+
+          # Copy data files and native installer scripts
+          Copy-Item "bentomod/src/data/character_data.json" "$packageDir/data/"
+          if (Test-Path "scripts/Uninstall-BentoMod.ps1") {
+              Copy-Item "scripts/Uninstall-BentoMod.ps1" "$packageDir/"
+          }
+
+          # Create ZIP
+          $zipPath = "$distDir/BentoMod-v$version-Windows.zip"
+          Compress-Archive -Path "$packageDir/*" -DestinationPath $zipPath -Force
+
+          $zipSize = [math]::Round((Get-Item $zipPath).Length / 1MB, 2)
+          Write-Host "BentoMod ZIP created: $zipSize MB"
+
+          echo "ARTIFACT_PATH=$zipPath" >> $env:GITHUB_OUTPUT
+
+      # ========== Upload Artifacts ==========
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}-v${{ steps.version.outputs.VERSION }}
+          path: ${{ steps.package_windows.outputs.ARTIFACT_PATH }}
+          retention-days: 30
+
+      - name: Stop sccache and show stats
+        if: always()
+        shell: bash
+        run: |
+          sccache --show-stats || true
+          sccache --stop-server || true
+
+  # ============================================================================
+  # RELEASE JOB - Creates GitHub release with all artifacts
+  # ============================================================================
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: BentoMod-Windows-v${{ needs.build.outputs.version }}
+          path: dist/
+
+      - name: List Downloaded Artifacts
+        run: |
+          echo "Downloaded artifacts:"
+          ls -la dist/
+
+      - name: Extract Changelog
+        id: changelog
+        shell: bash
+        run: |
+          VERSION="${{ needs.build.outputs.version }}"
+          # Extract everything between ## [VERSION] and the next ## [ or --- or EOF
+          CHANGELOG=$(awk "/^## \[$VERSION\]/{found=1; next} /^## \[|^---/{if(found) exit} found{print}" CHANGELOG.md)
+
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="No changelog entry found for v$VERSION."
+          fi
+
+          # Write to file to avoid multiline env var issues
+          echo "$CHANGELOG" > /tmp/changelog_body.md
+          echo "CHANGELOG_FILE=/tmp/changelog_body.md" >> $GITHUB_OUTPUT
+
+          echo "Extracted changelog for v$VERSION:"
+          cat /tmp/changelog_body.md
+
+      - name: Create and Push Tag
+        run: |
+          VERSION="${{ needs.build.outputs.version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Check if tag already exists
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists, skipping tag creation"
+          else
+            git tag "v$VERSION"
+            git push origin "v$VERSION"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.build.outputs.version }}
+          name: BentoMod v${{ needs.build.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          body_path: ${{ steps.changelog.outputs.CHANGELOG_FILE }}
+          files: |
+            dist/BentoMod-v${{ needs.build.outputs.version }}-Windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

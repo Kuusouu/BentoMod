@@ -1,0 +1,44 @@
+# Build artifacts
+node_modules/
+target/
+dist/
+website/build/
+website/.docusaurus/
+website/.cache-loader/
+bentomod/node_modules/
+bentomod/target/
+bentomod/dist/
+
+# IDE/Editor folders
+.windsurf/
+.vscode/
+
+# Documentation (root-level only)
+/docs/
+
+# UAssetTool C# build artifacts (submodule has its own .gitignore)
+# These are legacy paths that may still exist
+UAssetAPI/UAssetAPI/bin/
+UAssetAPI/UAssetAPI/obj/
+uasset_toolkit/tools/UAssetBridge/bin/
+uasset_toolkit/tools/UAssetBridge/obj/
+uasset_toolkit/tools/UAssetTool/bin/
+uasset_toolkit/tools/UAssetTool/obj/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test output / extracted files
+ScriptObjectExportTest/
+*.usmap
+
+# Sensitive files
+*.env
+*.env.local

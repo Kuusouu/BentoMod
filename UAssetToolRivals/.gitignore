@@ -1,0 +1,28 @@
+# Build results
+bin/
+obj/
+bin_native/
+obj_native/
+publish/
+publish-*/
+publish_selfcontained/
+publish_*/
+src/UAssetAPI/git_commit.txt
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.DotSettings.user
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# NuGet
+packages/
+*.nupkg

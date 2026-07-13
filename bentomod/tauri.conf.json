@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.tauri.app/config/2.0",
+  "productName": "BentoMod",
+  "version": "1.0.0",
+  "identifier": "com.internal.bentomod",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "dist"
+  },
+  "bundle": {
+    "active": true,
+    "icon": [
+      "icons/icon.ico",
+      "icons/icon.png"
+    ]
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "BentoMod",
+        "width": 1400,
+        "height": 950,
+        "minWidth": 1200,
+        "minHeight": 800,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": false,
+        "transparent": false,
+        "center": true,
+        "devtools": true
+      }
+    ],
+    "security": {
+      "csp": null,
+      "capabilities": [
+        "default"
+      ]
+    },
+    "withGlobalTauri": true
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": [
+          "bentomod"
+        ]
+      }
+    }
+  }
+}

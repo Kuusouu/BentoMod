@@ -1,0 +1,39 @@
+[workspace]
+resolver = "2"
+members = ["bentomod", "uasset_toolkit/uasset_app"]
+
+[workspace.package]
+repository = "https://github.com/Kuusouu/BentoMod"
+authors = ["mewclouds"]
+license = "GPL-3.0"
+version = "1.0.0"
+edition = "2021"
+keywords = ["marvel-rivals","unreal-engine", "pak", "unrealpak"]
+
+
+[profile.release]
+lto = "thin"
+strip = true
+opt-level = 3
+
+[workspace.dependencies]
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+anyhow = "1.0"
+
+# The profile that 'cargo dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
+[profile.dev]
+incremental = true
+codegen-units = 256
+lto = false
+opt-level = 0
+debug = 1
+
+[profile.dev.package."*"]
+opt-level = 0
