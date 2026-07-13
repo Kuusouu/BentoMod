@@ -49,7 +49,7 @@ import PromiseTransitionLoader from './components/PromiseTransitionLoader'
 import { AuroraText } from './components/ui/AuroraText'
 import { AlertProvider, useAlert } from './components/AlertHandler'
 import { useGlobalTooltips } from './hooks/useGlobalTooltips'
-import { useAprilFools } from './hooks/useAprilFools'
+
 import Switch from './components/ui/Switch'
 import NumberInput from './components/ui/NumberInput'
 import characterDataStatic from './data/character_data.json'
@@ -221,7 +221,7 @@ type AppSettings = {
 }
 
 function App() {
-  const isAprilFools = useAprilFools();
+
   const [hideSuffix, setHideSuffix] = useState(false);
   const [autoOpenDetails, setAutoOpenDetails] = useState(false);
   const [showHeroIcons, setShowHeroIcons] = useState(false);
@@ -2937,7 +2937,7 @@ function App() {
   }, []);
 
   return (
-    <div className={`app${isAprilFools ? ' april-fools' : ''}`}>
+    <div className="app">
       <TitleBar />
       {panels.install && (
         <InstallModPanel
@@ -2999,7 +2999,7 @@ function App() {
       <DropZoneOverlay
         isVisible={isDragging}
         folders={folders}
-        isAprilFools={isAprilFools}
+
         onInstallDrop={() => {
           // Just signals intent - actual files come from Tauri event
           setDropTargetFolder(null)
