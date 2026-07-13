@@ -86,7 +86,13 @@ fn resolve_accent_name(color_str: &str) -> String {
         "green" | "#4caf50" => "green".to_string(),
         "orange" | "#ff9800" => "orange".to_string(),
         "pink" | "#ff96bc" => "pink".to_string(),
-        _ => "red".to_string(), // Fallback to BentoRed
+        _ => {
+            if lower.starts_with('#') {
+                lower
+            } else {
+                "red".to_string()
+            }
+        }
     }
 }
 

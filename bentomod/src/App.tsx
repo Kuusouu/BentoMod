@@ -2798,7 +2798,7 @@ function App() {
       setAccentColor(newAccentColor);
       document.documentElement.style.setProperty('--accent-primary', newAccentColor);
       document.documentElement.style.setProperty('--accent-secondary', newAccentColor);
-      const palette = AURORA_PALETTES[newAccentColor] || ['#be1c1c', '#ff9800', '#ffcc00', '#ff6b35'];
+      const palette = AURORA_PALETTES[newAccentColor] || [newAccentColor, newAccentColor, newAccentColor, newAccentColor];
       document.documentElement.style.setProperty('--aurora-color-1', palette[0]);
       document.documentElement.style.setProperty('--aurora-color-2', palette[1]);
       document.documentElement.style.setProperty('--aurora-color-3', palette[2]);
@@ -2846,7 +2846,7 @@ function App() {
     invoke('get_app_settings')
       .then((settings: any) => {
         // Resolve hex code from accent preset name
-        const hexAccent = ACCENT_COLORS_MAP[settings.accentColor] || ACCENT_COLORS_MAP['red'] || '#be1c1c';
+        const hexAccent = ACCENT_COLORS_MAP[settings.accentColor] || (settings.accentColor?.startsWith('#') ? settings.accentColor : '#be1c1c');
 
         // 1. Apply Theme
         setTheme(settings.theme);
@@ -2856,7 +2856,7 @@ function App() {
         setAccentColor(hexAccent);
         document.documentElement.style.setProperty('--accent-primary', hexAccent);
         document.documentElement.style.setProperty('--accent-secondary', hexAccent);
-        const palette = AURORA_PALETTES[hexAccent] || ['#be1c1c', '#ff9800', '#ffcc00', '#ff6b35'];
+        const palette = AURORA_PALETTES[hexAccent] || [hexAccent, hexAccent, hexAccent, hexAccent];
         document.documentElement.style.setProperty('--aurora-color-1', palette[0]);
         document.documentElement.style.setProperty('--aurora-color-2', palette[1]);
         document.documentElement.style.setProperty('--aurora-color-3', palette[2]);

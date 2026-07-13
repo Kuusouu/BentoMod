@@ -372,6 +372,18 @@ export default function SettingsPanel({ settings, onSave, onClose, theme, setThe
                     title={name.charAt(0).toUpperCase() + name.slice(1)}
                   />
                 ))}
+                <div 
+                  className={`color-option ${!Object.values(ACCENT_COLORS).includes(accentColor) ? 'selected' : ''}`}
+                  style={{ position: 'relative', overflow: 'hidden' }} 
+                  title="Custom HEX Color"
+                >
+                  <input
+                    type="color"
+                    value={Object.values(ACCENT_COLORS).includes(accentColor) ? '#ffffff' : accentColor}
+                    onChange={(e) => setAccentColor(e.target.value)}
+                    style={{ position: 'absolute', top: '-10px', left: '-10px', width: '200%', height: '200%', cursor: 'pointer', border: 'none', padding: 0 }}
+                  />
+                </div>
               </div>
             </div>
           </div>
