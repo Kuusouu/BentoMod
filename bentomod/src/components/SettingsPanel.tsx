@@ -76,16 +76,7 @@ export default function SettingsPanel({ settings, onSave, onClose, theme, setThe
   const [bypassGameRunningLock, setBypassGameRunningLock] = useState(settings.bypassGameRunningLock || false);
 
   const [launcherType, setLauncherType] = useState<'steam' | 'epic'>(settings.launcherType || 'steam');
-  const [showRatMode, setShowRatMode] = useState(false);
 
-  // Easter egg: briefly show "Rat Mode" when switching to light theme
-  const handleThemeToggle = (newTheme: string) => {
-    if (newTheme === 'light') {
-      setShowRatMode(true);
-      setTimeout(() => setShowRatMode(false), 300);
-    }
-    setTheme(newTheme);
-  };
 
   const handleSave = () => {
     onSave({
@@ -364,9 +355,9 @@ export default function SettingsPanel({ settings, onSave, onClose, theme, setThe
             <h3>Theme</h3>
             <div className="setting-group">
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                <AnimatedThemeToggler theme={theme} setTheme={handleThemeToggle} />
+                <AnimatedThemeToggler theme={theme} setTheme={setTheme} />
                 <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>
-                  {theme === 'dark' ? 'Dark Mode' : (showRatMode ? 'Rat Mode 🐀' : 'Light Mode')}
+                  {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
                 </span>
               </div>
 
