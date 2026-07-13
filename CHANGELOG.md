@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2026-07-13
+
+### Fixed
+- Fixed "Move to..." actions from the mod context menu and multi-select toolbar to display full folder path hierarchies instead of single folder names.
+- Completely removed the hidden April Fools prank logic (Comic Sans font forcing, layout flashes, and mouse-dodging drop targets).
+
 ## [1.1.0] - 2026-07-13
 
 ### Added
