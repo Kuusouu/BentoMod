@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.2] - 2026-07-13
+
+### Added
+- Added quick filters in the left sidebar to filter mods by status (All, Enabled, Disabled).
+
 ## [1.1.1] - 2026-07-13
 
 ### Fixed
