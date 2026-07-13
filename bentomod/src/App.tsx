@@ -297,6 +297,7 @@ function App() {
   const [detailsLoading, setDetailsLoading] = useState(false)
   const [selectedCharacters, setSelectedCharacters] = useState<Set<string>>(new Set()) // values: character_name, '__generic', '__multi'
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set()) // category strings
+  const [statusFilter, setStatusFilter] = useState<'all' | 'enabled' | 'disabled'>('all')
   const [availableCharacters, setAvailableCharacters] = useState<any[]>([])
   const [availableCategories, setAvailableCategories] = useState<string[]>([])
   const [showCharacterFilters, setShowCharacterFilters] = useState(false)
@@ -2405,6 +2406,9 @@ function App() {
       return false
     }
 
+    if (statusFilter === 'enabled' && !mod.enabled) return false
+    if (statusFilter === 'disabled' && mod.enabled) return false
+
     // Search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase()
@@ -3349,15 +3353,31 @@ function App() {
                 <div className="sidebar-filters-inner">
                   <div className="filter-title-row">
                     <div className="filter-label">FILTERS</div>
-                    {(selectedCharacters.size > 0 || selectedCategories.size > 0) && (
+                    {(selectedCharacters.size > 0 || selectedCategories.size > 0 || statusFilter !== 'all') && (
                       <button
                         className="btn-ghost-mini"
-                        onClick={() => { setSelectedCharacters(new Set()); setSelectedCategories(new Set()) }}
+                        onClick={() => { setSelectedCharacters(new Set()); setSelectedCategories(new Set()); setStatusFilter('all') }}
                         title="Clear all filters"
                       >
                         Clear
                       </button>
                     )}
+                  </div>
+
+                  {/* Status Chips */}
+                  <div className="filter-section-header">
+                    <div className="filter-label-secondary">Status</div>
+                  </div>
+                  <div className="filter-chips-scroll" style={{ marginBottom: '8px' }}>
+                    {(['all', 'enabled', 'disabled'] as const).map(status => (
+                      <button
+                        key={status}
+                        className={`filter-chip-compact ${statusFilter === status ? 'active' : ''}`}
+                        onClick={() => setStatusFilter(status)}
+                      >
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </button>
+                    ))}
                   </div>
 
                   {/* Character/Hero Chips */}
