@@ -342,19 +342,17 @@ export default function SettingsPanel({ settings, onSave, onClose, theme, setThe
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <CgPerformance style={{ marginRight: '8px', color: accentColor }} />
-                  <span style={{ fontWeight: 'normal', opacity: 0.9 }}>Parallel Processing Mode</span>
+                  <span style={{ fontWeight: 'normal', opacity: 0.9 }}>Processing Speed</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <span style={{
                     fontSize: '0.85rem',
                     opacity: parallelProcessing ? 1 : 0.8,
-                    fontWeight: parallelProcessing ? '900' : '500',
-                    fontStyle: parallelProcessing ? 'italic' : 'normal',
+                    fontWeight: parallelProcessing ? '700' : '500',
                     color: parallelProcessing ? accentColor : 'inherit',
-                    textShadow: parallelProcessing ? '2px 2px 0px rgba(0,0,0,0.2)' : 'none',
                     transition: 'all 0.2s ease'
                   }}>
-                    {parallelProcessing ? 'BOOST' : 'Normal'}
+                    {parallelProcessing ? 'Fast (High CPU)' : 'Standard'}
                   </span>
                   <Switch style={{ marginTop: '0.5rem' }}
                     checked={parallelProcessing}
@@ -362,10 +360,8 @@ export default function SettingsPanel({ settings, onSave, onClose, theme, setThe
                   />
                 </div>
               </div>
-              <p style={{ fontSize: '0.8rem', opacity: 0.6, marginLeft: '24px', marginTop: '-0.8rem' }}>
-                {parallelProcessing
-                  ? 'Boost mode uses 75% of available threads for backend operations.'
-                  : 'Normal mode uses 50% of available threads for backend operations.'}
+              <p style={{ fontSize: '0.8rem', opacity: 0.6, marginLeft: '24px', marginTop: '-0.8rem', lineHeight: '1.4' }}>
+                Determines how many CPU threads are used to compile and process mods ({parallelProcessing ? '75%' : '50%'}). This will not affect your game performance, as BentoMod only processes files before you launch the game.
               </p>
             </div>
           </div>
