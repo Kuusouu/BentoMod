@@ -298,7 +298,7 @@ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
 name = "bentomod"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "byteorder",
  "chrono",
@@ -5422,7 +5422,7 @@ checksum = "1dccffe3ce07af9386bfd29e80c0ab1a8205a2fc34e4bcd40364df902cfa8f3f"
 
 [[package]]
 name = "uasset_app"
-version = "1.0.0"
+version = "1.1.0"
 dependencies = [
  "anyhow",
  "libloading 0.8.6",
