@@ -211,7 +211,7 @@ type AppSettings = {
   showHeroBg: boolean
   showModType: boolean
   showExperimental: boolean
-  enableDrp: boolean
+
   parallelProcessing: boolean
   autoCheckUpdates: boolean
   holdToDelete: boolean
@@ -231,7 +231,7 @@ function App() {
   const [showSubfolderMods, setShowSubfolderMods] = useState(true);
   const [autoCheckUpdates, setAutoCheckUpdates] = useState(true);
   const [isCheckingUpdates, setIsCheckingUpdates] = useState(false);
-  const [enableDrp, setEnableDrp] = useState(false);
+
   const [parallelProcessing, setParallelProcessing] = useState(false);
   const [holdToDelete, setHoldToDelete] = useState(true);
   const [bypassGameRunningLock, setBypassGameRunningLock] = useState(false);
@@ -1131,11 +1131,6 @@ function App() {
     loadInitialData().then((modCount) => {
       invoke('get_app_settings')
         .then((settings: any) => {
-          if (settings.enableDrp) {
-            invoke('discord_connect')
-              .then(() => invoke('discord_set_managing_mods', { modCount }))
-              .catch(console.warn);
-          }
         })
         .catch(console.warn);
     });
@@ -1489,10 +1484,6 @@ function App() {
 
       // After loading mods, refresh details for each (with progress tracking)
       await preloadModDetails(modList)
-
-      if (enableDrp) {
-        invoke('discord_set_managing_mods', { modCount: modList.length }).catch(console.warn);
-      }
 
       setStatus(`Loaded ${modList.length} mod(s)`)
       return modList as ModRecord[]
@@ -2220,9 +2211,6 @@ function App() {
     setIsModsLoading(true)
     setModLoadingProgress(-1)
 
-    // Update DRP status
-    invoke('discord_set_installing').catch(console.warn)
-
     // Use promise toast for loading state and result
     alert.promise(
       (async () => {
@@ -2249,7 +2237,7 @@ function App() {
         } finally {
           setIsModsLoading(false)
           setModLoadingProgress(0)
-          invoke('discord_set_idle').catch(console.warn)
+
         }
       })(),
       {
@@ -2283,9 +2271,6 @@ function App() {
     setIsModsLoading(true)
     setModLoadingProgress(-1)
 
-    // Update DRP status
-    invoke('discord_set_installing').catch(console.warn)
-
     // Use promise toast for loading state and result
     alert.promise(
       (async () => {
@@ -2312,7 +2297,7 @@ function App() {
         } finally {
           setIsModsLoading(false)
           setModLoadingProgress(0)
-          invoke('discord_set_idle').catch(console.warn)
+
         }
       })(),
       {
@@ -2650,9 +2635,6 @@ function App() {
     setPanel('install', false)
     setInstallLogs([])
 
-    // Update DRP status to Installing
-    invoke('discord_set_installing').catch(console.warn)
-
     const modCount = modsWithSettings.length
 
     // Start progress bar (indeterminate until backend sends progress events)
@@ -2734,10 +2716,6 @@ function App() {
         loadTags()
         setStatus('Mods installed successfully!')
 
-        // Reset DRP status to Idle (or effective mod count if we could easily get it)
-        // For now, Idle is safe and functionally correct
-        invoke('discord_set_idle').catch(console.warn)
-
         // Show warning after success if game is running
         if (gameRunning) {
           alert.warning(
@@ -2777,7 +2755,7 @@ function App() {
     const newShowHeroBg = overrides.showHeroBg !== undefined ? overrides.showHeroBg : showHeroBg;
     const newShowModType = overrides.showModType !== undefined ? overrides.showModType : showModType;
     const newShowExperimental = overrides.showExperimental !== undefined ? overrides.showExperimental : showExperimental;
-    const newEnableDrp = overrides.enableDrp !== undefined ? overrides.enableDrp : enableDrp;
+
     const newParallelProcessing = overrides.parallelProcessing !== undefined ? overrides.parallelProcessing : parallelProcessing;
     const newAutoCheckUpdates = overrides.autoCheckUpdates !== undefined ? overrides.autoCheckUpdates : autoCheckUpdates;
     const newHoldToDelete = overrides.holdToDelete !== undefined ? overrides.holdToDelete : holdToDelete;
@@ -2799,7 +2777,7 @@ function App() {
       showHeroBg: newShowHeroBg,
       showModType: newShowModType,
       showExperimental: newShowExperimental,
-      enableDrp: newEnableDrp,
+
       parallelProcessing: newParallelProcessing,
       autoCheckUpdates: newAutoCheckUpdates,
       holdToDelete: newHoldToDelete,
@@ -2835,7 +2813,7 @@ function App() {
     if (overrides.showHeroBg !== undefined) setShowHeroBg(newShowHeroBg);
     if (overrides.showModType !== undefined) setShowModType(newShowModType);
     if (overrides.showExperimental !== undefined) setShowExperimental(newShowExperimental);
-    if (overrides.enableDrp !== undefined) setEnableDrp(newEnableDrp);
+
     if (overrides.parallelProcessing !== undefined) setParallelProcessing(newParallelProcessing);
     if (overrides.autoCheckUpdates !== undefined) setAutoCheckUpdates(newAutoCheckUpdates);
     if (overrides.holdToDelete !== undefined) setHoldToDelete(newHoldToDelete);
@@ -2844,16 +2822,7 @@ function App() {
     if (overrides.launcherType !== undefined) setLauncherType(newLauncherType);
 
     // 6. Handle side effects (DRP connection, theme, etc.)
-    if (newEnableDrp && !enableDrp) {
-      invoke('discord_connect')
-        .then(() => invoke('discord_set_managing_mods', { modCount: mods.flat().length }))
-        .catch(console.warn);
-    } else if (!newEnableDrp && enableDrp) {
-      invoke('discord_disconnect').catch(console.warn);
-    }
-
-    if (newEnableDrp) {
-      invoke('discord_set_theme', { theme: accentName }).catch(console.warn);
+    if (false) {
     }
 
     if (overrides.parallelProcessing !== undefined && newParallelProcessing !== parallelProcessing) {
@@ -2912,7 +2881,7 @@ function App() {
         setHoldToDelete(settings.holdToDelete);
         setShowSubfolderMods(settings.showSubfolderMods);
         setBypassGameRunningLock(settings.bypassGameRunningLock);
-        setEnableDrp(settings.enableDrp);
+
         if (settings.launcherType) setLauncherType(settings.launcherType);
 
         // 5. Run auto update check if enabled
@@ -2998,7 +2967,7 @@ function App() {
 
       {panels.settings && (
         <SettingsPanel
-          settings={{ hideSuffix, autoOpenDetails, showHeroIcons, showHeroBg, showModType, showExperimental, enableDrp, parallelProcessing, autoCheckUpdates, holdToDelete, showSubfolderMods, bypassGameRunningLock, launcherType }}
+          settings={{ hideSuffix, autoOpenDetails, showHeroIcons, showHeroBg, showModType, showExperimental, parallelProcessing, autoCheckUpdates, holdToDelete, showSubfolderMods, bypassGameRunningLock, launcherType }}
           onSave={handleSaveSettings}
           onClose={() => setPanel('settings', false)}
           theme={theme}

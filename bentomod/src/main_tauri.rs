@@ -5,7 +5,6 @@
 
 mod character_data;
 mod crash_monitor;
-mod discord_presence;
 mod install_mod;
 mod ip_obfuscation;
 mod merge_command;
@@ -50,10 +49,7 @@ struct CrashMonitorState {
     last_checked_crash: Mutex<Option<std::time::SystemTime>>,
 }
 
-/// Discord Rich Presence state
-struct DiscordState {
-    manager: discord_presence::SharedDiscordPresence,
-}
+
 
 fn default_theme() -> String {
     "dark".to_string()
@@ -139,8 +135,7 @@ struct AppState {
     show_subfolder_mods: bool,
     #[serde(default)]
     bypass_game_running_lock: bool,
-    #[serde(default = "default_true")]
-    enable_drp: bool,
+
     #[serde(default = "default_launcher_type")]
     launcher_type: String,
 
@@ -173,7 +168,7 @@ impl Default for AppState {
             hold_to_delete: default_true(),
             show_subfolder_mods: default_true(),
             bypass_game_running_lock: false,
-            enable_drp: default_true(),
+
             launcher_type: default_launcher_type(),
             custom_tag_catalog: Vec::new(),
             mod_tags: std::collections::HashMap::new(),
@@ -287,7 +282,7 @@ struct AppSettings {
     hold_to_delete: bool,
     show_subfolder_mods: bool,
     bypass_game_running_lock: bool,
-    enable_drp: bool,
+
     launcher_type: String,
 }
 
@@ -320,7 +315,7 @@ async fn get_app_settings(state: State<'_, Arc<Mutex<AppState>>>) -> Result<AppS
         hold_to_delete: state.hold_to_delete,
         show_subfolder_mods: state.show_subfolder_mods,
         bypass_game_running_lock: state.bypass_game_running_lock,
-        enable_drp: state.enable_drp,
+
         launcher_type: state.launcher_type.clone(),
     })
 }
@@ -329,7 +324,6 @@ async fn get_app_settings(state: State<'_, Arc<Mutex<AppState>>>) -> Result<AppS
 async fn save_app_settings(
     settings: AppSettings,
     state: State<'_, Arc<Mutex<AppState>>>,
-    discord: State<'_, DiscordState>,
     window: Window,
 ) -> Result<(), String> {
     let settings_clone = settings.clone();
@@ -349,25 +343,10 @@ async fn save_app_settings(
     state.hold_to_delete = settings.hold_to_delete;
     state.show_subfolder_mods = settings.show_subfolder_mods;
     state.bypass_game_running_lock = settings.bypass_game_running_lock;
-    state.enable_drp = settings.enable_drp;
+
     state.launcher_type = settings.launcher_type;
 
-    // Apply DRP immediately
-    if state.enable_drp {
-        if !discord.manager.is_connected() {
-            if let Err(e) = discord.manager.connect() {
-                warn!("Failed to connect Discord RPC: {}", e);
-            }
-        }
-        let theme_name = state.accent_color.as_str();
-        discord.manager.set_theme(theme_name);
-    } else {
-        if discord.manager.is_connected() {
-            if let Err(e) = discord.manager.disconnect() {
-                warn!("Failed to disconnect Discord RPC: {}", e);
-            }
-        }
-    }
+
 
     save_state(&state).map_err(|e| e.to_string())?;
 
@@ -6197,102 +6176,7 @@ async fn cancel_update_download() -> Result<(), String> {
 // ============================================================================
 
 /// Enable Discord Rich Presence
-#[tauri::command]
-async fn discord_connect(discord_state: State<'_, DiscordState>) -> Result<(), String> {
-    discord_state.manager.connect()
-}
 
-/// Disable Discord Rich Presence
-#[tauri::command]
-async fn discord_disconnect(discord_state: State<'_, DiscordState>) -> Result<(), String> {
-    discord_state.manager.disconnect()
-}
-
-/// Check if Discord is connected
-#[tauri::command]
-async fn discord_is_connected(discord_state: State<'_, DiscordState>) -> Result<bool, String> {
-    Ok(discord_state.manager.is_connected())
-}
-
-/// Set Discord activity to idle state
-#[tauri::command]
-async fn discord_set_idle(discord_state: State<'_, DiscordState>) -> Result<(), String> {
-    if discord_state.manager.is_connected() {
-        discord_state.manager.set_idle()
-    } else {
-        Ok(())
-    }
-}
-
-/// Set Discord activity to show mod count
-#[tauri::command]
-async fn discord_set_managing_mods(
-    mod_count: usize,
-    discord_state: State<'_, DiscordState>,
-) -> Result<(), String> {
-    if discord_state.manager.is_connected() {
-        discord_state.manager.set_managing_mods(mod_count)
-    } else {
-        Ok(())
-    }
-}
-
-/// Set Discord activity to show installing mod
-#[tauri::command]
-async fn discord_set_installing(
-    mod_name: String,
-    discord_state: State<'_, DiscordState>,
-) -> Result<(), String> {
-    if discord_state.manager.is_connected() {
-        discord_state.manager.set_installing_mod(&mod_name)
-    } else {
-        Ok(())
-    }
-}
-
-/// Set Discord activity to show sharing mods
-#[tauri::command]
-async fn discord_set_sharing(discord_state: State<'_, DiscordState>) -> Result<(), String> {
-    if discord_state.manager.is_connected() {
-        discord_state.manager.set_sharing_mods()
-    } else {
-        Ok(())
-    }
-}
-
-/// Set Discord activity to show receiving mods
-#[tauri::command]
-async fn discord_set_receiving(discord_state: State<'_, DiscordState>) -> Result<(), String> {
-    if discord_state.manager.is_connected() {
-        discord_state.manager.set_receiving_mods()
-    } else {
-        Ok(())
-    }
-}
-
-/// Clear Discord activity
-#[tauri::command]
-async fn discord_clear_activity(discord_state: State<'_, DiscordState>) -> Result<(), String> {
-    discord_state.manager.clear_activity()
-}
-
-/// Set Discord theme (changes the logo based on app color palette)
-/// Theme names: "blue", "red", "green", "purple", "orange", "pink", "cyan", "yellow", "teal", "default"
-#[tauri::command]
-async fn discord_set_theme(
-    theme: String,
-    discord_state: State<'_, DiscordState>,
-) -> Result<(), String> {
-    let resolved_theme = resolve_accent_name(&theme);
-    discord_state.manager.set_theme(&resolved_theme);
-    Ok(())
-}
-
-/// Get current Discord theme
-#[tauri::command]
-async fn discord_get_theme(discord_state: State<'_, DiscordState>) -> Result<String, String> {
-    Ok(discord_state.manager.get_theme())
-}
 
 // ============================================================================
 // CRASH MONITORING COMMANDS
@@ -7508,32 +7392,6 @@ fn main() {
     };
 
 
-    // Initialize Discord Rich Presence manager
-    let discord_manager = discord_presence::create_discord_manager();
-
-    // Check saved state to see if DRP should be enabled
-    {
-        let state_guard = state.lock().unwrap();
-        if state_guard.enable_drp {
-            if let Err(e) = discord_manager.connect() {
-                warn!("Failed to auto-connect Discord RPC: {}", e);
-            } else {
-                info!("Auto-connected Discord RPC from saved settings");
-
-                // Apply saved theme
-                discord_manager.set_theme(state_guard.accent_color.as_str());
-
-                // Set initial activity
-                if let Err(e) = discord_manager.set_idle() {
-                    warn!("Failed to set initial Discord RPC activity: {}", e);
-                }
-            }
-        }
-    }
-
-    let discord_state = DiscordState {
-        manager: discord_manager,
-    };
     #[cfg(target_os = "linux")]
     {
         // Tauri and NVIDIA don't mix, due to Webkit compositing and DMABUF renderer issues so this env fixes that
@@ -7543,8 +7401,6 @@ fn main() {
         .manage(state)
         .manage(watcher_state)
         .manage(crash_state)
-
-        .manage(discord_state)
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
             // This closure is called when a second instance is launched
             // `args` contains command line arguments including the deep-link URL
@@ -7686,18 +7542,7 @@ fn main() {
             check_lod_disabler_deployed,
             get_lod_disabler_path,
             deploy_lod_disabler,
-            // Discord Rich Presence commands
-            discord_connect,
-            discord_disconnect,
-            discord_is_connected,
-            discord_set_idle,
-            discord_set_managing_mods,
-            discord_set_installing,
-            discord_set_sharing,
-            discord_set_receiving,
-            discord_clear_activity,
-            discord_set_theme,
-            discord_get_theme,
+
             // App Settings
             get_accent_presets,
             get_app_settings,
@@ -7746,14 +7591,6 @@ fn main() {
         })
         .build(tauri::generate_context!())
         .expect("error while running tauri application")
-        .run(|app_handle, event| {
-            if let tauri::RunEvent::ExitRequested { .. } = event {
-                // Ensure Discord RPC is disconnected on exit
-                let discord_state = app_handle.state::<DiscordState>();
-                if discord_state.manager.is_connected() {
-                    info!("App exiting, disconnecting Discord RPC...");
-                    let _ = discord_state.manager.disconnect();
-                }
-            }
+        .run(|_app_handle, _event| {
         });
 }

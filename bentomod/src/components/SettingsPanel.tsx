@@ -6,7 +6,7 @@ import { LuFolderInput } from "react-icons/lu"
 import { RiSparkling2Fill } from "react-icons/ri"
 import { CgPerformance } from "react-icons/cg"
 import { MdRefresh, MdArticle } from "react-icons/md"
-import { FaDiscord, FaSteam } from "react-icons/fa"
+import { FaSteam } from "react-icons/fa"
 import { SiEpicgames } from "react-icons/si"
 import { RiGraduationCapFill } from "react-icons/ri"
 import { BsKeyboardFill } from "react-icons/bs"
@@ -33,7 +33,7 @@ type SettingsPayload = {
   showExperimental: boolean;
   autoCheckUpdates: boolean;
   parallelProcessing: boolean;
-  enableDrp: boolean;
+
   holdToDelete: boolean;
   showSubfolderMods: boolean;
   bypassGameRunningLock: boolean;
@@ -74,7 +74,7 @@ export default function SettingsPanel({ settings, onSave, onClose, theme, setThe
   const [holdToDelete, setHoldToDelete] = useState(settings.holdToDelete !== false);
   const [showSubfolderMods, setShowSubfolderMods] = useState(settings.showSubfolderMods !== false);
   const [bypassGameRunningLock, setBypassGameRunningLock] = useState(settings.bypassGameRunningLock || false);
-  const [enableDrp, setEnableDrp] = useState(settings.enableDrp !== false);
+
   const [launcherType, setLauncherType] = useState<'steam' | 'epic'>(settings.launcherType || 'steam');
   const [showRatMode, setShowRatMode] = useState(false);
 
@@ -97,7 +97,7 @@ export default function SettingsPanel({ settings, onSave, onClose, theme, setThe
       showExperimental,
       autoCheckUpdates,
       parallelProcessing,
-      enableDrp,
+
       holdToDelete,
       showSubfolderMods,
       bypassGameRunningLock,
@@ -106,13 +106,6 @@ export default function SettingsPanel({ settings, onSave, onClose, theme, setThe
     alert.success('Settings Saved', 'Your preferences have been updated.');
     onClose();
   };
-
-  // Sync local state with props when opening/changing
-  useEffect(() => {
-    if (settings.enableDrp !== undefined) {
-      setEnableDrp(settings.enableDrp);
-    }
-  }, [settings.enableDrp]);
 
   useEffect(() => {
     setHoldToDelete(settings.holdToDelete !== false);
@@ -366,24 +359,6 @@ export default function SettingsPanel({ settings, onSave, onClose, theme, setThe
             </div>
           </div>
 
-          <div className="setting-section">
-            <h3>Integrations</h3>
-            <div className="setting-group">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <FaDiscord style={{ color: '#5865F2', marginRight: '8px' }} />
-                  <span style={{ fontWeight: 'normal', opacity: 0.9 }}>Enable Discord Rich Presence</span>
-                </div>
-                <Switch style={{ marginTop: '0.5rem' }}
-                  checked={enableDrp}
-                  onChange={(checked: boolean) => setEnableDrp(checked)}
-                />
-              </div>
-              <p style={{ fontSize: '0.8rem', opacity: 0.6, marginLeft: '24px', marginTop: '-0.8rem' }}>
-                Show your active modding status on Discord.
-              </p>
-            </div>
-          </div>
 
           <div className="setting-section">
             <h3>Theme</h3>
