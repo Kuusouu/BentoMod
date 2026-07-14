@@ -10,7 +10,6 @@ use std::process::Command;
 use std::sync::atomic::AtomicI32;
 
 // Windows-specific: Hide CMD windows when spawning processes
-#[cfg(windows)]
 use std::os::windows::process::CommandExt;
 
 pub fn convert_to_iostore_directory(
@@ -271,7 +270,6 @@ fn detect_asset_type_with_uasset_api(
     let mut cmd = Command::new(&tool_path);
 
     // Hide CMD window on Windows (CREATE_NO_WINDOW flag)
-    #[cfg(windows)]
     cmd.creation_flags(0x08000000);
 
     cmd.arg("detect").arg(uasset_path);
@@ -326,7 +324,6 @@ fn fix_static_mesh_serializesize(
     let mut cmd = Command::new(&tool_path);
 
     // Hide CMD window on Windows (CREATE_NO_WINDOW flag)
-    #[cfg(windows)]
     cmd.creation_flags(0x08000000);
 
     cmd.arg("fix").arg(uasset_path);

@@ -3260,8 +3260,7 @@ async fn open_in_explorer(path: String) -> Result<(), String> {
         return Err(format!("Path does not exist: {}", path_buf.display()));
     }
 
-    #[cfg(target_os = "windows")]
-    {
+
         use std::os::windows::process::CommandExt;
 
         // On Windows, use explorer.exe with /select, to highlight the file
@@ -3284,41 +3283,14 @@ async fn open_in_explorer(path: String) -> Result<(), String> {
             .raw_arg(&select_arg)
             .spawn()
             .map_err(|e| format!("Failed to open explorer: {}", e))?;
-    }
 
-    #[cfg(target_os = "macos")]
-    {
-        // On macOS, use open -R to reveal the file in Finder
-        std::process::Command::new("open")
-            .args(["-R", &path_buf.to_string_lossy()])
-            .spawn()
-            .map_err(|e| format!("Failed to open Finder: {}", e))?;
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        // On Linux, open the parent directory
-        let dir_to_open = if path_buf.is_file() {
-            path_buf
-                .parent()
-                .map(|p| p.to_path_buf())
-                .unwrap_or(path_buf.clone())
-        } else {
-            path_buf.clone()
-        };
-        std::process::Command::new("xdg-open")
-            .arg(&dir_to_open)
-            .spawn()
-            .map_err(|e| format!("Failed to open file manager: {}", e))?;
-    }
 
     Ok(())
 }
 
 #[tauri::command]
 async fn copy_to_clipboard(text: String, window: Window) -> Result<(), String> {
-    #[cfg(target_os = "windows")]
-    {
+
         use std::os::windows::process::CommandExt;
         use std::process::{Command, Stdio};
 
@@ -3339,74 +3311,7 @@ async fn copy_to_clipboard(text: String, window: Window) -> Result<(), String> {
         child
             .wait()
             .map_err(|e| format!("Failed to copy to clipboard: {}", e))?;
-    }
 
-    #[cfg(target_os = "macos")]
-    {
-        use std::io::Write;
-        use std::process::{Command, Stdio};
-
-        let mut child = Command::new("pbcopy")
-            .stdin(Stdio::piped())
-            .spawn()
-            .map_err(|e| format!("Failed to copy to clipboard: {}", e))?;
-
-        if let Some(mut stdin) = child.stdin.take() {
-            stdin
-                .write_all(text.as_bytes())
-                .map_err(|e| format!("Failed to write to clipboard: {}", e))?;
-        }
-
-        child
-            .wait()
-            .map_err(|e| format!("Failed to copy to clipboard: {}", e))?;
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        use std::io::Write;
-        use std::process::{Command, Stdio};
-
-        // Try xclip first, then xsel
-        let result = Command::new("xclip")
-            .args(["-selection", "clipboard"])
-            .stdin(Stdio::piped())
-            .spawn();
-
-        match result {
-            Ok(mut child) => {
-                if let Some(mut stdin) = child.stdin.take() {
-                    stdin
-                        .write_all(text.as_bytes())
-                        .map_err(|e| format!("Failed to write to clipboard: {}", e))?;
-                }
-                child
-                    .wait()
-                    .map_err(|e| format!("Failed to copy to clipboard: {}", e))?;
-            }
-            Err(_) => {
-                let mut child = Command::new("xsel")
-                    .args(["--clipboard", "--input"])
-                    .stdin(Stdio::piped())
-                    .spawn()
-                    .map_err(|e| {
-                        format!(
-                            "Failed to copy to clipboard (neither xclip nor xsel available): {}",
-                            e
-                        )
-                    })?;
-
-                if let Some(mut stdin) = child.stdin.take() {
-                    stdin
-                        .write_all(text.as_bytes())
-                        .map_err(|e| format!("Failed to write to clipboard: {}", e))?;
-                }
-                child
-                    .wait()
-                    .map_err(|e| format!("Failed to copy to clipboard: {}", e))?;
-            }
-        }
-    }
 
     // Emit an event to notify the frontend that the copy was successful
     let _ = window.emit("clipboard-copied", text);
@@ -4590,13 +4495,7 @@ fn is_game_process_running() -> bool {
             }
         }
 
-        #[cfg(target_os = "linux")]
-        for arg in process.cmd() {
-            let arg = arg.to_str().unwrap_or("").to_string();
-            if arg.to_lowercase().contains(game_exe_name) {
-                return true;
-            }
-        }
+
         // Fallback: Check process name() directly
         let process_name = process.name().to_string_lossy().to_lowercase();
         if process_name == game_exe_name {
@@ -4670,7 +4569,6 @@ async fn launch_game(state: State<'_, Arc<Mutex<AppState>>>) -> Result<(), Strin
     info!("Recreated launch_record with value 0 (skip launcher)");
 
     // Launch the game via selected launcher (running with parent admin rights)
-    #[cfg(target_os = "windows")]
     let launch_result = {
         use std::os::windows::process::CommandExt;
         const CREATE_NO_WINDOW: u32 = 0x08000000;
@@ -4696,18 +4594,7 @@ async fn launch_game(state: State<'_, Arc<Mutex<AppState>>>) -> Result<(), Strin
         }
     };
 
-    #[cfg(target_os = "linux")]
-    let launch_result = {
-        if launcher_type == "epic" {
-            let launcher_exe = game_root.join("MarvelRivals_Launcher.exe");
-            Command::new("wine")
-                .arg(&launcher_exe)
-                .current_dir(&game_root)
-                .spawn()
-        } else {
-            Command::new("xdg-open").arg("steam://run/2767030").spawn()
-        }
-    };
+
 
     // Check launch result
     match launch_result {
@@ -4728,19 +4615,7 @@ async fn launch_game(state: State<'_, Arc<Mutex<AppState>>>) -> Result<(), Strin
                     waited += 1000;
 
                     // Check if game process is running
-                    let process_refresh = {
-                        // On Linux, we need full process info because cmdline is required for detection.
-                        // On other platforms, minimal process info is sufficient.
-                        #[cfg(target_os = "linux")]
-                        {
-                            ProcessRefreshKind::everything()
-                        }
-
-                        #[cfg(not(target_os = "linux"))]
-                        {
-                            ProcessRefreshKind::new()
-                        }
-                    };
+                    let process_refresh = ProcessRefreshKind::new();
 
                     let s = System::new_with_specifics(
                         RefreshKind::new().with_processes(process_refresh),
@@ -4748,29 +4623,13 @@ async fn launch_game(state: State<'_, Arc<Mutex<AppState>>>) -> Result<(), Strin
 
                     let mut found = false;
                     for (_pid, process) in s.processes() {
-                        // CMD parsing for linux
-                        #[cfg(target_os = "linux")]
-                        for arg in process.cmd() {
-                            let arg = arg.to_str().unwrap_or("").to_string();
-                            if arg.to_lowercase().contains("marvel-win64-shipping.exe") {
-                                std::thread::sleep(std::time::Duration::from_secs(2));
-                                found = true;
-                                game_started = true;
-                                break;
-                            }
-                        }
-
-                        // for macos and windows
-                        #[cfg(not(target_os = "linux"))]
-                        {
-                            let process_name = process.name().to_string_lossy().to_lowercase();
-                            if process_name == "marvel-win64-shipping.exe" {
-                                info!("Game process detected, waiting 2 more seconds before restoring launch_record");
-                                std::thread::sleep(std::time::Duration::from_secs(2));
-                                found = true;
-                                game_started = true;
-                                break;
-                            }
+                        let process_name = process.name().to_string_lossy().to_lowercase();
+                        if process_name == "marvel-win64-shipping.exe" {
+                            info!("Game process detected, waiting 2 more seconds before restoring launch_record");
+                            std::thread::sleep(std::time::Duration::from_secs(2));
+                            found = true;
+                            game_started = true;
+                            break;
                         }
                     }
 
@@ -5449,15 +5308,7 @@ async fn check_for_updates(window: Window) -> Result<Option<UpdateInfo>, String>
             // Find the appropriate asset for the current platform using RUNTIME detection
             if let Some(assets) = assets {
                 // Runtime OS detection - works correctly even when cross-compiled
-                let platform_pattern = if cfg!(target_os = "windows") {
-                    "Windows"
-                } else if cfg!(target_os = "linux") {
-                    "Linux"
-                } else if cfg!(target_os = "macos") {
-                    "macOS"
-                } else {
-                    ""
-                };
+                let platform_pattern = "Windows";
 
                 // First, try to find a platform-specific asset
                 if let Some(asset) = assets.iter().find(|a| {
@@ -5476,40 +5327,16 @@ async fn check_for_updates(window: Window) -> Result<Option<UpdateInfo>, String>
 
                 // Fallback: if no platform-specific asset found, try generic patterns based on OS
                 if asset_url.is_none() {
-                    if cfg!(target_os = "windows") {
-                        if let Some(asset) = assets.iter().find(|a| {
-                            let name = a["name"].as_str().unwrap_or("");
-                            name.ends_with(".zip")
-                                || name.ends_with(".exe")
-                                || name.ends_with(".msi")
-                        }) {
-                            asset_url = asset["browser_download_url"]
-                                .as_str()
-                                .map(|s| s.to_string());
-                            asset_name = asset["name"].as_str().map(|s| s.to_string());
-                        }
-                    } else if cfg!(target_os = "linux") {
-                        if let Some(asset) = assets.iter().find(|a| {
-                            let name = a["name"].as_str().unwrap_or("");
-                            name.ends_with(".tar.gz")
-                                || name.ends_with(".AppImage")
-                                || name.ends_with(".deb")
-                        }) {
-                            asset_url = asset["browser_download_url"]
-                                .as_str()
-                                .map(|s| s.to_string());
-                            asset_name = asset["name"].as_str().map(|s| s.to_string());
-                        }
-                    } else if cfg!(target_os = "macos") {
-                        if let Some(asset) = assets.iter().find(|a| {
-                            let name = a["name"].as_str().unwrap_or("");
-                            name.ends_with(".zip") || name.ends_with(".dmg")
-                        }) {
-                            asset_url = asset["browser_download_url"]
-                                .as_str()
-                                .map(|s| s.to_string());
-                            asset_name = asset["name"].as_str().map(|s| s.to_string());
-                        }
+                    if let Some(asset) = assets.iter().find(|a| {
+                        let name = a["name"].as_str().unwrap_or("");
+                        name.ends_with(".zip")
+                            || name.ends_with(".exe")
+                            || name.ends_with(".msi")
+                    }) {
+                        asset_url = asset["browser_download_url"]
+                            .as_str()
+                            .map(|s| s.to_string());
+                        asset_name = asset["name"].as_str().map(|s| s.to_string());
                     }
                 }
             }
@@ -5729,22 +5556,15 @@ async fn apply_update(downloaded_path: String, new_version: String, window: Wind
         exe_path
             .file_name()
             .and_then(|n| n.to_str())
-            .unwrap_or(if cfg!(target_os = "windows") {
-                "BentoMod.exe"
-            } else {
-                "BentoMod"
-            });
+            .unwrap_or("BentoMod.exe");
 
     // Determine archive type
     let is_zip = downloaded_path.to_lowercase().ends_with(".zip");
-    let is_tar_gz = downloaded_path.to_lowercase().ends_with(".tar.gz");
 
-    // Use runtime OS detection to create the appropriate updater script
-    if cfg!(target_os = "windows") {
-        // Windows: Create .bat script
-        let updater_script_path = std::env::temp_dir().join("bentomod_updater.bat");
+    // Create the updater script
+    let updater_script_path = std::env::temp_dir().join("bentomod_updater.bat");
 
-        let script_content = if is_zip {
+    let script_content = if is_zip {
             format!(
                 r#"@echo off
 title BentoMod Updater
@@ -5903,241 +5723,20 @@ del "{installer_path}"
         );
 
         // Launch the updater script
-        #[cfg(target_os = "windows")]
-        {
-            use std::os::windows::process::CommandExt;
-            const CREATE_NO_WINDOW: u32 = 0x08000000;
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
 
-            std::process::Command::new("cmd")
-                .args([
-                    "/C",
-                    "start",
-                    "/MIN",
-                    "BentoMod Updater",
-                    &updater_script_path.to_string_lossy(),
-                ])
-                .creation_flags(CREATE_NO_WINDOW)
-                .spawn()
-                .map_err(|e| format!("Failed to launch updater: {}", e))?;
-        }
-    } else if cfg!(target_os = "linux") {
-        // Linux: Create .sh script
-        let linux_script_path = std::env::temp_dir().join("bentomod_updater.sh");
-
-        let linux_script = if is_tar_gz {
-            format!(
-                r#"#!/bin/bash
-echo "============================================"
-echo "BentoMod Portable Update"
-echo "============================================"
-echo ""
-echo "Waiting for BentoMod to close..."
-sleep 2
-
-# Wait for process to exit
-while pgrep -f "{exe_name}" > /dev/null; do
-    echo "Still running, waiting..."
-    sleep 1
-done
-
-echo "BentoMod closed. Starting update..."
-echo ""
-
-# Extract update
-TEMP_DIR="{temp_dir}"
-ARCHIVE_PATH="{archive_path}"
-APP_DIR="{app_dir}"
-
-echo "Extracting update archive..."
-mkdir -p "$TEMP_DIR/extracted"
-tar -xzf "$ARCHIVE_PATH" -C "$TEMP_DIR/extracted"
-
-# Check for nested folder
-EXTRACTED_DIR="$TEMP_DIR/extracted"
-SUBDIR_COUNT=$(find "$EXTRACTED_DIR" -maxdepth 1 -type d | wc -l)
-if [ "$SUBDIR_COUNT" -eq 2 ]; then
-    SUBDIR=$(find "$EXTRACTED_DIR" -maxdepth 1 -type d ! -path "$EXTRACTED_DIR" | head -1)
-    if [ -f "$SUBDIR/BentoMod" ] || [ -f "$SUBDIR/bentomod" ]; then
-        EXTRACTED_DIR="$SUBDIR"
-    fi
-fi
-
-echo "Source: $EXTRACTED_DIR"
-echo "Destination: $APP_DIR"
-echo ""
-
-echo "Copying new files..."
-cp -rf "$EXTRACTED_DIR"/* "$APP_DIR/"
-chmod +x "$APP_DIR/BentoMod" 2>/dev/null || chmod +x "$APP_DIR/bentomod" 2>/dev/null || true
-
-# Flattening migration guard: the new layout places UAssetTool.dll at the root and removes the
-# uassettool folder. Remove the old uassettool folder ONLY when the incoming
-# release ships the exact marker (UAssetTool.dll) at the root AND no longer ships the folder.
-# Hardcode the marker name -- NEVER match *.dll, because Oodle DLLs also live in this folder and a
-# wildcard would falsely "detect AOT" and delete a still-needed UAssetTool binary.
-if [ -f "$EXTRACTED_DIR/UAssetTool.dll" ] && [ ! -d "$EXTRACTED_DIR/uassettool" ]; then
-    rm -rf "$APP_DIR/uassettool" 2>/dev/null
-fi
-# Always-wrong locations (never the resolved tool path) -- safe to clean unconditionally
-rm -f "$APP_DIR/UAssetTool" "$APP_DIR/tools/UAssetTool" "$APP_DIR/tools/uassettool/UAssetTool" 2>/dev/null
-
-echo "Cleaning up..."
-rm -rf "$TEMP_DIR"
-
-echo ""
-echo "============================================"
-echo "Update complete!"
-echo "============================================"
-echo ""
-echo "Launching BentoMod..."
-sleep 2
-"{exe_path}" &
-
-# Delete this script
-rm -f "$0"
-"#,
-                exe_name = exe_name,
-                temp_dir = download_path
-                    .parent()
-                    .unwrap_or(&std::env::temp_dir())
-                    .to_string_lossy(),
-                archive_path = download_path.to_string_lossy(),
-                app_dir = app_dir.to_string_lossy(),
-                exe_path = exe_path.to_string_lossy(),
-            )
-        } else if is_zip {
-            format!(
-                r#"#!/bin/bash
-echo "============================================"
-echo "BentoMod Portable Update"
-echo "============================================"
-echo ""
-echo "Waiting for BentoMod to close..."
-sleep 2
-
-# Wait for process to exit
-while pgrep -f "{exe_name}" > /dev/null; do
-    echo "Still running, waiting..."
-    sleep 1
-done
-
-echo "BentoMod closed. Starting update..."
-echo ""
-
-# Extract update
-TEMP_DIR="{temp_dir}"
-ZIP_PATH="{zip_path}"
-APP_DIR="{app_dir}"
-
-echo "Extracting update archive..."
-mkdir -p "$TEMP_DIR/extracted"
-unzip -o "$ZIP_PATH" -d "$TEMP_DIR/extracted"
-
-# Check for nested folder
-EXTRACTED_DIR="$TEMP_DIR/extracted"
-SUBDIR_COUNT=$(find "$EXTRACTED_DIR" -maxdepth 1 -type d | wc -l)
-if [ "$SUBDIR_COUNT" -eq 2 ]; then
-    SUBDIR=$(find "$EXTRACTED_DIR" -maxdepth 1 -type d ! -path "$EXTRACTED_DIR" | head -1)
-    if [ -f "$SUBDIR/BentoMod" ] || [ -f "$SUBDIR/bentomod" ]; then
-        EXTRACTED_DIR="$SUBDIR"
-    fi
-fi
-
-echo "Source: $EXTRACTED_DIR"
-echo "Destination: $APP_DIR"
-echo ""
-
-echo "Copying new files..."
-cp -rf "$EXTRACTED_DIR"/* "$APP_DIR/"
-chmod +x "$APP_DIR/BentoMod" 2>/dev/null || chmod +x "$APP_DIR/bentomod" 2>/dev/null || true
-
-# Flattening migration guard: the new layout places UAssetTool.dll at the root and removes the
-# uassettool folder. Remove the old uassettool folder ONLY when the incoming
-# release ships the exact marker (UAssetTool.dll) at the root AND no longer ships the folder.
-# Hardcode the marker name -- NEVER match *.dll, because Oodle DLLs also live in this folder and a
-# wildcard would falsely "detect AOT" and delete a still-needed UAssetTool binary.
-if [ -f "$EXTRACTED_DIR/UAssetTool.dll" ] && [ ! -d "$EXTRACTED_DIR/uassettool" ]; then
-    rm -rf "$APP_DIR/uassettool" 2>/dev/null
-fi
-# Always-wrong locations (never the resolved tool path) -- safe to clean unconditionally
-rm -f "$APP_DIR/UAssetTool" "$APP_DIR/tools/UAssetTool" "$APP_DIR/tools/uassettool/UAssetTool" 2>/dev/null
-
-echo "Cleaning up..."
-rm -rf "$TEMP_DIR"
-
-echo ""
-echo "============================================"
-echo "Update complete!"
-echo "============================================"
-echo ""
-echo "Launching BentoMod..."
-sleep 2
-"{exe_path}" &
-
-# Delete this script
-rm -f "$0"
-"#,
-                exe_name = exe_name,
-                temp_dir = download_path
-                    .parent()
-                    .unwrap_or(&std::env::temp_dir())
-                    .to_string_lossy(),
-                zip_path = download_path.to_string_lossy(),
-                app_dir = app_dir.to_string_lossy(),
-                exe_path = exe_path.to_string_lossy(),
-            )
-        } else {
-            // For AppImage or other executables
-            format!(
-                r#"#!/bin/bash
-echo "Waiting for BentoMod to close..."
-sleep 2
-
-while pgrep -f "{exe_name}" > /dev/null; do
-    sleep 1
-done
-
-echo "Installing update..."
-chmod +x "{installer_path}"
-"{installer_path}"
-
-rm -f "{installer_path}"
-rm -f "$0"
-"#,
-                exe_name = exe_name,
-                installer_path = download_path.to_string_lossy(),
-            )
-        };
-
-        std::fs::write(&linux_script_path, &linux_script)
-            .map_err(|e| format!("Failed to write Linux updater script: {}", e))?;
-
-        info!("Created Linux updater script at: {:?}", linux_script_path);
-
-        // Make script executable and launch it
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::PermissionsExt;
-            let mut perms = std::fs::metadata(&linux_script_path)
-                .map_err(|e| format!("Failed to get script metadata: {}", e))?
-                .permissions();
-            perms.set_mode(0o755);
-            std::fs::set_permissions(&linux_script_path, perms)
-                .map_err(|e| format!("Failed to set script permissions: {}", e))?;
-
-            std::process::Command::new("bash")
-                .arg(&linux_script_path)
-                .spawn()
-                .map_err(|e| format!("Failed to launch updater: {}", e))?;
-        }
-
-        #[cfg(not(unix))]
-        {
-            return Err("Linux update not supported on this build".to_string());
-        }
-    } else {
-        return Err("Unsupported operating system for auto-update".to_string());
-    }
+        std::process::Command::new("cmd")
+            .args([
+                "/C",
+                "start",
+                "/MIN",
+                "BentoMod Updater",
+                &updater_script_path.to_string_lossy(),
+            ])
+            .creation_flags(CREATE_NO_WINDOW)
+            .spawn()
+            .map_err(|e| format!("Failed to launch updater: {}", e))?;
 
     info!("Updater script launched, app will update on close");
 
@@ -7183,7 +6782,7 @@ async fn check_single_mod_conflicts(
 /// Registers the bentomod:// protocol handler in Windows Registry (HKCU)
 /// This enables the browser extension to communicate with the app.
 /// Safe to call on every startup - it will just update the path if needed.
-#[cfg(target_os = "windows")]
+
 fn register_protocol_handler() -> Result<(), Box<dyn std::error::Error>> {
     use winreg::enums::*;
     use winreg::RegKey;
@@ -7214,72 +6813,7 @@ fn register_protocol_handler() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[cfg(target_os = "linux")]
-fn register_protocol_handler() -> Result<(), Box<dyn std::error::Error>> {
-    // On Linux, register the protocol handler via .desktop file
-    // This creates a user-local .desktop file in ~/.local/share/applications/
 
-    let exe_path = std::env::current_exe()?;
-    let exe_path_str = exe_path.to_string_lossy();
-
-    // Create the .desktop file content
-    let desktop_content = format!(
-        r#"[Desktop Entry]
-Type=Application
-Name=BentoMod
-Comment=Marvel Rivals Mod Manager
-Exec="{}" %u
-Icon=bentomod
-Terminal=false
-Categories=Game;Utility;
-MimeType=x-scheme-handler/bentomod;
-StartupNotify=true
-"#,
-        exe_path_str
-    );
-
-    // Get the applications directory
-    if let Some(home) = dirs::home_dir() {
-        let applications_dir = home.join(".local/share/applications");
-        std::fs::create_dir_all(&applications_dir)?;
-
-        let desktop_file = applications_dir.join("bentomod.desktop");
-        std::fs::write(&desktop_file, desktop_content)?;
-
-        // Update the MIME database to register the handler
-        // This is done via xdg-mime or update-desktop-database
-        let _ = std::process::Command::new("update-desktop-database")
-            .arg(&applications_dir)
-            .output();
-
-        // Also try to set as default handler
-        let _ = std::process::Command::new("xdg-mime")
-            .args(["default", "bentomod.desktop", "x-scheme-handler/bentomod"])
-            .output();
-
-        info!(
-            "Registered bentomod:// protocol handler for Linux: {}",
-            exe_path_str
-        );
-    }
-
-    Ok(())
-}
-
-#[cfg(target_os = "macos")]
-fn register_protocol_handler() -> Result<(), Box<dyn std::error::Error>> {
-    // On macOS, protocol handlers are registered via Info.plist in the app bundle
-    // This is typically done at build time, not runtime
-    // For now, just log that it's not implemented
-    info!("macOS protocol handler registration is handled via Info.plist at build time");
-    Ok(())
-}
-
-#[cfg(not(any(target_os = "windows", target_os = "linux", target_os = "macos")))]
-fn register_protocol_handler() -> Result<(), Box<dyn std::error::Error>> {
-    // No-op on other platforms
-    Ok(())
-}
 
 // ============================================================================
 // DEEP LINK PROTOCOL HANDLER

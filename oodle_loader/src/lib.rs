@@ -95,14 +95,7 @@ mod oodle_lz {
         unsafe extern "system" fn(compressor: Compressor, rawSize: usize) -> usize;
 }
 
-#[cfg(target_os = "linux")]
-const OODLE_LIB_NAME: &str = "liboo2corelinux64.so.9";
-#[cfg(target_os = "linux")]
-const OODLE_DOWNLOAD_URL: &str = "https://github.com/new-world-tools/go-oodle/releases/download/v0.2.3-files/liboo2corelinux64.so.9";
-
-#[cfg(windows)]
 const OODLE_LIB_NAME: &str = "oo2core_9_win64.dll";
-#[cfg(windows)]
 const OODLE_DOWNLOAD_URL: &str = "https://github.com/new-world-tools/go-oodle/releases/download/v0.2.3-files/oo2core_9_win64.dll";
 
 /// Minimum valid size for the Oodle DLL (around 600KB for Windows)

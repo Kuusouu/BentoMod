@@ -426,9 +426,6 @@ pub fn find_marvel_rivals() -> Option<PathBuf> {
 /// Enhanced to check registry and multiple common locations.
 fn get_steam_library_paths() -> Vec<PathBuf> {
     let mut vdf_paths_to_check: Vec<PathBuf> = Vec::new();
-
-    #[cfg(target_os = "windows")]
-    {
         // Try to get Steam path from Windows registry first
         if let Some(steam_path) = get_steam_path_from_registry() {
             let vdf = steam_path.join("steamapps/libraryfolders.vdf");
@@ -455,16 +452,6 @@ fn get_steam_library_paths() -> Vec<PathBuf> {
                 vdf_paths_to_check.push(vdf);
             }
         }
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        // Expand home directory properly
-        if let Some(home) = dirs::home_dir() {
-            vdf_paths_to_check.push(home.join(".steam/steam/steamapps/libraryfolders.vdf"));
-            vdf_paths_to_check.push(home.join(".local/share/Steam/steamapps/libraryfolders.vdf"));
-        }
-    }
 
     // Find first existing VDF file
     let vdf_path = vdf_paths_to_check.into_iter().find(|p| p.exists());
@@ -496,7 +483,6 @@ fn get_steam_library_paths() -> Vec<PathBuf> {
 }
 
 /// Get Steam installation path from Windows registry
-#[cfg(target_os = "windows")]
 fn get_steam_path_from_registry() -> Option<PathBuf> {
     use std::process::Command;
 
@@ -527,10 +513,5 @@ fn get_steam_path_from_registry() -> Option<PathBuf> {
         }
     }
 
-    None
-}
-
-#[cfg(not(target_os = "windows"))]
-fn get_steam_path_from_registry() -> Option<PathBuf> {
     None
 }
