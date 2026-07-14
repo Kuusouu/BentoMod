@@ -81,26 +81,8 @@ jobs:
         working-directory: bentomod
         run: npm install
 
-      - name: Cache Cargo Registry
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-registry-
-
-      - name: Cache Rust Build (target folder)
-        uses: actions/cache@v4
-        with:
-          path: target/
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock', 'Cargo.toml', 'bentomod/tauri.conf.json', 'bentomod/package.json') }}-${{ hashFiles('**/*.rs') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock', 'Cargo.toml', 'bentomod/tauri.conf.json', 'bentomod/package.json') }}-
-            ${{ runner.os }}-cargo-target-
+      - name: Cache Rust dependencies
+        uses: swatinem/rust-cache@v2
 
       - name: Install sccache
         uses: mozilla-actions/sccache-action@v0.0.4
