@@ -23,7 +23,7 @@ Write-Host ""
 
 try {
     Write-Host "Checking for running instances..." -ForegroundColor Yellow
-    $running = Get-Process -Name "BentoMod", "RepakX" -ErrorAction SilentlyContinue
+    $running = Get-Process -Name "BentoMod" -ErrorAction SilentlyContinue
     if ($running) {
         Write-Host "      Closing BentoMod..." -ForegroundColor DarkGray
         $running | Stop-Process -Force
