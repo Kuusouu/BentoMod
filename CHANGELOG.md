@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-07-14
+
+### Changed
+- Removed all platform-specific code, dependencies, and conditionals for Linux and macOS, making BentoMod fully optimized as a Windows-only application.
+- Cleaned up project infrastructure, removing the legacy website, unused scripts (`Build-Website.ps1`), and obsolete CI workflows.
+
+### Fixed
+- Fixed self-update mechanism to correctly sync and update `DisplayVersion` in the Windows Registry.
+- Removed legacy "RepakX" process termination in the `Install-BentoMod.ps1` script.
+
 ## [1.1.2] - 2026-07-13
 
 ### Added
