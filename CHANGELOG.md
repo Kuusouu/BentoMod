@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Removed all platform-specific code, dependencies, and conditionals for Linux and macOS, making BentoMod fully optimized as a Windows-only application.
-- Cleaned up project infrastructure, removing the legacy website, unused scripts (`Build-Website.ps1`), and obsolete CI workflows.
+- Cleaned up project infrastructure, removing the legacy website, unused scripts, and obsolete CI workflows.
 
 ### Fixed
 - Fixed self-update mechanism to correctly sync and update `DisplayVersion` in the Windows Registry.

@@ -4,7 +4,6 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-shell';
 import { IoMdRefresh, IoIosSkipForward } from "react-icons/io";
-import { RiFileZipFill } from "react-icons/ri";
 import { MdRemoveModerator } from "react-icons/md";
 import Switch from './ui/Switch';
 import Progress from './ui/Progress';
@@ -16,10 +15,7 @@ type ModRecord = {
     enabled?: boolean;
 };
 
-type RecompressProgress = {
-    current: number;
-    total: number;
-};
+
 
 type ToolsPanelProps = {
     onClose: () => void;
@@ -36,10 +32,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
     const [isTogglingSigBypasser, setIsTogglingSigBypasser] = useState(false);
     const [sigBypasserStatusMsg, setSigBypasserStatusMsg] = useState('');
     const [sigBypasserState, setSigBypasserState] = useState<string>('NotInstalled');
-    const [isRecompressing, setIsRecompressing] = useState(false);
-    const [recompressStatus, setRecompressStatus] = useState('');
-    const [recompressResult, setRecompressResult] = useState<any | null>(null);
-    const [recompressProgress, setRecompressProgress] = useState<RecompressProgress>({ current: 0, total: 0 });
+
     const [showThanosSnap, setShowThanosSnap] = useState<number | null>(null); // null or timestamp for cache-busting
     const [thanosIsFading, setThanosIsFading] = useState(false);
 
@@ -130,28 +123,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
         }
     }, [charUpdateStatus]);
 
-    // Clear recompress status after 5 seconds
-    useEffect(() => {
-        if (recompressStatus && !isRecompressing) {
-            const timer = setTimeout(() => {
-                setRecompressStatus('');
-            }, 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [recompressStatus, isRecompressing]);
 
-    // Listen for recompress progress events
-    useEffect(() => {
-        const unlisten = listen('recompress_progress', (event) => {
-            const { current, total, status } = event.payload as any;
-            setRecompressProgress({ current, total });
-            setRecompressStatus(`${status} (${current}/${total})`);
-        });
-
-        return () => {
-            unlisten.then(f => f());
-        };
-    }, []);
 
     const handleUpdateCharacterData = async () => {
         setIsUpdatingChars(true);
@@ -203,29 +175,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
         }
     };
 
-    const handleReCompress = async () => {
-        setIsRecompressing(true);
-        setRecompressStatus('Scanning mods...');
-        setRecompressResult(null);
-        try {
-            const result = await invoke('recompress_mods') as any;
-            setRecompressResult(result);
-            if (result.recompressed > 0) {
-                setRecompressStatus(`Recompressed ${result.recompressed} mod(s)! (${result.already_oodle} already compressed)`);
-            } else if (result.already_oodle === result.total_scanned) {
-                setRecompressStatus('All mods already use Oodle compression');
-            } else if (result.total_scanned === 0) {
-                setRecompressStatus('No mods found to scan');
-            } else {
-                setRecompressStatus(`Scanned ${result.total_scanned} mods - ${result.already_oodle} already compressed`);
-            }
-        } catch (error) {
-            setRecompressStatus(`Error: ${error}`);
-        } finally {
-            setIsRecompressing(false);
-            setRecompressProgress({ current: 0, total: 0 });
-        }
-    };
+
 
     return (
         <>
@@ -380,45 +330,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
                             </div>
                         </div>
 
-                        <div className="setting-section">
-                            <h3>ReCompress</h3>
-                            <div className="setting-group">
-                                <p style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '0.5rem' }}>
-                                    Apply Oodle compression to all IOStore bundles paked with the old Bento GUI.
-                                </p>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button
-                                        onClick={handleReCompress}
-                                        disabled={isRecompressing}
-                                        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                                    >
-                                        <RiFileZipFill size={16} className={isRecompressing ? 'spin-animation' : ''} />
-                                        {isRecompressing ? 'Scanning...' : 'ReCompress'}
-                                    </button>
-                                </div>
-                                {isRecompressing && recompressProgress.total > 0 && (
-                                    <div style={{ marginTop: '0.75rem' }}>
-                                        <Progress
-                                            value={recompressProgress.current}
-                                            maxValue={recompressProgress.total}
-                                            size="md"
-                                            color="primary"
-                                            showValueLabel
-                                            isStriped
-                                        />
-                                    </div>
-                                )}
-                                {recompressStatus && (
-                                    <p style={{
-                                        fontSize: '0.85rem',
-                                        marginTop: '0.5rem',
-                                        color: recompressStatus.includes('Error') ? '#ff5252' : '#4CAF50'
-                                    }}>
-                                        {recompressStatus}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
+
 
                         <div className="setting-section">
                             <h3>Character LODs Thanos</h3>
