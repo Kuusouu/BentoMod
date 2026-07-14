@@ -11,8 +11,6 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: true,
-    // Handle SPA routes for secondary windows
-    historyApiFallback: true,
   },
   // Ensure all routes serve index.html
   appType: 'spa',
