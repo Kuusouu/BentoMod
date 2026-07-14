@@ -5711,7 +5711,7 @@ async fn download_update(
 /// Apply a downloaded update
 /// This creates an updater script and schedules it to run after the app closes
 #[tauri::command]
-async fn apply_update(downloaded_path: String, window: Window) -> Result<(), String> {
+async fn apply_update(downloaded_path: String, new_version: String, window: Window) -> Result<(), String> {
     info!("Applying update from: {}", downloaded_path);
 
     let download_path = PathBuf::from(&downloaded_path);
@@ -5840,6 +5840,9 @@ if exist "{app_dir}\tools\uassettool\UAssetTool.exe" del /f /q "{app_dir}\tools\
 echo Cleaning up temporary files...
 rd /s /q "{temp_dir}" 2>nul
 
+echo Updating Windows Registry...
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\BentoMod" /v "DisplayVersion" /t REG_SZ /d "{new_version}" /f >nul 2>nul
+
 echo.
 echo ============================================
 echo Update complete!
@@ -5861,6 +5864,7 @@ start "" "{exe_path}"
                 zip_path = download_path.to_string_lossy().replace('/', "\\"),
                 app_dir = app_dir.to_string_lossy().replace('/', "\\"),
                 exe_path = exe_path.to_string_lossy().replace('/', "\\"),
+                new_version = new_version,
             )
         } else {
             format!(

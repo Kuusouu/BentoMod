@@ -706,11 +706,11 @@ function App() {
   };
 
   const handleApplyUpdate = async () => {
-    if (!downloadedUpdatePath) return;
+    if (!downloadedUpdatePath || !updateInfo) return;
 
     try {
-      console.debug('[Updates] Applying update and handing off to backend auto-exit flow', { downloadedUpdatePath });
-      await invoke('apply_update', { downloadedPath: downloadedUpdatePath });
+      console.debug('[Updates] Applying update and handing off to backend auto-exit flow', { downloadedUpdatePath, newVersion: updateInfo.latest });
+      await invoke('apply_update', { downloadedPath: downloadedUpdatePath, newVersion: updateInfo.latest });
     } catch (error) {
       console.error('Apply update failed:', error);
       alert.error('Update Failed', String(error));
