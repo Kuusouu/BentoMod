@@ -1,53 +1,65 @@
-# Changelog
+# BentoMod Changelog
 
-All notable changes to this project will be documented in this file.
+All our tasty little updates will be packed into this adorable bento box!
+
+## [1.2.2] - 2026-07-14
+
+### Freshly Prepared
+- **Mod Backup Feature**: Pack all your favorite mods into a little zipped takeaway box!
+- Includes a super fast progress bar and a cutesy notification to let you know when your order is ready! 
+- Safely remembers exactly when you last packed your mods with a shiny new timestamp!
+- Yes I'm looking at you...whoever accidentally lost all of their mods by clearing local files in the launcher...
+
+### Kitchen Fixes
+- Fixed a sneaky little bug where the app would get stuck during preparation. The kitchen is back open!
+- Updated the backup icon so it matches perfectly with the rest of our cute tool buttons.
 
 ## [1.2.1] - 2026-07-14
 
-### Added
-- Added a cute new ANSI art welcome banner (complete with a bento box) to the Windows installer.
+### Freshly Prepared
+- Added an adorable ANSI art welcome banner (complete with a bento box!) to the Windows installer!
 
-### Removed
-- Removed the legacy ReCompress tool from both the backend commands and the Tools Panel UI, as recompression is now handled dynamically.
+### Kitchen Cleanup
+- Swept away the legacy ReCompress tool from the kitchen, since we handle all the squishing dynamically now!
 
 ## [1.2.0] - 2026-07-14
 
-### Changed
-- Removed all platform-specific code, dependencies, and conditionals for Linux and macOS, making BentoMod fully optimized as a Windows-only application.
-- Cleaned up project infrastructure, removing the legacy website, unused scripts, and obsolete CI workflows.
+### Recipe Tweaks
+- Made BentoMod an exclusive Windows-only treat! We removed all the extra fluff for macOS and Linux to keep our kitchen super tidy!
+- Cleaned out the old dusty shelves (removed legacy website, unused scripts, and old CI workflows).
 
-### Fixed
-- Fixed self-update mechanism to correctly sync and update `DisplayVersion` in the Windows Registry.
-- Removed legacy "RepakX" process termination in the `Install-BentoMod.ps1` script.
+### Kitchen Fixes
+- Taught the self-update mechanism how to correctly sync the `DisplayVersion` in the Windows Registry!
+- Asked the `Install-BentoMod.ps1` script nicely to stop worrying about the old "RepakX" process.
 
 ## [1.1.2] - 2026-07-13
 
-### Added
-- Added quick filters in the left sidebar to filter mods by status (All, Enabled, Disabled).
+### Freshly Prepared
+- Snapped some cute quick-filters to the sidebar so you can sort your mods by status (All, Enabled, Disabled) in a blink!
 
 ## [1.1.1] - 2026-07-13
 
-### Fixed
-- Fixed "Move to..." actions from the mod context menu and multi-select toolbar to display full folder path hierarchies instead of single folder names.
-- Completely removed the hidden April Fools prank logic (Comic Sans font forcing, layout flashes, and mouse-dodging drop targets).
+### Kitchen Fixes
+- Fixed "Move to..." actions so they show you the full, beautiful family tree of your folders instead of just the baby folder's name!
+- Cleaned up the silly April Fools prank logic (bye-bye Comic Sans and bouncy drop targets)!
 
 ## [1.1.0] - 2026-07-13
 
-### Added
-- Added full support for setting custom HEX accent colors via the settings menu. The entire app, including the Aurora background glow, will dynamically theme itself to your color.
+### Freshly Prepared
+- Full custom HEX color support! Paint your bento box whatever color makes your heart happy, and watch the Aurora glow match your vibe!
 
-### Changed
-- Clarified the "Parallel Boost Mode" toggle into "Processing Speed" for better transparency.
+### Recipe Tweaks
+- Renamed "Parallel Boost Mode" to "Processing Speed" so it makes more sense to everyone!
 
-### Removed
-- Completely removed all traces of the Discord Rich Presence integration to improve privacy and reduce bloat.
-- Removed the "Rat Mode" Easter egg joke when switching to Light Mode.
+### Kitchen Cleanup
+- Gently removed the Discord Rich Presence integration to keep your gaming private and our app lightweight!
+- Said goodbye to the "Rat Mode" Easter egg.
 
 ## [1.0.0] - 2026-07-13
 
-### Added
-- Welcome to **BentoMod v1.0.0**!
-- Complete rebrand to a lightweight, premium Mod Manager.
-- Fully isolated infrastructure and independent auto-updater.
-- Removed legacy bloatware (Discord Widget, P2P Mod Sharing).
-- Fixed upstream sources for the Hero ID database and VFX Updater mappings.
+### Freshly Prepared
+- Welcome to **BentoMod v1.0.0**! The grand opening!
+- We did a full makeover to become the cutest, most premium Mod Manager ever!
+- Fully independent auto-updater and isolated kitchen infrastructure!
+- Tossed out all the legacy bloatware (Discord Widget, P2P Mod Sharing).
+- Polished up the connections to the Hero ID database and VFX Updater!
