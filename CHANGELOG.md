@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [1.2.1] - 2026-07-14
 
+### Added
+- Added a cute new ANSI art welcome banner (complete with a bento box) to the Windows installer.
+
 ### Removed
 - Removed the legacy ReCompress tool from both the backend commands and the Tools Panel UI, as recompression is now handled dynamically.
 

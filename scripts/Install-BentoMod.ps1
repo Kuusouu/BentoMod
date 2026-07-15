@@ -17,9 +17,21 @@ $shortcutPath = Join-Path $startMenuPath "BentoMod.lnk"
 # Use a unique temp directory to prevent conflicts
 $tempDir = Join-Path $env:TEMP "BentoMod-Install-$([guid]::NewGuid())"
 
-Write-Host ""
-Write-Host "=== BentoMod Installer ===" -ForegroundColor Cyan
-Write-Host ""
+function Show-WelcomeBanner {
+    Clear-Host
+    $banner = @'
+██████╗ ███████╗███╗   ██╗████████╗ ██████╗ ███╗   ███╗ ██████╗ ██████╗   ╔══════════╦═══════╗
+██╔══██╗██╔════╝████╗  ██║╚══██╔══╝██╔═══██╗████╗ ████║██╔═══██╗██╔══██╗  ║≈≈≈≈≈≈≈≈≈≈║ (^.^) ║
+██████╔╝█████╗  ██╔██╗ ██║   ██║   ██║   ██║██╔████╔██║██║   ██║██║  ██║  ║≈≈≈≈≈≈≈≈≈≈║ rice! ║
+██╔══██╗██╔══╝  ██║╚██╗██║   ██║   ██║   ██║██║╚██╔╝██║██║   ██║██║  ██║  ╠═══╦══════╬═══════╣
+██████╔╝███████╗██║ ╚████║   ██║   ╚██████╔╝██║ ╚═╝ ██║╚██████╔╝██████╔╝  ║o o║~ ~ ~ ║ . v . ║
+╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝    ╚═════╝ ╚═╝     ╚═╝ ╚═════╝ ╚═════╝   ╚═══╩══════╩═══════╝
+'@
+    Write-Host $banner -ForegroundColor Cyan
+    Write-Host "`nWelcome to BentoMod Installer!" -ForegroundColor Green
+}
+
+Show-WelcomeBanner
 
 try {
     Write-Host "Checking for running instances..." -ForegroundColor Yellow
@@ -50,13 +62,13 @@ try {
     New-Item -ItemType Directory -Path $tempDir | Out-Null
 
     $zipPath = Join-Path $tempDir $asset.name
-    
+
     # Temporarily disable progress bar to massively speed up downloads in PowerShell 5.1
     $oldProgress = $ProgressPreference
     $ProgressPreference = 'SilentlyContinue'
     Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath -UseBasicParsing
     $ProgressPreference = $oldProgress
-    
+
     Write-Host "      Download complete." -ForegroundColor Green
 
     # Extract the zip
@@ -88,7 +100,7 @@ try {
         # Fallback if no BentoMod*.exe is found, just find the first exe
         $exe = Get-ChildItem -Path $installDir -Filter "*.exe" -Recurse | Select-Object -First 1
     }
-    
+
     if (-not $exe) {
         Write-Error "No .exe found after extraction. Aborting."
         exit 1
