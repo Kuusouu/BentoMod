@@ -28,6 +28,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
     const [isUpdatingChars, setIsUpdatingChars] = useState(false);
     const [charUpdateStatus, setCharUpdateStatus] = useState('');
     const [isSkippingLauncher, setIsSkippingLauncher] = useState(false);
+    const [lastBackupDate, setLastBackupDate] = useState<string | null>(() => localStorage.getItem('lastBackupDate'));
     const [skipLauncherStatus, setSkipLauncherStatus] = useState('');
     const [isLauncherPatchEnabled, setIsLauncherPatchEnabled] = useState(false);
     const [isTogglingSigBypasser, setIsTogglingSigBypasser] = useState(false);
@@ -198,6 +199,9 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
 
             if (selectedPath) {
                 await invoke('backup_mods', { outputZipPath: selectedPath });
+                const backupTime = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) + ' at ' + now.toLocaleTimeString('en-US');
+                setLastBackupDate(backupTime);
+                localStorage.setItem('lastBackupDate', backupTime);
             }
         } catch (error) {
             console.error('Failed to start backup:', error);
@@ -241,6 +245,9 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
                                         Backup Mods Directory
                                     </button>
                                 </div>
+                                <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '0.5rem' }}>
+                                    {lastBackupDate ? `Last backup was ${lastBackupDate}` : "No backup data yet"}
+                                </p>
                             </div>
                         </div>
                         <div className="setting-section">
