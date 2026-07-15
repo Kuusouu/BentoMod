@@ -28,6 +28,8 @@ use tauri::{Emitter, Listener, Manager, State, Window};
 use uasset_detection::detect_texture_files_async;
 use utils::find_marvel_rivals;
 use walkdir::WalkDir;
+use zip::write::SimpleFileOptions;
+use zip::ZipWriter;
 
 // ============================================================================
 // STATE MANAGEMENT
@@ -6573,6 +6575,90 @@ fn handle_deep_link_url(url: &str, app_handle: &tauri::AppHandle) {
 // MAIN
 // ============================================================================
 
+#[derive(Clone, serde::Serialize)]
+struct BackupProgressPayload {
+    percentage: u8,
+    status: String,
+}
+
+#[tauri::command]
+async fn backup_mods(
+    output_zip_path: String,
+    state: tauri::State<'_, std::sync::Arc<std::sync::Mutex<AppState>>>,
+    window: tauri::Window,
+) -> Result<(), String> {
+    let mods_dir = {
+        let state = state.lock().unwrap();
+        state.game_path.clone()
+    };
+
+    if !mods_dir.exists() {
+        return Err("Mods directory does not exist. Please check your path in Settings.".to_string());
+    }
+
+    tokio::task::spawn_blocking(move || {
+        let zip_file = std::fs::File::create(&output_zip_path)
+            .map_err(|e| format!("Failed to create backup file: {}", e))?;
+        
+        let mut zip = ZipWriter::new(zip_file);
+        let options = SimpleFileOptions::default()
+            .compression_method(zip::CompressionMethod::Stored)
+            .unix_permissions(0o755);
+
+        // Collect all files to count for progress
+        let entries: Vec<_> = walkdir::WalkDir::new(&mods_dir)
+            .into_iter()
+            .filter_map(|e| e.ok())
+            .filter(|e| e.file_type().is_file())
+            .collect();
+
+        let total_files = entries.len();
+        if total_files == 0 {
+            return Err("No mods found to backup.".to_string());
+        }
+
+        let mut last_emit_time = std::time::Instant::now();
+
+        for (index, entry) in entries.iter().enumerate() {
+            let path = entry.path();
+            let name = path.strip_prefix(&mods_dir)
+                .map_err(|e| format!("Path prefix strip error: {}", e))?;
+            
+            let name_str = name.to_string_lossy().replace('\\', "/");
+            
+            zip.start_file(name_str.clone(), options)
+                .map_err(|e| format!("Failed to start zip file entry: {}", e))?;
+
+            let mut file = std::fs::File::open(path)
+                .map_err(|e| format!("Failed to open mod file: {}", e))?;
+
+            std::io::copy(&mut file, &mut zip)
+                .map_err(|e| format!("Failed to write to zip archive: {}", e))?;
+
+            // Throttle progress events (every 500ms)
+            if last_emit_time.elapsed().as_millis() > 500 {
+                let percentage = ((index as f32 / total_files as f32) * 100.0) as u8;
+                let status = format!("Backing up: {}", name_str);
+                let _ = window.emit("backup_progress", BackupProgressPayload { percentage, status });
+                last_emit_time = std::time::Instant::now();
+            }
+        }
+
+        zip.finish()
+            .map_err(|e| format!("Failed to finalize zip archive: {}", e))?;
+
+        // Completion
+        let _ = window.emit("backup_progress", BackupProgressPayload {
+            percentage: 100,
+            status: "Backup completed!".to_string(),
+        });
+
+        Ok(())
+    })
+    .await
+    .map_err(|e| format!("Task execution error: {}", e))?
+}
+
 fn main() {
     if let Ok(exe_path) = std::env::current_exe() {
         if let Some(exe_dir) = exe_path.parent() {
@@ -6757,6 +6843,7 @@ fn main() {
             get_skip_launcher_status,
             get_sig_bypasser_status,
             toggle_sig_bypasser,
+            backup_mods,
 
             get_app_version,
             check_for_updates,

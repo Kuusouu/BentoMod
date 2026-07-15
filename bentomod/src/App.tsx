@@ -221,6 +221,9 @@ type AppSettings = {
 }
 
 function App() {
+  const alert = useAlert()
+  
+  const [backupProgress, setBackupProgress] = useState<{ percentage: number; status: string } | null>(null);
 
   const [hideSuffix, setHideSuffix] = useState(false);
   const [autoOpenDetails, setAutoOpenDetails] = useState(false);
@@ -418,9 +421,6 @@ function App() {
   // Bulk delete state
   const [isDeletingBulk, setIsDeletingBulk] = useState(false)
   const deleteBulkTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-
-  const alert = useAlert();
 
   const openVfxUpdaterWindow = async (modUtocPath?: string | null) => {
     if (modUtocPath) {
@@ -1187,6 +1187,14 @@ function App() {
       alert.error('Extension Error', event.payload)
     })
 
+    // Listen for backup progress
+    const unlistenBackup = listen('backup_progress', (event: any) => {
+      setBackupProgress(event.payload)
+      if (event.payload.percentage === 100) {
+        setTimeout(() => setBackupProgress(null), 5000)
+      }
+    })
+
     // Listen for general toast notifications from Rust backend
     const unlistenToast = listen('toast_notification', (event: any) => {
       const { type, title, description, duration } = event.payload
@@ -1284,6 +1292,7 @@ function App() {
       unlistenDirChanged.then(f => f())
       unlistenExtensionMod.then(f => f())
       unlistenExtensionError.then(f => f())
+      unlistenBackup.then(f => f())
       unlistenToast.then(f => f())
       unlistenCrash.then(f => f())
       document.removeEventListener('dragover', preventDefault)
@@ -3791,6 +3800,46 @@ function App() {
           />
         )
       }
+
+      <AnimatePresence>
+        {backupProgress && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            style={{
+              position: 'fixed',
+              bottom: '24px',
+              right: '24px',
+              zIndex: 9999,
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              padding: '16px',
+              width: '320px',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text)' }}>Backing Up Mods...</span>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{backupProgress.percentage}%</span>
+            </div>
+            <div style={{ height: '6px', background: 'var(--surface-light)', borderRadius: '4px', overflow: 'hidden' }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${backupProgress.percentage}%` }}
+                style={{ height: '100%', background: 'var(--accent-color)' }}
+              />
+            </div>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {backupProgress.status}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <ShortcutsHelpModal
         isOpen={panels.shortcuts}
