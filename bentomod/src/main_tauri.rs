@@ -6635,8 +6635,8 @@ async fn backup_mods(
             std::io::copy(&mut file, &mut zip)
                 .map_err(|e| format!("Failed to write to zip archive: {}", e))?;
 
-            // Throttle progress events (every 500ms)
-            if last_emit_time.elapsed().as_millis() > 500 {
+            // Throttle progress events (every 100ms)
+            if last_emit_time.elapsed().as_millis() > 100 {
                 let percentage = ((index as f32 / total_files as f32) * 100.0) as u8;
                 let status = format!("Backing up: {}", name_str);
                 let _ = window.emit("backup_progress", BackupProgressPayload { percentage, status });

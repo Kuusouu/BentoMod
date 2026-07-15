@@ -5,7 +5,7 @@ import { listen } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-shell';
 import { save } from '@tauri-apps/plugin-dialog';
 import { IoMdRefresh, IoIosSkipForward } from "react-icons/io";
-import { MdRemoveModerator } from "react-icons/md";
+import { MdRemoveModerator, MdBackup } from "react-icons/md";
 import Switch from './ui/Switch';
 import Progress from './ui/Progress';
 import './SettingsPanel.css'; // Reuse the same styles
@@ -181,12 +181,13 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
     const handleBackupMods = async () => {
         try {
             const now = new Date();
-            const dateStr = now.getFullYear() + 
-                String(now.getMonth() + 1).padStart(2, '0') + 
+            const dateStr = now.getFullYear() +
+                String(now.getMonth() + 1).padStart(2, '0') +
                 String(now.getDate()).padStart(2, '0');
-            const timeStr = String(now.getHours()).padStart(2, '0') + 
-                String(now.getMinutes()).padStart(2, '0');
-                
+            const timeStr = String(now.getHours()).padStart(2, '0') +
+                String(now.getMinutes()).padStart(2, '0') +
+                String(now.getSeconds()).padStart(2, '0');
+
             const defaultFilename = `MarvelRivalsMods_Backup_${dateStr}_${timeStr}.zip`;
 
             const selectedPath = await save({
@@ -223,20 +224,23 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
                             <h3>Backup Mods</h3>
                             <div className="setting-group">
                                 <p style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '0.5rem' }}>
-                                    Create a fast ZIP backup of all your installed mods.
+                                    Create a fast zipped backup of all your installed mods.
                                 </p>
-                                <button
-                                    onClick={handleBackupMods}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '6px',
-                                        padding: '0.4rem 1rem',
-                                        fontSize: '0.9rem'
-                                    }}
-                                >
-                                    Backup Mods Directory
-                                </button>
+                                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                                    <button
+                                        onClick={handleBackupMods}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '6px',
+                                            padding: '0.4rem 1rem',
+                                            fontSize: '0.9rem'
+                                        }}
+                                    >
+                                        <MdBackup size={16} />
+                                        Backup Mods Directory
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div className="setting-section">
@@ -488,4 +492,3 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
         </>
     );
 }
-
