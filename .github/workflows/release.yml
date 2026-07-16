@@ -59,33 +59,31 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "8.0.x"
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
-
-      # ========== Caching ==========
-      - name: Cache Node.js modules
-        uses: actions/cache@v4
-        with:
-          path: bentomod/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('bentomod/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          cache: 'pnpm'
+          cache-dependency-path: bentomod/pnpm-lock.yaml
 
       - name: Install Frontend Dependencies
         working-directory: bentomod
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Cache Rust dependencies
         uses: swatinem/rust-cache@v2
 
       - name: Install sccache
-        uses: mozilla-actions/sccache-action@v0.0.4
+        uses: mozilla-actions/sccache-action@v0.0.10
 
       - name: Cache sccache
         uses: actions/cache@v4
@@ -134,7 +132,7 @@ jobs:
       # ========== Build Application ==========
       - name: Build Frontend
         working-directory: bentomod
-        run: npm run build
+        run: pnpm run build
 
       - name: Build Rust Application
         shell: bash
@@ -260,7 +258,7 @@ jobs:
           fi
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.build.outputs.version }}
           name: BentoMod v${{ needs.build.outputs.version }}

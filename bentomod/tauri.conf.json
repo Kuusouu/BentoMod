@@ -4,8 +4,8 @@
   "version": "1.2.2",
   "identifier": "com.internal.bentomod",
   "build": {
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build",
     "devUrl": "http://localhost:5173",
     "frontendDist": "dist"
   },
