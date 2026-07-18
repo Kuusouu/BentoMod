@@ -826,3 +826,69 @@ pub fn identify_mod_from_paths(file_paths: &[String]) -> Option<(String, String)
 
     None
 }
+
+// ETag helpers
+
+/// Fetch the raw GitHub markdown, sending `If-None-Match` if we have a saved ETag.
+/// Returns:
+///   Ok(None)              → 304 Not Modified, database is current
+///   Ok(Some((text, etag))) → 200 OK, fresh content + new ETag (may be None if header absent)
+///   Err(msg)              → network / HTTP error
+pub async fn fetch_with_etag(saved_etag: Option<String>) -> Result<Option<(String, Option<String>)>, String> {
+    let client = reqwest::Client::builder()
+        .user_agent("BentoMod/1.0")
+        .timeout(std::time::Duration::from_secs(30))
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let mut req = client.get(GITHUB_CHARACTER_DATA_URL);
+    if let Some(etag) = saved_etag {
+        req = req.header(reqwest::header::IF_NONE_MATCH, etag);
+    }
+
+    let response = req.send().await.map_err(|e| e.to_string())?;
+
+    if response.status() == reqwest::StatusCode::NOT_MODIFIED {
+        return Ok(None);
+    }
+
+    if !response.status().is_success() {
+        return Err(format!("GitHub returned {}", response.status()));
+    }
+
+    let new_etag = response
+        .headers()
+        .get(reqwest::header::ETAG)
+        .and_then(|v| v.to_str().ok())
+        .map(|s| s.to_string());
+
+    let content = response.text().await.map_err(|e| e.to_string())?;
+    Ok(Some((content, new_etag)))
+}
+
+/// Parse, merge, and save character data from a raw markdown string.
+/// Returns the number of net-new skins added.
+pub fn update_from_content_with_progress(content: String) -> Result<usize, String> {
+    let existing: Vec<CharacterSkin> = fs::read_to_string(character_data_path())
+        .ok()
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default();
+    let existing_count = existing.len();
+
+    let new_skins = parse_github_markdown(&content)?;
+
+    let mut skin_map: std::collections::HashMap<String, CharacterSkin> = HashMap::new();
+    for skin in existing {
+        skin_map.insert(skin.skinid.clone(), skin);
+    }
+    for skin in new_skins {
+        skin_map.insert(skin.skinid.clone(), skin);
+    }
+    let merged: Vec<CharacterSkin> = skin_map.into_values().collect();
+    let merged_count = merged.len();
+
+    save_character_data(&merged)?;
+    refresh_cache();
+
+    Ok(merged_count.saturating_sub(existing_count))
+}

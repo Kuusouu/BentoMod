@@ -4,7 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { open } from '@tauri-apps/plugin-shell';
 import { save } from '@tauri-apps/plugin-dialog';
-import { IoMdRefresh, IoIosSkipForward } from "react-icons/io";
+import { IoIosSkipForward } from "react-icons/io";
 import { MdRemoveModerator, MdBackup } from "react-icons/md";
 import Switch from './ui/Switch';
 import Progress from './ui/Progress';
@@ -25,8 +25,6 @@ type ToolsPanelProps = {
 };
 
 export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPanelProps) {
-    const [isUpdatingChars, setIsUpdatingChars] = useState(false);
-    const [charUpdateStatus, setCharUpdateStatus] = useState('');
     const [isSkippingLauncher, setIsSkippingLauncher] = useState(false);
     const [lastBackupDate, setLastBackupDate] = useState<string | null>(() => localStorage.getItem('lastBackupDate'));
     const [skipLauncherStatus, setSkipLauncherStatus] = useState('');
@@ -115,30 +113,6 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
         }
     }, [sigBypasserStatusMsg]);
 
-    // Clear char update status after 5 seconds
-    useEffect(() => {
-        if (charUpdateStatus) {
-            const timer = setTimeout(() => {
-                setCharUpdateStatus('');
-            }, 5000);
-            return () => clearTimeout(timer);
-        }
-    }, [charUpdateStatus]);
-
-
-
-    const handleUpdateCharacterData = async () => {
-        setIsUpdatingChars(true);
-        setCharUpdateStatus('Updating...');
-        try {
-            const count = await invoke('update_character_data_from_github') as any;
-            setCharUpdateStatus(`Successfully updated! ${count} new skins added.`);
-        } catch (error) {
-            setCharUpdateStatus(`Error: ${error}`);
-        } finally {
-            setIsUpdatingChars(false);
-        }
-    };
 
     const handleSkipLauncherPatch = async () => {
         setIsSkippingLauncher(true);
@@ -349,44 +323,6 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
                                 )}
                             </div>
                         </div>
-
-                        <div className="setting-section">
-                            <h3>Character Database</h3>
-                            <div className="setting-group">
-                                <p style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '0.5rem' }}>
-                                    Update the character database from GitHub to support new heroes and skins.
-                                </p>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <button
-                                        onClick={handleUpdateCharacterData}
-                                        disabled={isUpdatingChars}
-                                        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-                                    >
-                                        <IoMdRefresh size={18} className={isUpdatingChars ? 'spin-animation' : ''} />
-                                        {isUpdatingChars ? 'Updating...' : 'Update Heroes Database'}
-                                    </button>
-                                </div>
-                                {charUpdateStatus && (
-                                    <p style={{
-                                        fontSize: '0.85rem',
-                                        marginTop: '0.5rem',
-                                        color: charUpdateStatus.includes('Error') || charUpdateStatus.includes('Cancelled') ? '#ff5252' : '#4CAF50'
-                                    }}>
-                                        {charUpdateStatus}
-                                    </p>
-                                )}
-                                <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '0.5rem' }}>
-                                    Database maintained by{' '}
-                                    <span
-                                        style={{ textDecoration: 'underline', cursor: 'pointer' }}
-                                        onClick={() => open('https://github.com/donutman07/MarvelRivalsCharacterIDs')}
-                                    >
-                                        donutman07
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-
 
 
                         <div className="setting-section">

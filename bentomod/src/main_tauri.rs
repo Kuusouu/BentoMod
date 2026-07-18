@@ -156,6 +156,9 @@ struct AppState {
     /// Cache for mod details to avoid redundant PAK opens (path -> (mtime, details))
     #[serde(skip)]
     mod_details_cache: std::collections::HashMap<PathBuf, (std::time::SystemTime, ModDetails)>,
+    /// ETag from the last successful GitHub character data fetch (for conditional requests)
+    #[serde(default)]
+    character_data_etag: Option<String>,
 }
 
 impl Default for AppState {
@@ -182,6 +185,7 @@ impl Default for AppState {
             mod_tags: std::collections::HashMap::new(),
             last_known_crash_folder: None,
             mod_details_cache: std::collections::HashMap::new(),
+            character_data_etag: None,
         }
     }
 }
@@ -6848,6 +6852,43 @@ fn main() {
                     }
                 }
             });
+
+            // ============================================================
+            // SILENT CHARACTER DATABASE AUTO-UPDATE
+            // ============================================================
+            // Uses HTTP ETags for conditional requests. If the remote file
+            // hasn't changed since last run, GitHub returns 304 (0 bytes).
+            // Runs in the background so it never blocks app startup.
+            // ============================================================
+            {
+                let char_update_handle = app.handle().clone();
+                let char_update_state = Arc::clone(app.state::<Arc<Mutex<AppState>>>().inner());
+                tauri::async_runtime::spawn(async move {
+                    let saved_etag = char_update_state.lock().unwrap().character_data_etag.clone();
+
+                    match character_data::fetch_with_etag(saved_etag).await {
+                        Ok(None) => {
+                            info!("Character database is already up to date (304 Not Modified).");
+                        }
+                        Ok(Some((content, new_etag))) => {
+                            info!("Character database has changed, updating...");
+                            match character_data::update_from_content_with_progress(content) {
+                                Ok(new_count) => {
+                                    info!("Character database updated silently. {} new skins.", new_count);
+                                    let mut state = char_update_state.lock().unwrap();
+                                    state.character_data_etag = new_etag;
+                                    if let Err(e) = save_state(&state) {
+                                        warn!("Failed to persist new ETag: {}", e);
+                                    }
+                                    let _ = char_update_handle.emit("character_data_updated", new_count);
+                                }
+                                Err(e) => warn!("Failed to parse/save updated character data: {}", e),
+                            }
+                        }
+                        Err(e) => warn!("Silent character database auto-update failed: {}", e),
+                    }
+                });
+            }
 
             Ok(())
         })
