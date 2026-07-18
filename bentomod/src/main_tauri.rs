@@ -401,6 +401,12 @@ async fn set_game_path(path: String, state: State<'_, Arc<Mutex<AppState>>>) -> 
             Ok(false) => info!("Bundled LOD Disabler mod already present or not bundled"),
             Err(e) => warn!("Failed to auto-deploy LOD Disabler mod: {}", e),
         }
+
+        match deploy_utoc_signature_bypass(&mods_path) {
+            Ok(true) => info!("Auto-deployed UTOC Signature Bypass"),
+            Ok(false) => info!("UTOC Signature Bypass already present or invalid path"),
+            Err(e) => warn!("Failed to auto-deploy UTOC Signature Bypass: {}", e),
+        }
     }
 
     let mut state = state.lock().unwrap();
@@ -433,6 +439,12 @@ async fn auto_detect_game_path(
                 Ok(true) => info!("Auto-deployed bundled LOD Disabler mod"),
                 Ok(false) => info!("Bundled LOD Disabler mod already present or not bundled"),
                 Err(e) => warn!("Failed to auto-deploy LOD Disabler mod: {}", e),
+            }
+
+            match deploy_utoc_signature_bypass(&mods_path) {
+                Ok(true) => info!("Auto-deployed UTOC Signature Bypass"),
+                Ok(false) => info!("UTOC Signature Bypass already present or invalid path"),
+                Err(e) => warn!("Failed to auto-deploy UTOC Signature Bypass: {}", e),
             }
 
             let mut state = state.lock().unwrap();
@@ -4877,6 +4889,38 @@ fn get_bundled_lod_mod_bytes() -> Option<&'static [u8]> {
     {
         None
     }
+}
+
+// ponytail: YAGNI fetching/extracting at runtime or complex UI logic.
+// Just bundle the raw files and silently deploy them to the correct location.
+fn deploy_utoc_signature_bypass(mods_path: &Path) -> Result<bool, String> {
+    // Resolve: ~mods -> Paks -> Content -> Marvel -> MarvelGame/Marvel/Binaries/Win64
+    let binaries_path = mods_path
+        .parent().and_then(|p| p.parent()).and_then(|p| p.parent())
+        .map(|p| p.join("Binaries/Win64"))
+        .ok_or("Failed to resolve Binaries/Win64 path")?;
+
+    if !binaries_path.exists() {
+        return Ok(false);
+    }
+
+    let dsound_path = binaries_path.join("dsound.dll");
+    let plugins_dir = binaries_path.join("plugins");
+    let asi_path = plugins_dir.join("MarvelRivalsUTOCSignatureBypass.asi");
+
+    if dsound_path.exists() && asi_path.exists() {
+        return Ok(false); // Already installed
+    }
+
+    std::fs::create_dir_all(&plugins_dir).map_err(|e| e.to_string())?;
+
+    let dsound_bytes = include_bytes!("../assets/utoc_bypass/dsound.dll");
+    let asi_bytes = include_bytes!("../assets/utoc_bypass/plugins/MarvelRivalsUTOCSignatureBypass.asi");
+
+    std::fs::write(&dsound_path, dsound_bytes).map_err(|e| e.to_string())?;
+    std::fs::write(&asi_path, asi_bytes).map_err(|e| e.to_string())?;
+
+    Ok(true)
 }
 
 /// Deploy the bundled LOD Disabler mod to the game's mods folder
