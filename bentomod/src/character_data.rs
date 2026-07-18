@@ -109,18 +109,6 @@ pub fn character_data_path() -> PathBuf {
     app_dir.join("character_data.json")
 }
 
-/// Get the path to the bundled default character data (fallback)
-pub fn bundled_character_data_path() -> Option<PathBuf> {
-    if let Ok(exe_path) = std::env::current_exe() {
-        if let Some(exe_dir) = exe_path.parent() {
-            let bundled = exe_dir.join("data").join("character_data.json");
-            if bundled.exists() {
-                return Some(bundled);
-            }
-        }
-    }
-    None
-}
 
 // ============================================================================
 // DATA LOADING / SAVING
@@ -147,18 +135,6 @@ pub fn load_character_data() -> Vec<CharacterSkin> {
             },
             Err(e) => {
                 warn!("Failed to read character data file: {}", e);
-            }
-        }
-    }
-
-    // Try bundled fallback
-    if let Some(bundled_path) = bundled_character_data_path() {
-        if let Ok(contents) = fs::read_to_string(&bundled_path) {
-            if let Ok(skins) = serde_json::from_str::<Vec<CharacterSkin>>(&contents) {
-                info!("Loaded {} character skins from bundled file", skins.len());
-                // Save to external location for future use
-                let _ = save_character_data(&skins);
-                return skins;
             }
         }
     }

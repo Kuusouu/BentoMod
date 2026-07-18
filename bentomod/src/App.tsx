@@ -52,7 +52,6 @@ import { useGlobalTooltips } from './hooks/useGlobalTooltips'
 
 import Switch from './components/ui/Switch'
 import NumberInput from './components/ui/NumberInput'
-import characterDataStatic from './data/character_data.json'
 import './App.css'
 import './styles/theme.css'
 import './styles/Badges.css'
@@ -67,7 +66,7 @@ import OnboardingTour from './components/OnboardingTour'
 
 // Utility functions
 import { toTagArray } from './utils/tags'
-import { detectHeroes } from './utils/heroes'
+import { detectHeroesWithData } from './utils/heroes'
 import { formatFileSize, normalizeModBaseName } from './utils/format'
 import { getAdditionalCategories } from './utils/mods'
 
@@ -332,7 +331,7 @@ function App() {
 
   const [clashes, setClashes] = useState<ClashRecord[]>([])
   const [launchSuccess, setLaunchSuccess] = useState(false)
-  const [characterData, setCharacterData] = useState<CharacterDataEntry[]>(characterDataStatic as CharacterDataEntry[])
+  const [characterData, setCharacterData] = useState<CharacterDataEntry[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [dropTargetFolder, setDropTargetFolder] = useState<string | null>(null)
   const [renamingModPath, setRenamingModPath] = useState<string | null>(null) // Track which mod should start inline renaming
@@ -1576,7 +1575,7 @@ function App() {
         hasMulti = true
         // Extract individual heroes from the mod's file list
         if (d.files && Array.isArray(d.files)) {
-          const heroes = detectHeroes(d.files)
+          const heroes = detectHeroesWithData(d.files, characterData)
           heroes.forEach(h => charSet.add(h))
         }
       }
@@ -2451,7 +2450,7 @@ function App() {
 
         let multiMatch = false
         if (isMulti && d.files) {
-          const heroes = detectHeroes(d.files)
+          const heroes = detectHeroesWithData(d.files, characterData)
           multiMatch = heroes.some(h => selectedCharacters.has(h))
         }
 
@@ -2954,6 +2953,7 @@ function App() {
       <TitleBar />
       {panels.install && (
         <InstallModPanel
+          characterData={characterData}
           mods={modsToInstall}
           allTags={allTags}
           folders={folders}

@@ -7,7 +7,6 @@ import { FaTag } from "react-icons/fa6"
 import { VscFolder, VscFolderOpened, VscChevronRight, VscChevronDown, VscNewFolder } from 'react-icons/vsc'
 import { MdCreateNewFolder } from 'react-icons/md'
 import './InstallModPanel.css'
-import characterData from '../data/character_data.json'
 
 const heroImages = import.meta.glob('../assets/hero/*.png', { eager: true }) as Record<string, { default: string }>
 
@@ -55,6 +54,7 @@ type InstallModPanelProps = {
   onNewTag: (callback: (tag: string) => void) => void
   onNewFolder: (callback: (name: string) => void) => void
   onMergeHybrid?: (path1: string, path2: string) => void
+  characterData: any[]
 }
 
 
@@ -221,7 +221,7 @@ function parseModType(modType: string | undefined): { character: string | null; 
   return { character, category, additional }
 }
 
-export default function InstallModPanel({ mods, allTags, folders = [], currentFolderId, onCreateTag, onDeleteTag, onCreateFolder, onInstall, onCancel, onNewTag, onNewFolder, onMergeHybrid }: InstallModPanelProps) {
+export default function InstallModPanel({ mods, allTags, folders = [], currentFolderId, onCreateTag, onDeleteTag, onCreateFolder, onInstall, onCancel, onNewTag, onNewFolder, onMergeHybrid, characterData }: InstallModPanelProps) {
   const [openDropdown, setOpenDropdown] = useState<number | null>(null)
   const [dropdownPos, setDropdownPos] = useState({ x: 0, y: 0 })
   const [modSettings, setModSettings] = useState<Record<number, ModSetting>>(() => buildInitialSettings(mods, currentFolderId))
@@ -430,7 +430,7 @@ export default function InstallModPanel({ mods, allTags, folders = [], currentFo
                       <div className="install-mod-card__badges">
                         {character && (
                           <span className={`character-badge ${character.startsWith('Multiple Heroes') ? 'multi-hero' : ''}`}>
-                            {getHeroImage(character) && <img src={getHeroImage(character)} alt="" />}
+                            {getHeroImage(character, characterData) && <img src={getHeroImage(character, characterData)} alt="" />}
                             {character}
                           </span>
                         )}
@@ -687,12 +687,11 @@ export default function InstallModPanel({ mods, allTags, folders = [], currentFo
   )
 }
 
-function getHeroImage(heroName?: string | null): string | undefined {
+function getHeroImage(heroName: string | null | undefined, characterData: any[]): string | undefined {
   if (!heroName) return undefined
 
-  // Find by base hero name in character data
   const baseName = heroName.includes(' - ') ? heroName.split(' - ')[0] : heroName
-  const char = characterData.find(c => c.name === baseName)
+  const char = characterData.find((c: any) => c.name === baseName)
   if (!char) return undefined
 
   const key = `../assets/hero/${char.id}.png`
