@@ -2,6 +2,14 @@
 
 All our tasty little updates will be packed into this adorable bento box!
 
+## [1.3.0] - 2026-07-18
+
+### Freshly Prepared
+- **Silent Character Database Updates**: BentoMod now quietly checks the pantry on startup for any new character skins and IDs! No more manual update button or stale data—it's all perfectly synchronized in the background.
+- **UTOC Signature Bypass**: Our chefs will now automatically sprinkle the essential UTOC Signature Bypass files into your game folder on launch, ensuring all your mods load buttery smooth without any extra steps!
+
+*These changes were cooked up to make using BentoMod and the overall modding experience easier. So you can focus on doing great things like making Jubilee look cutesy!*
+
 ## [1.2.2] - 2026-07-14
 
 ### Freshly Prepared
