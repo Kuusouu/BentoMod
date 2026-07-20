@@ -16,6 +16,10 @@ BentoMod is a **mod installer and manager** for Marvel Rivals, made with love an
 
 <!-- TODO: Add a demo GIF or video here once it's ready! -->
 
+## 🗺️ Roadmap
+
+BentoMod builds on [Repak-X](https://github.com/XzantGaming/Repak-X) while pursuing its own direction. See the [BentoMod roadmap](ROADMAP.md) to track what we're improving and adding, including backup restoration, scheduled backups, mod organization, and other differences from the original project.
+
 ## 🛠️ Built with
 
 <a href="https://go-skill-icons.netlify.app">
