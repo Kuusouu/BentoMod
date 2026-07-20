@@ -4,7 +4,7 @@ param(
 
 $rootPath = Resolve-Path "$PSScriptRoot/.."
 $submodulePath = Join-Path $rootPath "UAssetToolRivals"
-$repoUrl = "https://github.com/XzantGaming/UAssetToolRivals.git"
+$repoUrl = "https://github.com/mewclouds/UAssetToolRivals.git"
 
 # Ensure we are in the root for git commands to work as expected with the correct relative paths
 Set-Location $rootPath

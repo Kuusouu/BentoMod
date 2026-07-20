@@ -55,7 +55,7 @@ Once the dev environment is fully settled, I will document the setup instruction
 BentoMod stands on the shoulders of some really awesome work:
 
 - **[Repak-X](https://github.com/XzantGaming/Repak-X)** - the original project this is forked from
-- **[UAssetToolRivals](https://github.com/XzantGaming/UAssetToolRivals)** - the backbone of our asset handling
+- **[UAssetToolRivals](https://github.com/mewclouds/UAssetToolRivals)** - the backbone of our asset handling
 - **[natimerrys](https://github.com/natimerry)** - for the early groundwork that made all of this possible
 
 ## 📜 License

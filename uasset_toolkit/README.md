@@ -1,6 +1,6 @@
 # UAsset Toolkit (`uasset_app` / `uasset_toolkit`)
 
-A Rust wrapper around the **UAssetTool** C# CLI (from the [`UAssetToolRivals`](https://github.com/XzantGaming/UAssetToolRivals) submodule, built on a modified fork of [UAssetAPI](https://github.com/atenfyr/UAssetAPI), .NET 8). It drives UAssetTool as a long-lived child process and talks to it over a JSON stdin/stdout protocol, exposing Unreal Engine asset operations (texture/mesh/blueprint detection, mipmap stripping, PAK and IoStore read/write, mod creation) to the rest of Repak X.
+A Rust wrapper around the **UAssetTool** C# CLI (from the [`UAssetToolRivals`](https://github.com/mewclouds/UAssetToolRivals) submodule, built on a modified fork of [UAssetAPI](https://github.com/atenfyr/UAssetAPI), .NET 8). It drives UAssetTool as a long-lived child process and talks to it over a JSON stdin/stdout protocol, exposing Unreal Engine asset operations (texture/mesh/blueprint detection, mipmap stripping, PAK and IoStore read/write, mod creation) to the rest of Repak X.
 
 > This crate replaced the old "UAssetBridge" design. There is no longer a separate bridge executable or a vendored `external/UAssetAPI/` — the C# tool now lives in the `UAssetToolRivals` git submodule and is the single asset backend.
 
