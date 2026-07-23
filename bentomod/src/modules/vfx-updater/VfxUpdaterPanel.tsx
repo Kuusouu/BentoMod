@@ -183,6 +183,7 @@ export default function VfxUpdaterPanel() {
 	const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
 	const [logs, setLogs] = useState<LogEntry[]>([]);
+	const logCount = logs.length;
 	const logsEndRef = useRef<HTMLDivElement>(null);
 	const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
 
@@ -414,21 +415,15 @@ export default function VfxUpdaterPanel() {
 		if (didRunInitialUsmapCheckRef.current) return;
 		didRunInitialUsmapCheckRef.current = true;
 
-		let cancelled = false;
-		(async () => {
-			const _ = await runUsmapCheck(false);
-			if (cancelled) return;
-		})();
-		return () => {
-			cancelled = true;
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+		void runUsmapCheck(false);
+	}, [runUsmapCheck]);
 
 	// Make logs auto-scroll
 	useEffect(() => {
-		if (logsEndRef.current) logsEndRef.current.scrollIntoView({ behavior: "smooth" });
-	}, [logs]);
+		if (logCount > 0 && logsEndRef.current) {
+			logsEndRef.current.scrollIntoView({ behavior: "smooth" });
+		}
+	}, [logCount]);
 
 	const { currentStep, stepStatus, isProcessing, runPipeline, cancelPipeline } = usePipeline({
 		usmapPath,
@@ -464,14 +459,14 @@ export default function VfxUpdaterPanel() {
 		await runPipeline();
 	};
 
-	const emitModsRefresh = async () => {
+	const emitModsRefresh = useCallback(async () => {
 		try {
 			const { emit } = await import("@tauri-apps/api/event");
 			await emit("mods_dir_changed");
 		} catch (e) {
 			console.error("[VFX] Failed to emit mods refresh event:", e);
 		}
-	};
+	}, []);
 
 	const handleCancelProcess = async () => {
 		await cancelPipeline();
@@ -484,7 +479,7 @@ export default function VfxUpdaterPanel() {
 			setViewMode("complete");
 			void emitModsRefresh();
 		}
-	}, [isProcessing, currentStep, viewMode]);
+	}, [currentStep, emitModsRefresh, isProcessing, viewMode]);
 
 	// Handle post install logic (Move mod into selected Folder Tree)
 	const handleSaveOutput = async () => {
@@ -562,7 +557,7 @@ export default function VfxUpdaterPanel() {
 			ease: "easeOut",
 		});
 		return controls.stop;
-	}, [targetProgressRatio]);
+	}, [progressVal, targetProgressRatio]);
 
 	useEffect(() => {
 		console.debug("[VFX][ProgressDial]", {

@@ -272,7 +272,7 @@ const ModItem = memo(function ModItem({
 			// Clear the external trigger
 			if (onClearRenaming) onClearRenaming();
 		}
-	}, [shouldStartRenaming]);
+	}, [cleanName, onClearRenaming, shouldStartRenaming]);
 
 	// Get hero image for background/badge (only if either icons or bg are enabled)
 	const heroImage =

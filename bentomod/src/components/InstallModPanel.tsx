@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FaTag } from "react-icons/fa6";
 import { MdCreateNewFolder } from "react-icons/md";
 import {
@@ -319,7 +319,7 @@ export default function InstallModPanel({
 				{} as Record<number, ModSetting>,
 			);
 		});
-	}, [mods]);
+	}, [currentFolderId, mods]);
 
 	useEffect(() => {
 		const handleClickOutside = () => setOpenDropdown(null);
@@ -359,7 +359,7 @@ export default function InstallModPanel({
 		return mods.filter((_, idx) => modSettings[idx]?.enabled !== false).length;
 	}, [mods, modSettings]);
 
-	const handleInstall = () => {
+	const handleInstall = useCallback(() => {
 		const modsToInstall = mods
 			.map((mod, idx) => ({
 				...mod,
@@ -370,7 +370,7 @@ export default function InstallModPanel({
 			}))
 			.filter((m) => m.enabled !== false);
 		onInstall(modsToInstall);
-	};
+	}, [mods, modSettings, onInstall]);
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -401,7 +401,7 @@ export default function InstallModPanel({
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [enabledCount, mods, modSettings, onInstall]);
+	}, [enabledCount, handleInstall]);
 
 	const handleNewFolder = (targetModIdx: number) => {
 		if (onNewFolder) {

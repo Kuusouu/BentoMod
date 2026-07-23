@@ -18,6 +18,13 @@ type TooltipProps = {
 	className?: string;
 };
 
+function clearTimeoutRef(timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>) {
+	if (timeoutRef.current !== null) {
+		clearTimeout(timeoutRef.current);
+		timeoutRef.current = null;
+	}
+}
+
 /**
  * bentomod-style Tooltip component
  *
@@ -53,15 +60,6 @@ const Tooltip = ({
 	const [isVisible, setIsVisible] = useState(false);
 	const openTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-	const clearTimeoutRef = (
-		timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
-	) => {
-		if (timeoutRef.current !== null) {
-			clearTimeout(timeoutRef.current);
-			timeoutRef.current = null;
-		}
-	};
 
 	const handleMouseEnter = () => {
 		if (isDisabled) return;

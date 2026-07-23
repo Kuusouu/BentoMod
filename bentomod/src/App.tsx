@@ -20,7 +20,7 @@ import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import type { ChangeEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FaSort, FaTag, FaToolbox } from "react-icons/fa6";
 import { GiLightningTrio } from "react-icons/gi";
 import { IoIosSettings, IoMdWarning } from "react-icons/io";
@@ -359,6 +359,14 @@ function App() {
 	const clashScopeModPath = useRef<string | null>(null); // null = global clashes, path = single-mod scope
 	const safeRefreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const filtersResizeRef = useRef({ startY: 0, startHeight: 0 });
+	const appActionsRef = useRef<{
+		alert: ReturnType<typeof useAlert>;
+		handleFileDrop: (paths: string[]) => Promise<void>;
+		loadFolders: () => Promise<void>;
+		loadInitialData: () => Promise<number>;
+		loadMods: () => Promise<ModRecord[]>;
+		loadTags: () => Promise<void>;
+	} | null>(null);
 
 	const showPromiseTransitionLoader = (message: string) => {
 		console.debug("[PromiseTransitionLoader] show", { message });
@@ -638,28 +646,31 @@ function App() {
 		}
 	};
 
-	const handleCheckForUpdates = async (silent = false) => {
-		setIsCheckingUpdates(true);
-		try {
-			const result = (await invoke("check_for_updates")) as any;
-			if (result) {
-				setUpdateInfo(result);
-				setShowUpdateModal(true);
-				console.debug("[Updates] Update available, opening UpdateAppModal", {
-					latest: result.latest,
-				});
-			} else if (!silent) {
-				alert.success("Up to Date", "You are running the latest version.");
+	const handleCheckForUpdates = useCallback(
+		async (silent = false) => {
+			setIsCheckingUpdates(true);
+			try {
+				const result = (await invoke("check_for_updates")) as any;
+				if (result) {
+					setUpdateInfo(result);
+					setShowUpdateModal(true);
+					console.debug("[Updates] Update available, opening UpdateAppModal", {
+						latest: result.latest,
+					});
+				} else if (!silent) {
+					alert.success("Up to Date", "You are running the latest version.");
+				}
+			} catch (error) {
+				console.error("Failed to check for updates:", error);
+				if (!silent) {
+					alert.error("Update Check Failed", String(error));
+				}
+			} finally {
+				setIsCheckingUpdates(false);
 			}
-		} catch (error) {
-			console.error("Failed to check for updates:", error);
-			if (!silent) {
-				alert.error("Update Check Failed", String(error));
-			}
-		} finally {
-			setIsCheckingUpdates(false);
-		}
-	};
+		},
+		[alert.error, alert.success],
+	);
 
 	const handleViewChangelog = async () => {
 		try {
@@ -1172,14 +1183,18 @@ function App() {
 		}
 	};
 
+	// Load initial app data once. The ref is populated by the end of the first render.
 	useEffect(() => {
-		loadInitialData().then((modCount) => {
-			invoke("get_app_settings")
-				.then((settings: any) => {})
-				.catch(console.warn);
-		});
-		loadTags();
+		const actions = appActionsRef.current;
+		if (!actions) return;
 
+		void actions.loadInitialData();
+		void actions.loadTags();
+	}, []);
+
+	// Register long-lived Tauri listeners once. Each listener follows the ref to
+	// the latest render's actions instead of retaining stale callback closures.
+	useEffect(() => {
 		// Listen for install progress
 		const unlisten = listen("install_progress", (event: any) => {
 			const progress = Math.round(event.payload);
@@ -1192,7 +1207,7 @@ function App() {
 			setStatus("Installation complete!");
 			setIsModsLoading(false);
 			setModLoadingProgress(0);
-			loadMods();
+			void appActionsRef.current?.loadMods();
 		});
 
 		const unlistenLogs = listen("install_log", (event: any) => {
@@ -1207,14 +1222,14 @@ function App() {
 			} catch (err) {
 				console.error("Failed to refresh character data:", err);
 			}
-			loadMods();
+			void appActionsRef.current?.loadMods();
 		});
 
 		// Listen for directory changes (new folders, deleted folders, etc.)
 		const unlistenDirChanged = listen("mods_dir_changed", () => {
 			console.log("Directory changed, reloading mods and folders...");
-			loadMods();
-			loadFolders();
+			void appActionsRef.current?.loadMods();
+			void appActionsRef.current?.loadFolders();
 		});
 
 		// Listen for mods received from browser extension via bentomod:// protocol
@@ -1227,7 +1242,7 @@ function App() {
 		// Listen for extension mod errors
 		const unlistenExtensionError = listen("extension-mod-error", (event: any) => {
 			console.error("Extension mod error:", event.payload);
-			alert.error("Extension Error", event.payload);
+			appActionsRef.current?.alert.error("Extension Error", event.payload);
 		});
 
 		// Listen for backup progress
@@ -1244,12 +1259,24 @@ function App() {
 
 			// Map Rust type to AlertHandler method
 			const showAlertByType = {
-				danger: () => alert.error(title, description, { duration: duration ?? 5000 }),
-				warning: () => alert.warning(title, description, { duration: duration ?? 5000 }),
-				success: () => alert.success(title, description, { duration: duration ?? 5000 }),
-				primary: () => alert.info(title, description, { duration: duration ?? 5000 }),
+				danger: () =>
+					appActionsRef.current?.alert.error(title, description, {
+						duration: duration ?? 5000,
+					}),
+				warning: () =>
+					appActionsRef.current?.alert.warning(title, description, {
+						duration: duration ?? 5000,
+					}),
+				success: () =>
+					appActionsRef.current?.alert.success(title, description, {
+						duration: duration ?? 5000,
+					}),
+				primary: () =>
+					appActionsRef.current?.alert.info(title, description, {
+						duration: duration ?? 5000,
+					}),
 				default: () =>
-					alert.showAlert({
+					appActionsRef.current?.alert.showAlert({
 						color: "default",
 						title,
 						description,
@@ -1270,7 +1297,7 @@ function App() {
 			const payload = event.payload;
 
 			// Show persistent error toast for crashes
-			alert.crash(payload.title, payload.description, {
+			appActionsRef.current?.alert.crash(payload.title, payload.description, {
 				action: {
 					label: "Details",
 					onClick: () => {
@@ -1288,7 +1315,10 @@ function App() {
 						];
 						setInstallLogs(report);
 						setIsLogDrawerOpen(true);
-						alert.info("Crash Details", "Report opened in Log Drawer.");
+						appActionsRef.current?.alert.info(
+							"Crash Details",
+							"Report opened in Log Drawer.",
+						);
 					},
 				},
 			});
@@ -1312,14 +1342,14 @@ function App() {
 		const unlistenDragDrop = listen("tauri://drag-drop", (event: any) => {
 			const files = event.payload.paths || event.payload;
 			setIsDragging(false);
-			handleFileDrop(files);
+			void appActionsRef.current?.handleFileDrop(files);
 		});
 
 		// Listen for Tauri file-drop event
 		const unlistenFileDrop = listen("tauri://file-drop", (event: any) => {
 			const files = event.payload.paths || event.payload;
 			setIsDragging(false);
-			handleFileDrop(files);
+			void appActionsRef.current?.handleFileDrop(files);
 		});
 
 		// Add dragover event to prevent default browser behavior
@@ -1419,15 +1449,6 @@ function App() {
 	useEffect(() => {
 		gameRunningRef.current = gameRunning;
 	}, [gameRunning]);
-
-	// Periodically check game running state every 5 seconds
-	useEffect(() => {
-		const intervalId = setInterval(() => {
-			checkGame();
-		}, 5000);
-
-		return () => clearInterval(intervalId);
-	}, []);
 
 	const loadInitialData = async () => {
 		try {
@@ -1700,14 +1721,32 @@ function App() {
 		}
 	};
 
-	const checkGame = async () => {
+	const checkGame = useCallback(async () => {
 		try {
 			const running = (await invoke("check_game_running")) as any;
 			setGameRunning(running);
 		} catch (error) {
 			console.error("Failed to check game status:", error);
 		}
+	}, []);
+
+	appActionsRef.current = {
+		alert,
+		handleFileDrop,
+		loadFolders,
+		loadInitialData,
+		loadMods,
+		loadTags,
 	};
+
+	// Periodically check game running state every 5 seconds
+	useEffect(() => {
+		const intervalId = setInterval(() => {
+			void checkGame();
+		}, 5000);
+
+		return () => clearInterval(intervalId);
+	}, [checkGame]);
 
 	const handleAutoDetect = async () => {
 		try {
@@ -2411,25 +2450,6 @@ function App() {
 		e.preventDefault();
 	};
 
-	const handleResizeMove = (e: MouseEvent) => {
-		if (!isResizing) return;
-
-		const containerWidth = window.innerWidth;
-		const newLeftWidth = (e.clientX / containerWidth) * 100;
-
-		// Constrain right panel between 25% and 30% (left panel 70% - 75%)
-		if (newLeftWidth >= 70 && newLeftWidth <= 75) {
-			setLeftPanelWidth(newLeftWidth);
-			if (isRightPanelOpen) {
-				setLastPanelWidth(newLeftWidth);
-			}
-		}
-	};
-
-	const handleResizeEnd = () => {
-		setIsResizing(false);
-	};
-
 	const handleFiltersResizeStart = (e: React.MouseEvent<HTMLHRElement>) => {
 		setIsFiltersResizing(true);
 		const filtersElement = e.currentTarget.previousElementSibling as HTMLElement;
@@ -2453,20 +2473,6 @@ function App() {
 		);
 	};
 
-	const handleFiltersResizeMove = (e: MouseEvent) => {
-		if (!isFiltersResizing) return;
-		const deltaY = e.clientY - filtersResizeRef.current.startY;
-		const newHeight = Math.max(
-			50,
-			Math.min(window.innerHeight - 200, filtersResizeRef.current.startHeight + deltaY),
-		);
-		setFiltersHeight(newHeight);
-	};
-
-	const handleFiltersResizeEnd = () => {
-		setIsFiltersResizing(false);
-	};
-
 	const toggleRightPanel = () => {
 		if (isRightPanelOpen) {
 			// Collapse
@@ -2481,25 +2487,49 @@ function App() {
 	};
 
 	useEffect(() => {
-		if (isResizing) {
-			document.addEventListener("mousemove", handleResizeMove);
-			document.addEventListener("mouseup", handleResizeEnd);
-			return () => {
-				document.removeEventListener("mousemove", handleResizeMove);
-				document.removeEventListener("mouseup", handleResizeEnd);
-			};
-		}
-	}, [isResizing]);
+		if (!isResizing) return;
+
+		const handleResizeMove = (e: MouseEvent) => {
+			const containerWidth = window.innerWidth;
+			const newLeftWidth = (e.clientX / containerWidth) * 100;
+
+			// Constrain right panel between 25% and 30% (left panel 70% - 75%)
+			if (newLeftWidth >= 70 && newLeftWidth <= 75) {
+				setLeftPanelWidth(newLeftWidth);
+				if (isRightPanelOpen) {
+					setLastPanelWidth(newLeftWidth);
+				}
+			}
+		};
+		const handleResizeEnd = () => setIsResizing(false);
+
+		document.addEventListener("mousemove", handleResizeMove);
+		document.addEventListener("mouseup", handleResizeEnd);
+		return () => {
+			document.removeEventListener("mousemove", handleResizeMove);
+			document.removeEventListener("mouseup", handleResizeEnd);
+		};
+	}, [isResizing, isRightPanelOpen]);
 
 	useEffect(() => {
-		if (isFiltersResizing) {
-			document.addEventListener("mousemove", handleFiltersResizeMove);
-			document.addEventListener("mouseup", handleFiltersResizeEnd);
-			return () => {
-				document.removeEventListener("mousemove", handleFiltersResizeMove);
-				document.removeEventListener("mouseup", handleFiltersResizeEnd);
-			};
-		}
+		if (!isFiltersResizing) return;
+
+		const handleFiltersResizeMove = (e: MouseEvent) => {
+			const deltaY = e.clientY - filtersResizeRef.current.startY;
+			const newHeight = Math.max(
+				50,
+				Math.min(window.innerHeight - 200, filtersResizeRef.current.startHeight + deltaY),
+			);
+			setFiltersHeight(newHeight);
+		};
+		const handleFiltersResizeEnd = () => setIsFiltersResizing(false);
+
+		document.addEventListener("mousemove", handleFiltersResizeMove);
+		document.addEventListener("mouseup", handleFiltersResizeEnd);
+		return () => {
+			document.removeEventListener("mousemove", handleFiltersResizeMove);
+			document.removeEventListener("mouseup", handleFiltersResizeEnd);
+		};
 	}, [isFiltersResizing]);
 
 	// Compute base filtered mods (excluding folder filter)
@@ -2604,6 +2634,17 @@ function App() {
 	// Keep filteredModsRef in sync for Shift+click range selection
 	filteredModsRef.current = filteredMods;
 
+	const keyboardActionsRef = useRef({
+		handleToggleMod,
+		loadMods,
+		setPanel,
+	});
+	keyboardActionsRef.current = {
+		handleToggleMod,
+		loadMods,
+		setPanel,
+	};
+
 	// Keyboard shortcuts handler (must be after filteredMods is defined)
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -2637,26 +2678,26 @@ function App() {
 			else if (ctrl && shift && key === "r") {
 				e.preventDefault();
 				alert.info("Mods Refreshed", "Refreshed mods list.");
-				loadMods();
+				void keyboardActionsRef.current.loadMods();
 			}
 			// Ctrl+, - Settings
 			else if (ctrl && key === ",") {
 				e.preventDefault();
-				setPanel("settings", true);
+				keyboardActionsRef.current.setPanel("settings", true);
 			}
 			// Escape - Close panels or deselect
 			else if (key === "escape") {
-				if (panels.shortcuts) setPanel("shortcuts", false);
-				else if (panels.settings) setPanel("settings", false);
-				else if (panels.tools) setPanel("tools", false);
-				else if (panels.install) setPanel("install", false);
-				else if (panels.clash) setPanel("clash", false);
+				if (panels.shortcuts) keyboardActionsRef.current.setPanel("shortcuts", false);
+				else if (panels.settings) keyboardActionsRef.current.setPanel("settings", false);
+				else if (panels.tools) keyboardActionsRef.current.setPanel("tools", false);
+				else if (panels.install) keyboardActionsRef.current.setPanel("install", false);
+				else if (panels.clash) keyboardActionsRef.current.setPanel("clash", false);
 				else if (selectedMod) setSelectedMod(null);
 			}
 			// Ctrl+E - Toggle mod enabled/disabled
 			else if (ctrl && key === "e" && selectedMod) {
 				e.preventDefault();
-				handleToggleMod(selectedMod.path);
+				void keyboardActionsRef.current.handleToggleMod(selectedMod.path);
 			}
 			// F2 - Rename mod
 			else if (key === "f2" && selectedMod) {
@@ -2724,13 +2765,24 @@ function App() {
 			// F1 - Show shortcuts help
 			else if (key === "f1") {
 				e.preventDefault();
-				setPanel("shortcuts", true);
+				keyboardActionsRef.current.setPanel("shortcuts", true);
 			}
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [selectedMod, panels, viewMode, filteredMods, isRightPanelOpen, lastPanelWidth]);
+	}, [
+		alert.info,
+		alert.warning,
+		bypassGameRunningLock,
+		filteredMods,
+		gameRunning,
+		isRightPanelOpen,
+		lastPanelWidth,
+		panels,
+		selectedMod,
+		viewMode,
+	]);
 
 	// Group mods by folder
 	const modsByFolder: Record<string, ModRecord[]> = {};
@@ -3070,7 +3122,7 @@ function App() {
 		if (!hasSeenTour) {
 			setTimeout(() => setShowOnboarding(true), 1200);
 		}
-	}, []);
+	}, [handleCheckForUpdates]);
 
 	// Add these handlers
 	const handleThemeChange = (newTheme: string) => {

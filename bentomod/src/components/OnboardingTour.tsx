@@ -256,7 +256,7 @@ function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
 		});
 
 		return () => cancelAnimationFrame(frame);
-	}, [isOpen, currentStep, step, updatePositions]);
+	}, [isOpen, step, updatePositions]);
 
 	useEffect(() => {
 		if (!isOpen) return;

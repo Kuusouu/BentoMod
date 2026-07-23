@@ -53,13 +53,14 @@ export default function LogDrawer({
 	const [copyFeedback, setCopyFeedback] = useState<CopyFeedback | null>(null); // { id: number | 'all', text: string }
 	const resizingRef = useRef(false);
 	const logScrollRef = useRef<HTMLDivElement | null>(null);
+	const logCount = logs.length;
 
 	// Auto-scroll to bottom when new logs arrive
 	useEffect(() => {
-		if (logScrollRef.current && isOpen) {
+		if (logCount > 0 && logScrollRef.current && isOpen) {
 			logScrollRef.current.scrollTop = logScrollRef.current.scrollHeight;
 		}
-	}, [logs, isOpen]);
+	}, [isOpen, logCount]);
 
 	// Handle resize drag
 	useEffect(() => {

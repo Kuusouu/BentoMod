@@ -1,7 +1,7 @@
 import { listen } from "@tauri-apps/api/event";
 import { AnimatePresence, motion } from "framer-motion";
 import type React from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MdCreateNewFolder, MdInstallDesktop } from "react-icons/md";
 import {
 	VscChevronDown,
@@ -205,7 +205,7 @@ const DropZoneOverlay = ({
 	}, []);
 
 	// Edge scroll handlers
-	const startScrolling = (direction: "up" | "down") => {
+	const startScrolling = useCallback((direction: "up" | "down") => {
 		if (scrollIntervalRef.current) return;
 
 		const scrollAmount = direction === "up" ? -8 : 8;
@@ -214,14 +214,14 @@ const DropZoneOverlay = ({
 				folderTreeRef.current.scrollTop += scrollAmount;
 			}
 		}, 16); // ~60fps
-	};
+	}, []);
 
-	const stopScrolling = () => {
+	const stopScrolling = useCallback(() => {
 		if (scrollIntervalRef.current) {
 			clearInterval(scrollIntervalRef.current);
 			scrollIntervalRef.current = null;
 		}
-	};
+	}, []);
 
 	// Listen to Tauri drag-over event for position-based detection
 	useEffect(() => {
@@ -302,7 +302,15 @@ const DropZoneOverlay = ({
 			unlistenDragOver.then((f) => f());
 			stopScrolling();
 		};
-	}, [isVisible, selectedFolderId, onInstallDrop, onQuickOrganizeDrop, onNewFolderDrop]);
+	}, [
+		isVisible,
+		onInstallDrop,
+		onNewFolderDrop,
+		onQuickOrganizeDrop,
+		selectedFolderId,
+		startScrolling,
+		stopScrolling,
+	]);
 
 	const handleNewFolder = async (e: React.MouseEvent) => {
 		e.stopPropagation();
