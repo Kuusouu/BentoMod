@@ -33,6 +33,7 @@ type ModRecord = {
 };
 
 type ViewMode = "grid" | "compact" | "list" | "list-compact";
+type SelectionEvent = MouseEvent | React.MouseEvent;
 
 type ModDetailsRecord = {
 	character_name?: string;
@@ -46,7 +47,7 @@ type ModItemProps = {
 	mod: ModRecord;
 	selectedMod: ModRecord | null;
 	selectedMods: Set<string>;
-	handleToggleModSelection: (mod: ModRecord, event: React.MouseEvent) => void;
+	handleToggleModSelection: (mod: ModRecord, event?: SelectionEvent) => void;
 	onSelect: (mod: ModRecord) => void;
 	handleToggleMod: (path: string) => void;
 	handleSetPriority: (path: string, priority: number) => void;
@@ -77,7 +78,7 @@ type ModsListProps = {
 	selectedMod: ModRecord | null;
 	selectedMods: Set<string>;
 	onSelect: (mod: ModRecord) => void;
-	onToggleSelection: (mod: ModRecord, event: React.MouseEvent) => void;
+	onToggleSelection: (mod: ModRecord, event?: SelectionEvent) => void;
 	onToggleMod: (path: string) => void;
 	onDeleteMod: (path: string, permanent?: boolean) => void;
 	onRemoveTag: (path: string, tag: string) => void;
@@ -308,10 +309,13 @@ const ModItem = memo(function ModItem({
 			<div className="mod-main-row">
 				<div className="mod-checkbox-wrapper">
 					<Checkbox
+						aria-label={`Select ${cleanName}`}
 						checked={selectedMods.has(mod.path)}
-						onChange={(checked, e) => {
-							e?.stopPropagation();
-							handleToggleModSelection(mod, e);
+						onChange={(_checked, e) => {
+							e.stopPropagation();
+							const selectionEvent =
+								e.nativeEvent instanceof MouseEvent ? e.nativeEvent : undefined;
+							handleToggleModSelection(mod, selectionEvent);
 						}}
 						size="sm"
 						radius="sm"

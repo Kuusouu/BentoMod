@@ -731,7 +731,11 @@ export default function VfxUpdaterPanel() {
 
 						<div className="vfx-dial-panel">
 							<div className="vfx-dial-container">
-								<svg viewBox="0 0 200 200" className="vfx-dial-svg">
+								<svg
+									aria-hidden="true"
+									viewBox="0 0 200 200"
+									className="vfx-dial-svg"
+								>
 									<defs>
 										<linearGradient
 											id="vfx-radial-pulse"

@@ -29,6 +29,7 @@ type IconColor = Exclude<ToastColor, "primary" | "secondary">;
 const Icons: Record<IconColor, React.ReactNode> = {
 	success: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -44,6 +45,7 @@ const Icons: Record<IconColor, React.ReactNode> = {
 	),
 	danger: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -60,6 +62,7 @@ const Icons: Record<IconColor, React.ReactNode> = {
 	),
 	warning: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -76,6 +79,7 @@ const Icons: Record<IconColor, React.ReactNode> = {
 	),
 	info: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -92,6 +96,7 @@ const Icons: Record<IconColor, React.ReactNode> = {
 	),
 	default: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -108,6 +113,7 @@ const Icons: Record<IconColor, React.ReactNode> = {
 	),
 	crash: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -559,6 +565,7 @@ const ToastItem = memo(function ToastItem({
 		if (isLoading) {
 			return (
 				<svg
+					aria-hidden="true"
 					className="toast-spinner"
 					width="20"
 					height="20"
@@ -665,6 +672,7 @@ const ToastItem = memo(function ToastItem({
 				aria-label="Close"
 			>
 				<svg
+					aria-hidden="true"
 					width="14"
 					height="14"
 					viewBox="0 0 24 24"

@@ -521,6 +521,7 @@ export default function InstallModPanel({
 											<div className="install-mod-card__header">
 												{mods.length > 1 && (
 													<Checkbox
+														aria-label={`Include ${mod.mod_name || mod.path}`}
 														checked={
 															modSettings[idx]?.enabled !== false
 														}

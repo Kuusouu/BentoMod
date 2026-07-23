@@ -26,6 +26,7 @@ type AlertProps = React.HTMLAttributes<HTMLDivElement> & {
 const Icons: Record<AlertIconColor, React.ReactNode> = {
 	success: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -41,6 +42,7 @@ const Icons: Record<AlertIconColor, React.ReactNode> = {
 	),
 	danger: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -57,6 +59,7 @@ const Icons: Record<AlertIconColor, React.ReactNode> = {
 	),
 	warning: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -73,6 +76,7 @@ const Icons: Record<AlertIconColor, React.ReactNode> = {
 	),
 	info: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -89,6 +93,7 @@ const Icons: Record<AlertIconColor, React.ReactNode> = {
 	),
 	secondary: (
 		<svg
+			aria-hidden="true"
 			width="20"
 			height="20"
 			viewBox="0 0 24 24"
@@ -158,6 +163,7 @@ export function Alert({
 					{...closeButtonProps}
 				>
 					<svg
+						aria-hidden="true"
 						width="14"
 						height="14"
 						viewBox="0 0 24 24"
