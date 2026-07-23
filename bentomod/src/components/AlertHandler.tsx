@@ -437,6 +437,7 @@ function ToastContainer({
 	const isBottom = placement.startsWith("bottom");
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: Hover only pauses toast dismissal; it does not expose an action.
 		<div
 			className={`toast-container ${placement}`}
 			onMouseEnter={() => setIsHovered(true)}

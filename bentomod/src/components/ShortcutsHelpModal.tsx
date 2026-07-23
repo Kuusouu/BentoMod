@@ -25,6 +25,8 @@ function ShortcutsHelpModal({ isOpen, onClose }: ShortcutsHelpModalProps) {
 	if (!isOpen) return null;
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: Backdrop click is an optional pointer shortcut; the dialog has a keyboard-accessible close button.
+		// biome-ignore lint/a11y/useKeyWithClickEvents: Keyboard users close the dialog with its native button.
 		<div className="modal-overlay" onClick={onClose}>
 			<motion.div
 				className="modal-content shortcuts-modal"

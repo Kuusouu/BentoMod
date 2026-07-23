@@ -166,6 +166,11 @@
 	text-overflow: ellipsis;
 }
 
+.dropdown-item-select {
+	min-width: 0;
+	justify-content: flex-start;
+}
+
 .dropdown-item-delete {
 	background: none;
 	border: none;

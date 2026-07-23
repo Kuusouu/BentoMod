@@ -138,6 +138,12 @@
 	white-space: nowrap;
 }
 
+.custom-dropdown-item-select {
+	height: 100%;
+	min-width: 0;
+	justify-content: flex-start;
+}
+
 .custom-dropdown-item-delete {
 	background: none;
 	border: none;

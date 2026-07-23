@@ -293,6 +293,7 @@ const ModItem = memo(function ModItem({
 			: [];
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: The auxiliary context menu also opens from focused child controls via the Context Menu key or Shift+F10.
 		<div
 			className={`mod-card ${selectedMods.has(mod.path) ? "selected" : ""} ${selectedMod?.path === mod.path ? "viewing" : ""} ${heroImage && showHeroBg ? "has-hero-bg" : ""}`}
 			onContextMenu={(e) => onContextMenu(e, mod)}
@@ -361,6 +362,8 @@ const ModItem = memo(function ModItem({
 						/>
 					))}
 				{isRenaming ? (
+					// biome-ignore lint/a11y/noStaticElementInteractions: This wrapper only prevents the input from triggering parent click behavior.
+					// biome-ignore lint/a11y/useKeyWithClickEvents: The wrapper performs no action; the input remains keyboard accessible.
 					<div className="mod-rename-wrapper" onClick={(e) => e.stopPropagation()}>
 						<input
 							ref={renameInputRef}
@@ -519,6 +522,8 @@ const ModItem = memo(function ModItem({
 						onChange={(newPriority) => handleSetPriority(mod.path, newPriority)}
 						disabled={gameRunning}
 					/>
+					{/* biome-ignore lint/a11y/noStaticElementInteractions: This wrapper only prevents the switch from triggering parent click behavior. */}
+					{/* biome-ignore lint/a11y/useKeyWithClickEvents: The wrapper performs no action; the switch remains keyboard accessible. */}
 					<div className="mod-switch-wrapper" onClick={(e) => e.stopPropagation()}>
 						<Switch
 							title={mod.enabled ? "Disable mod" : "Enable mod"}

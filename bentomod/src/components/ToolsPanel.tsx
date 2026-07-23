@@ -188,6 +188,8 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
 
 	return (
 		<>
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: Backdrop click is an optional pointer shortcut; the dialog has keyboard-accessible close buttons. */}
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: Keyboard users close the dialog with its native buttons. */}
 			<div className="modal-overlay" onClick={onClose}>
 				<motion.div
 					className="modal-content settings-modal"
@@ -533,7 +535,10 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
 
 			{/* Thanos Snap Easter Egg */}
 			{showThanosSnap && (
-				<div
+				<button
+					type="button"
+					aria-label="Dismiss animation"
+					className="unstyled-button"
 					style={{
 						position: "fixed",
 						inset: 0,
@@ -567,7 +572,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
 							boxShadow: "0 0 60px rgba(185, 185, 185, 0.5)",
 						}}
 					/>
-				</div>
+				</button>
 			)}
 		</>
 	);

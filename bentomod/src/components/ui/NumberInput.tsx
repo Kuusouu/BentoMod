@@ -111,6 +111,8 @@ const NumberInput = ({
 	const numericLocalValue = typeof localValue === "number" ? localValue : value;
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: This wrapper only prevents the native input controls from triggering parent click behavior.
+		// biome-ignore lint/a11y/useKeyWithClickEvents: The wrapper performs no action; its input and buttons remain keyboard accessible.
 		<div
 			className={`number-input-container ${className || ""} ${disabled ? "disabled" : ""}`}
 			onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}

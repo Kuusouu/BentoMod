@@ -39,6 +39,14 @@ const TreeNode = ({ node }: { node: TreeNodeData }) => {
 		}
 	};
 
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		if (!isFolder || (e.key !== "Enter" && e.key !== " ")) return;
+
+		e.preventDefault();
+		e.stopPropagation();
+		setIsOpen(!isOpen);
+	};
+
 	const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -59,7 +67,11 @@ const TreeNode = ({ node }: { node: TreeNodeData }) => {
 		<div className="tree-node">
 			<div
 				className={`node-content ${isFolder ? "folder" : "file"}`}
+				role="treeitem"
+				tabIndex={0}
+				aria-expanded={isFolder ? isOpen : undefined}
 				onClick={handleToggle}
+				onKeyDown={handleKeyDown}
 				onContextMenu={handleContextMenu}
 				title={node.fullPath ? `Right-click to copy: ${node.fullPath}` : node.name}
 			>

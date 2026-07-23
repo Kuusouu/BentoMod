@@ -146,6 +146,8 @@
 
 .log-drawer-resize-handle {
 	height: 6px;
+	margin: 0;
+	border: 0;
 	cursor: ns-resize;
 	background: var(--field-bg);
 	transition: background 0.15s;

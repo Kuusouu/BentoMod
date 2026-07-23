@@ -132,7 +132,7 @@ const FolderNode = ({ node, selectedFolderId, onSelect, depth = 0 }: FolderNodeP
 	const hasChildren = node.children && node.children.length > 0;
 	const isSelected = selectedFolderId === node.id;
 
-	const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.stopPropagation();
 		if (!node.isVirtual && node.id) {
 			onSelect(node.id);
@@ -145,15 +145,18 @@ const FolderNode = ({ node, selectedFolderId, onSelect, depth = 0 }: FolderNodeP
 		<div className="imp-folder-node">
 			<div
 				className={`imp-folder-item ${isSelected ? "selected" : ""} ${node.isVirtual ? "virtual" : ""}`}
-				onClick={handleClick}
 				style={{ paddingLeft: `${depth * 16 + 8}px` }}
 			>
-				<span
-					className="folder-toggle"
-					onClick={(e: React.MouseEvent<HTMLSpanElement>) => {
+				<button
+					type="button"
+					className="folder-toggle unstyled-icon-button"
+					onClick={(e) => {
 						e.stopPropagation();
 						setIsOpen(!isOpen);
 					}}
+					disabled={!hasChildren}
+					aria-label={`${isOpen ? "Collapse" : "Expand"} ${node.name}`}
+					aria-expanded={hasChildren ? isOpen : undefined}
 				>
 					{hasChildren ? (
 						isOpen ? (
@@ -164,11 +167,17 @@ const FolderNode = ({ node, selectedFolderId, onSelect, depth = 0 }: FolderNodeP
 					) : (
 						<span style={{ width: 16 }} />
 					)}
-				</span>
-				<span className="folder-icon">
-					{isSelected || isOpen ? <VscFolderOpened /> : <VscFolder />}
-				</span>
-				<span className="folder-name">{node.name}</span>
+				</button>
+				<button
+					type="button"
+					className="folder-select-button unstyled-button"
+					onClick={handleClick}
+				>
+					<span className="folder-icon">
+						{isSelected || isOpen ? <VscFolderOpened /> : <VscFolder />}
+					</span>
+					<span className="folder-name">{node.name}</span>
+				</button>
 			</div>
 
 			{hasChildren && isOpen && (
@@ -636,6 +645,8 @@ export default function InstallModPanel({
 																</span>
 															))}
 														</div>
+														{/* biome-ignore lint/a11y/noStaticElementInteractions: This wrapper only prevents tag controls from triggering their parent card. */}
+														{/* biome-ignore lint/a11y/useKeyWithClickEvents: The wrapper performs no user action; its child controls are native buttons. */}
 														<div
 															className="add-tag-wrapper"
 															onClick={(e) => e.stopPropagation()}
@@ -669,8 +680,9 @@ export default function InstallModPanel({
 																		left: dropdownPos.x,
 																	}}
 																>
-																	<div
-																		className="dropdown-item"
+																	<button
+																		type="button"
+																		className="dropdown-item unstyled-button"
 																		onClick={() => {
 																			onNewTag((tag) => {
 																				if (tag?.trim()) {
@@ -688,7 +700,7 @@ export default function InstallModPanel({
 																		}}
 																	>
 																		+ New Tag...
-																	</div>
+																	</button>
 																	{allTags &&
 																		allTags.length > 0 && (
 																			<div className="dropdown-separator" />
@@ -697,19 +709,24 @@ export default function InstallModPanel({
 																		<div
 																			key={tag}
 																			className="dropdown-item"
-																			onClick={() => {
-																				handleAddTag(
-																					idx,
-																					tag,
-																				);
-																				setOpenDropdown(
-																					null,
-																				);
-																			}}
 																		>
-																			<span className="dropdown-item-label">
-																				{tag}
-																			</span>
+																			<button
+																				type="button"
+																				className="dropdown-item-select unstyled-button"
+																				onClick={() => {
+																					handleAddTag(
+																						idx,
+																						tag,
+																					);
+																					setOpenDropdown(
+																						null,
+																					);
+																				}}
+																			>
+																				<span className="dropdown-item-label">
+																					{tag}
+																				</span>
+																			</button>
 																			{onDeleteTag && (
 																				<button
 																					type="button"
@@ -904,8 +921,9 @@ export default function InstallModPanel({
 												<div className="imp-folder-tree-container">
 													{/* Root folder */}
 													{rootFolder && (
-														<div
-															className={`imp-folder-item root-item ${modSettings[idx]?.installSubfolder === rootFolder.id || !modSettings[idx]?.installSubfolder ? "selected" : ""}`}
+														<button
+															type="button"
+															className={`imp-folder-item root-item unstyled-button ${modSettings[idx]?.installSubfolder === rootFolder.id || !modSettings[idx]?.installSubfolder ? "selected" : ""}`}
 															onClick={() =>
 																updateModSetting(
 																	idx,
@@ -920,7 +938,7 @@ export default function InstallModPanel({
 															<span className="folder-name">
 																{rootFolder.name}
 															</span>
-														</div>
+														</button>
 													)}
 
 													{/* Subfolders */}

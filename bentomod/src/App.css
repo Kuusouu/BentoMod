@@ -186,6 +186,7 @@ body {
 .vertical-resizer {
 	height: 10px;
 	background: transparent;
+	border: 0;
 	cursor: row-resize;
 	width: 100%;
 	flex-shrink: 0;
@@ -1004,6 +1005,43 @@ button {
 
 button:hover:not(:disabled) {
 	border-color: var(--accent-primary);
+}
+
+/* Native controls that intentionally inherit an existing component's visual styling. */
+.unstyled-button,
+.unstyled-icon-button {
+	appearance: none;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	color: inherit;
+	font: inherit;
+	min-height: 0;
+	padding: 0;
+}
+
+.unstyled-button {
+	width: 100%;
+	text-align: inherit;
+}
+
+.unstyled-icon-button {
+	width: auto;
+}
+
+.unstyled-button:hover:not(:disabled),
+.unstyled-icon-button:hover:not(:disabled) {
+	border-color: transparent;
+}
+
+.folder-select-button {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 8px;
+	min-width: 0;
+	width: auto;
 }
 
 /* Button variants */

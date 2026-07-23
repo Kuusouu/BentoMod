@@ -53,6 +53,8 @@ export default function UpdateModModal({
 	return (
 		<AnimatePresence>
 			{isOpen && (
+				// biome-ignore lint/a11y/noStaticElementInteractions: Backdrop click is an optional pointer shortcut; the dialog has a keyboard-accessible cancel button.
+				// biome-ignore lint/a11y/useKeyWithClickEvents: Keyboard users close the dialog with its native button.
 				<div className="modal-overlay" onClick={onClose}>
 					<motion.div
 						className="modal-content update-mod-modal"

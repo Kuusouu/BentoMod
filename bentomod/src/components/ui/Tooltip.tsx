@@ -145,6 +145,7 @@ const Tooltip = ({
 	};
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: Hover and focus both expose the same tooltip content.
 		<div
 			className="bentomod-tooltip-trigger"
 			onMouseEnter={handleMouseEnter}

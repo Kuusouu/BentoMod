@@ -125,9 +125,7 @@ const ContextMenu = ({
 		});
 	}, [x, y]);
 
-	const handleDeleteDown = (e: React.MouseEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
+	const startDelete = () => {
 		if (!holdToDelete) {
 			onDelete();
 			onClose();
@@ -140,11 +138,35 @@ const ContextMenu = ({
 		}, 2000);
 	};
 
+	const cancelDelete = () => {
+		setIsDeleting(false);
+		if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+	};
+
+	const handleDeleteDown = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		startDelete();
+	};
+
 	const handleDeleteUp = (e: React.MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
-		setIsDeleting(false);
-		if (deleteTimeoutRef.current) clearTimeout(deleteTimeoutRef.current);
+		cancelDelete();
+	};
+
+	const handleDeleteKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+		if ((e.key !== "Enter" && e.key !== " ") || e.repeat) return;
+		e.preventDefault();
+		e.stopPropagation();
+		startDelete();
+	};
+
+	const handleDeleteKeyUp = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+		if (e.key !== "Enter" && e.key !== " ") return;
+		e.preventDefault();
+		e.stopPropagation();
+		cancelDelete();
 	};
 
 	const handleRenameClick = (e: React.MouseEvent) => {
@@ -158,7 +180,7 @@ const ContextMenu = ({
 	// measure it and switch to bottom-anchored / right-anchored placement if
 	// needed. Runs on every enter so it stays correct when the parent menu
 	// is opened in different spots.
-	const handleSubmenuEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+	const handleSubmenuEnter = (e: React.SyntheticEvent<HTMLDivElement>) => {
 		const trigger = e.currentTarget;
 		const submenu = trigger.querySelector<HTMLElement>(":scope > .submenu");
 		if (!submenu) return;
@@ -225,6 +247,8 @@ const ContextMenu = ({
 		const canMoveToRoot = currentParentId !== null;
 
 		return (
+			// biome-ignore lint/a11y/noStaticElementInteractions: This container only prevents menu commands from triggering the global outside-click listener.
+			// biome-ignore lint/a11y/useKeyWithClickEvents: The container performs no action; its commands are native buttons.
 			<div
 				ref={menuRef}
 				className="context-menu"
@@ -232,8 +256,9 @@ const ContextMenu = ({
 				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="context-menu-header">{folder.name}</div>
-				<div
-					className="context-menu-item"
+				<button
+					type="button"
+					className="context-menu-item unstyled-button"
 					onClick={async () => {
 						try {
 							// Construct full folder path from gamePath + folder.id
@@ -250,9 +275,10 @@ const ContextMenu = ({
 					}}
 				>
 					Open in Explorer
-				</div>
-				<div
-					className="context-menu-item"
+				</button>
+				<button
+					type="button"
+					className="context-menu-item unstyled-button"
 					onClick={async () => {
 						onClose();
 						try {
@@ -269,45 +295,52 @@ const ContextMenu = ({
 					}}
 				>
 					Copy Path
-				</div>
+				</button>
 				<div className="context-menu-separator" />
-				<div
-					className="context-menu-item"
+				<button
+					type="button"
+					className="context-menu-item unstyled-button"
 					onClick={() => {
 						onCreateFolder({ parentId: folder.id });
 						onClose();
 					}}
 				>
 					+ New Folder
-				</div>
+				</button>
 
 				{onMoveFolderTo && (
 					<div
 						className="context-menu-item submenu-trigger"
+						role="menuitem"
+						tabIndex={0}
+						aria-haspopup="menu"
 						onMouseEnter={handleSubmenuEnter}
+						onFocus={handleSubmenuEnter}
 					>
 						Move to...
 						<div className="submenu">
 							{canMoveToRoot && (
-								<div
-									className="context-menu-item"
+								<button
+									type="button"
+									className="context-menu-item unstyled-button"
 									onClick={() => {
 										onMoveFolderTo(null);
 										onClose();
 									}}
 								>
 									Root ({rootFolder?.name || "~mods"})
-								</div>
+								</button>
 							)}
-							<div
-								className="context-menu-item"
+							<button
+								type="button"
+								className="context-menu-item unstyled-button"
 								onClick={() => {
 									onCreateFolder({ moveFolderId: folder.id });
 									onClose();
 								}}
 							>
 								+ New Folder...
-							</div>
+							</button>
 							{moveCandidates.length > 0 && (
 								<>
 									<div className="context-menu-separator" />
@@ -320,16 +353,17 @@ const ContextMenu = ({
 										}}
 									>
 										{moveCandidates.map((f) => (
-											<div
+											<button
+												type="button"
 												key={f.id}
-												className="context-menu-item"
+												className="context-menu-item unstyled-button"
 												onClick={() => {
 													onMoveFolderTo(f.id);
 													onClose();
 												}}
 											>
 												{f.id}
-											</div>
+											</button>
 										))}
 									</div>
 								</>
@@ -346,8 +380,9 @@ const ContextMenu = ({
 					</div>
 				)}
 
-				<div
-					className="context-menu-item"
+				<button
+					type="button"
+					className="context-menu-item unstyled-button"
 					onClick={(e) => {
 						e.stopPropagation();
 						onRenameFolder();
@@ -355,19 +390,23 @@ const ContextMenu = ({
 					}}
 				>
 					Rename Folder
-				</div>
+				</button>
 				<div className="context-menu-separator" />
-				<div
-					className={`context-menu-item danger ${isDeleting ? "holding" : ""}`}
+				<button
+					type="button"
+					className={`context-menu-item danger unstyled-button ${isDeleting ? "holding" : ""}`}
 					onMouseDown={handleDeleteDown}
 					onMouseUp={handleDeleteUp}
 					onMouseLeave={handleDeleteUp}
+					onKeyDown={handleDeleteKeyDown}
+					onKeyUp={handleDeleteKeyUp}
+					onBlur={cancelDelete}
 				>
 					<div className="danger-bg" />
 					<span style={{ position: "relative", zIndex: 2 }}>
 						{isDeleting ? "Hold to delete..." : "Delete Folder (Hold 2s)"}
 					</span>
-				</div>
+				</button>
 			</div>
 		);
 	}
@@ -375,6 +414,8 @@ const ContextMenu = ({
 	if (!mod) return null;
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: This container only prevents menu commands from triggering the global outside-click listener.
+		// biome-ignore lint/a11y/useKeyWithClickEvents: The container performs no action; its commands are native buttons.
 		<div
 			ref={menuRef}
 			className="context-menu"
@@ -385,11 +426,19 @@ const ContextMenu = ({
 				{mod.custom_name || mod.path.split(/[/\\]/).pop()}
 			</div>
 
-			<div className="context-menu-item submenu-trigger" onMouseEnter={handleSubmenuEnter}>
+			<div
+				className="context-menu-item submenu-trigger"
+				role="menuitem"
+				tabIndex={0}
+				aria-haspopup="menu"
+				onMouseEnter={handleSubmenuEnter}
+				onFocus={handleSubmenuEnter}
+			>
 				Assign Tag...
 				<div className="submenu">
-					<div
-						className="context-menu-item"
+					<button
+						type="button"
+						className="context-menu-item unstyled-button"
 						onClick={() => {
 							onNewTag((tag) => {
 								if (tag) onAssignTag(tag);
@@ -398,18 +447,20 @@ const ContextMenu = ({
 						}}
 					>
 						+ New Tag...
-					</div>
+					</button>
 					{allTags && allTags.length > 0 && <div className="context-menu-separator" />}
 					{allTags?.map((tag) => (
-						<div
-							key={tag}
-							className="context-menu-item"
-							onClick={() => {
-								onAssignTag(tag);
-								onClose();
-							}}
-						>
-							<span className="context-menu-item-label">{tag}</span>
+						<div key={tag} className="context-menu-item">
+							<button
+								type="button"
+								className="context-menu-item-action unstyled-button"
+								onClick={() => {
+									onAssignTag(tag);
+									onClose();
+								}}
+							>
+								<span className="context-menu-item-label">{tag}</span>
+							</button>
 							{onDeleteTag && (
 								<button
 									type="button"
@@ -429,18 +480,26 @@ const ContextMenu = ({
 				</div>
 			</div>
 
-			<div className="context-menu-item submenu-trigger" onMouseEnter={handleSubmenuEnter}>
+			<div
+				className="context-menu-item submenu-trigger"
+				role="menuitem"
+				tabIndex={0}
+				aria-haspopup="menu"
+				onMouseEnter={handleSubmenuEnter}
+				onFocus={handleSubmenuEnter}
+			>
 				Move to...
 				<div className="submenu">
-					<div
-						className="context-menu-item"
+					<button
+						type="button"
+						className="context-menu-item unstyled-button"
 						onClick={() => {
 							onCreateFolder();
 							onClose();
 						}}
 					>
 						+ New Folder...
-					</div>
+					</button>
 					<div className="context-menu-separator" />
 					<div
 						className="scrollable-menu-list"
@@ -449,35 +508,38 @@ const ContextMenu = ({
 						{folders
 							.filter((f) => !f.is_root)
 							.map((f) => (
-								<div
+								<button
+									type="button"
 									key={f.id}
-									className="context-menu-item"
+									className="context-menu-item unstyled-button"
 									onClick={() => {
 										onMoveTo(f.id);
 										onClose();
 									}}
 								>
 									{f.id}
-								</div>
+								</button>
 							))}
 					</div>
 					<div className="context-menu-separator" />
-					<div
-						className="context-menu-item"
+					<button
+						type="button"
+						className="context-menu-item unstyled-button"
 						onClick={() => {
 							onMoveTo(null);
 							onClose();
 						}}
 					>
 						Root ({folders.find((f) => f.is_root)?.name || "~mods"})
-					</div>
+					</button>
 				</div>
 			</div>
 
 			<div className="context-menu-separator" />
 
-			<div
-				className="context-menu-item"
+			<button
+				type="button"
+				className="context-menu-item unstyled-button"
 				onClick={() => {
 					if (onCheckConflicts) onCheckConflicts();
 					onClose();
@@ -488,49 +550,60 @@ const ContextMenu = ({
 					className="warning-icon-small"
 					style={{ fill: "var(--accent-primary)" }}
 				/>
-			</div>
+			</button>
 
-			<div
-				className="context-menu-item"
+			<button
+				type="button"
+				className="context-menu-item unstyled-button"
 				onClick={() => {
 					if (onUpdateMod) onUpdateMod();
 					onClose();
 				}}
 			>
 				Update/Replace
-			</div>
+			</button>
 
-			<div
-				className="context-menu-item"
+			<button
+				type="button"
+				className="context-menu-item unstyled-button"
 				onClick={() => {
 					if (onSendToVfxUpdater) onSendToVfxUpdater(mod);
 					onClose();
 				}}
 			>
 				Send to VFX Updater
-			</div>
+			</button>
 
 			<div className="context-menu-separator" />
 
-			<div
-				className="context-menu-item"
+			<button
+				type="button"
+				className="context-menu-item unstyled-button"
 				onClick={() => {
 					onToggle();
 					onClose();
 				}}
 			>
 				{mod.enabled ? "Disable" : "Enable"}
-			</div>
+			</button>
 
-			<div className="context-menu-item" onClick={handleRenameClick}>
+			<button
+				type="button"
+				className="context-menu-item unstyled-button"
+				onClick={handleRenameClick}
+			>
 				Rename
-			</div>
+			</button>
 
-			<div
-				className={`context-menu-item danger ${isDeleting ? "holding" : ""}`}
+			<button
+				type="button"
+				className={`context-menu-item danger unstyled-button ${isDeleting ? "holding" : ""}`}
 				onMouseDown={handleDeleteDown}
 				onMouseUp={handleDeleteUp}
 				onMouseLeave={handleDeleteUp}
+				onKeyDown={handleDeleteKeyDown}
+				onKeyUp={handleDeleteKeyUp}
+				onBlur={cancelDelete}
 			>
 				<div className="danger-bg" />
 				<span style={{ position: "relative", zIndex: 2 }}>
@@ -540,21 +613,23 @@ const ContextMenu = ({
 							? "Hold to delete..."
 							: "Delete (Hold 2s)"}
 				</span>
-			</div>
+			</button>
 
 			<div className="context-menu-separator" />
 
-			<div
-				className="context-menu-item"
+			<button
+				type="button"
+				className="context-menu-item unstyled-button"
 				onClick={() => {
 					if (onExtractAssets) onExtractAssets(mod);
 					onClose();
 				}}
 			>
 				Extract Assets
-			</div>
-			<div
-				className="context-menu-item"
+			</button>
+			<button
+				type="button"
+				className="context-menu-item unstyled-button"
 				onClick={async () => {
 					try {
 						await invoke("open_in_explorer", { path: mod.path });
@@ -565,9 +640,10 @@ const ContextMenu = ({
 				}}
 			>
 				Open in Explorer
-			</div>
-			<div
-				className="context-menu-item"
+			</button>
+			<button
+				type="button"
+				className="context-menu-item unstyled-button"
 				onClick={async () => {
 					try {
 						await invoke("copy_to_clipboard", { text: mod.path });
@@ -578,7 +654,7 @@ const ContextMenu = ({
 				}}
 			>
 				Copy Path
-			</div>
+			</button>
 		</div>
 	);
 };

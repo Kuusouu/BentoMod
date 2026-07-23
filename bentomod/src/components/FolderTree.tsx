@@ -136,7 +136,7 @@ const FolderNode = ({
 		}
 	};
 
-	const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
+	const handleContextMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
 		if (!node.isVirtual && node.id && onContextMenu) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -159,14 +159,15 @@ const FolderNode = ({
 		<div className="folder-tree-node">
 			<div
 				className={`node-content ${isSelected ? "selected" : ""} ${node.isVirtual ? "virtual" : ""}`}
-				onClick={handleSelect}
-				onContextMenu={handleContextMenu}
 				style={{ opacity: node.isVirtual ? 0.8 : 1 }}
-				title={node.isVirtual ? "Virtual Folder (Group)" : node.originalName}
 			>
-				<span
-					className="node-toggle-icon"
+				<button
+					type="button"
+					className="node-toggle-icon unstyled-icon-button"
 					onClick={handleToggle}
+					disabled={!hasChildren}
+					aria-label={`${isOpen ? "Collapse" : "Expand"} ${node.name}`}
+					aria-expanded={hasChildren ? isOpen : undefined}
 					style={{
 						width: "20px",
 						display: "flex",
@@ -177,27 +178,39 @@ const FolderNode = ({
 					}}
 				>
 					{isOpen ? <VscChevronDown /> : <VscChevronRight />}
-				</span>
+				</button>
 
-				<span className="node-icon folder-icon">
-					{isSelected || (isOpen && hasChildren) ? <VscFolderOpened /> : <VscFolder />}
-				</span>
-
-				<span
-					className="node-label"
-					style={{
-						flex: 1,
-						overflow: "hidden",
-						textOverflow: "ellipsis",
-						whiteSpace: "nowrap",
-					}}
+				<button
+					type="button"
+					className="folder-select-button unstyled-button"
+					onClick={handleSelect}
+					onContextMenu={handleContextMenu}
+					title={node.isVirtual ? "Virtual Folder (Group)" : node.originalName}
 				>
-					{node.name}
-				</span>
+					<span className="node-icon folder-icon">
+						{isSelected || (isOpen && hasChildren) ? (
+							<VscFolderOpened />
+						) : (
+							<VscFolder />
+						)}
+					</span>
 
-				{!node.isVirtual && count !== undefined && (
-					<span className="folder-count">{count}</span>
-				)}
+					<span
+						className="node-label"
+						style={{
+							flex: 1,
+							overflow: "hidden",
+							textOverflow: "ellipsis",
+							whiteSpace: "nowrap",
+						}}
+					>
+						{node.name}
+					</span>
+
+					{!node.isVirtual && count !== undefined && (
+						<span className="folder-count">{count}</span>
+					)}
+				</button>
 			</div>
 
 			{hasChildren && isOpen && (
@@ -252,8 +265,9 @@ const FolderTree = ({
 			{/* All Mods Root Node */}
 			{!hideAllMods && (
 				<div className="folder-tree-node">
-					<div
-						className={`node-content all-mods ${selectedFolderId === "all" ? "selected" : ""}`}
+					<button
+						type="button"
+						className={`node-content all-mods unstyled-button ${selectedFolderId === "all" ? "selected" : ""}`}
 						onClick={() => onSelect("all")}
 					>
 						<span className="node-icon folder-icon">
@@ -261,7 +275,7 @@ const FolderTree = ({
 						</span>
 						<span className="node-label">All Mods</span>
 						<span className="folder-count">{getCount("all")}</span>
-					</div>
+					</button>
 				</div>
 			)}
 
@@ -270,11 +284,13 @@ const FolderTree = ({
 				<div className="folder-tree-node">
 					<div
 						className={`node-content ${selectedFolderId === rootFolder.id ? "selected" : ""}`}
-						onClick={() => onSelect(rootFolder.id)}
 					>
-						<span
-							className="node-toggle-icon"
+						<button
+							type="button"
+							className="node-toggle-icon unstyled-icon-button"
 							onClick={handleRootToggle}
+							aria-label={`${isRootOpen ? "Collapse" : "Expand"} ${rootFolder.name}`}
+							aria-expanded={isRootOpen}
 							style={{
 								width: "20px",
 								display: "flex",
@@ -285,17 +301,23 @@ const FolderTree = ({
 							}}
 						>
 							{isRootOpen ? <VscChevronDown /> : <VscChevronRight />}
-						</span>
+						</button>
 
-						<span className="node-icon folder-icon">
-							{selectedFolderId === rootFolder.id ? (
-								<VscFolderOpened />
-							) : (
-								<VscFolder />
-							)}
-						</span>
-						<span className="node-label">{rootFolder.name}</span>
-						<span className="folder-count">{getCount(rootFolder.id)}</span>
+						<button
+							type="button"
+							className="folder-select-button unstyled-button"
+							onClick={() => onSelect(rootFolder.id)}
+						>
+							<span className="node-icon folder-icon">
+								{selectedFolderId === rootFolder.id ? (
+									<VscFolderOpened />
+								) : (
+									<VscFolder />
+								)}
+							</span>
+							<span className="node-label">{rootFolder.name}</span>
+							<span className="folder-count">{getCount(rootFolder.id)}</span>
+						</button>
 					</div>
 
 					{/* Render subfolders as children of root */}

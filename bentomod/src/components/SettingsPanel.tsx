@@ -140,6 +140,8 @@ export default function SettingsPanel({
 	}, [settings.launcherType]);
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: Backdrop click is an optional pointer shortcut; the dialog has keyboard-accessible close buttons.
+		// biome-ignore lint/a11y/useKeyWithClickEvents: Keyboard users close the dialog with its native buttons.
 		<div className="modal-overlay" onClick={onClose}>
 			<motion.div
 				className="modal-content settings-modal"

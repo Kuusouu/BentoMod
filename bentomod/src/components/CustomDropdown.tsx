@@ -124,10 +124,17 @@ const CustomDropdown = ({
 								<div
 									key={`${optValue}-${index}`}
 									className={`custom-dropdown-item ${isSelected ? "selected" : ""}`}
-									onClick={() => handleSelect(option)}
-									title={optLabel}
 								>
-									<span className="custom-dropdown-item-label">{optLabel}</span>
+									<button
+										type="button"
+										className="custom-dropdown-item-select unstyled-button"
+										onClick={() => handleSelect(option)}
+										title={optLabel}
+									>
+										<span className="custom-dropdown-item-label">
+											{optLabel}
+										</span>
+									</button>
 									{onDeleteOption && optValue && optShowDelete && (
 										<button
 											type="button"
@@ -148,15 +155,16 @@ const CustomDropdown = ({
 					{onAddNew && (
 						<>
 							<div className="custom-dropdown-separator" />
-							<div
-								className="custom-dropdown-item add-new"
+							<button
+								type="button"
+								className="custom-dropdown-item add-new unstyled-button"
 								onClick={() => {
 									onAddNew();
 									setIsOpen(false);
 								}}
 							>
 								{addNewLabel}
-							</div>
+							</button>
 						</>
 					)}
 				</div>

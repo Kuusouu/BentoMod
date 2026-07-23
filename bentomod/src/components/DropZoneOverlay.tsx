@@ -110,15 +110,18 @@ const DropFolderNode = ({
 				className={`drop-folder-item ${isSelected ? "selected" : ""} ${node.isVirtual ? "virtual" : ""}`}
 				data-folder-id={node.isVirtual ? undefined : node.id}
 				data-dropzone="folder"
-				onClick={handleClick}
 				style={{ paddingLeft: `${depth * 16 + 8}px` }}
 			>
-				<span
-					className="folder-toggle"
+				<button
+					type="button"
+					className="folder-toggle unstyled-icon-button"
 					onClick={(e) => {
 						e.stopPropagation();
 						setIsOpen(!isOpen);
 					}}
+					disabled={!hasChildren}
+					aria-label={`${isOpen ? "Collapse" : "Expand"} ${node.name}`}
+					aria-expanded={hasChildren ? isOpen : undefined}
 				>
 					{hasChildren ? (
 						isOpen ? (
@@ -129,11 +132,17 @@ const DropFolderNode = ({
 					) : (
 						<span style={{ width: 16 }} />
 					)}
-				</span>
-				<span className="folder-icon">
-					{isSelected || isOpen ? <VscFolderOpened /> : <VscFolder />}
-				</span>
-				<span className="folder-name">{node.name}</span>
+				</button>
+				<button
+					type="button"
+					className="folder-select-button unstyled-button"
+					onClick={handleClick}
+				>
+					<span className="folder-icon">
+						{isSelected || isOpen ? <VscFolderOpened /> : <VscFolder />}
+					</span>
+					<span className="folder-name">{node.name}</span>
+				</button>
 			</div>
 
 			{hasChildren && isOpen && (
@@ -379,6 +388,7 @@ const DropZoneOverlay = ({
 
 							<div className="folder-tree-wrapper">
 								{/* Scroll zone - Top */}
+								{/* biome-ignore lint/a11y/noStaticElementInteractions: This edge zone only auto-scrolls during pointer drag operations. */}
 								<div
 									className="scroll-zone scroll-zone-top"
 									onMouseEnter={() => startScrolling("up")}
@@ -388,8 +398,9 @@ const DropZoneOverlay = ({
 								<div className="folder-tree-container" ref={folderTreeRef}>
 									{/* Root folder */}
 									{rootFolder && (
-										<div
-											className={`drop-folder-item root-item ${selectedFolderId === rootFolder.id ? "selected" : ""}`}
+										<button
+											type="button"
+											className={`drop-folder-item root-item unstyled-button ${selectedFolderId === rootFolder.id ? "selected" : ""}`}
 											data-folder-id={rootFolder.id}
 											data-dropzone="folder"
 											onClick={() => setSelectedFolderId(rootFolder.id)}
@@ -398,7 +409,7 @@ const DropZoneOverlay = ({
 												<VscFolderOpened />
 											</span>
 											<span className="folder-name">{rootFolder.name}</span>
-										</div>
+										</button>
 									)}
 
 									{/* Subfolders */}
@@ -415,6 +426,7 @@ const DropZoneOverlay = ({
 								</div>
 
 								{/* Scroll zone - Bottom */}
+								{/* biome-ignore lint/a11y/noStaticElementInteractions: This edge zone only auto-scrolls during pointer drag operations. */}
 								<div
 									className="scroll-zone scroll-zone-bottom"
 									onMouseEnter={() => startScrolling("down")}

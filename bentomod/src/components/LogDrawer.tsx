@@ -96,12 +96,7 @@ export default function LogDrawer({
 		return "";
 	};
 
-	const handleCopyLine = async (
-		text: string,
-		index: number,
-		e: React.MouseEvent<HTMLDivElement>,
-	) => {
-		e.preventDefault();
+	const handleCopyLine = async (text: string, index: number) => {
 		try {
 			await navigator.clipboard.writeText(text);
 			setCopyFeedback({ id: index, text: "Copied!" });
@@ -128,10 +123,7 @@ export default function LogDrawer({
 			animate={{ height: isOpen ? drawerHeight : 36 }}
 			transition={{ type: "tween", duration: 0.25 }}
 		>
-			<div
-				className={`log-drawer-header ${isLoading ? "is-loading" : ""}`}
-				onClick={onToggle}
-			>
+			<div className={`log-drawer-header ${isLoading ? "is-loading" : ""}`}>
 				{/* Progress bar as background */}
 				{isLoading && (
 					<div className="log-drawer-progress-bg">
@@ -141,7 +133,11 @@ export default function LogDrawer({
 						/>
 					</div>
 				)}
-				<div className="log-drawer-status">
+				<button
+					type="button"
+					className="log-drawer-status unstyled-button"
+					onClick={onToggle}
+				>
 					<FaTerminal className="log-drawer-icon" />
 					<span className="log-drawer-status-text">{status}</span>
 					{!isOpen && logs.length > 0 && (
@@ -149,8 +145,8 @@ export default function LogDrawer({
 							{logs.length} log{logs.length !== 1 ? "s" : ""}
 						</span>
 					)}
-				</div>
-				<div className="log-drawer-actions" onClick={(e) => e.stopPropagation()}>
+				</button>
+				<div className="log-drawer-actions">
 					<button type="button" className="log-drawer-btn" onClick={onToggle}>
 						{isOpen ? "Hide ▼" : "Show ▲"}
 					</button>
@@ -158,11 +154,26 @@ export default function LogDrawer({
 			</div>
 
 			{isOpen && (
-				<div
+				<hr
 					className="log-drawer-resize-handle"
-					onMouseDown={(e: React.MouseEvent<HTMLDivElement>) => {
+					aria-label="Resize log drawer"
+					aria-orientation="horizontal"
+					aria-valuemin={minHeight}
+					aria-valuemax={Math.round(window.innerHeight * maxHeightPercent)}
+					aria-valuenow={drawerHeight}
+					tabIndex={0}
+					onMouseDown={(e: React.MouseEvent<HTMLHRElement>) => {
 						e.stopPropagation();
 						resizingRef.current = true;
+					}}
+					onKeyDown={(e) => {
+						if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+						e.preventDefault();
+						const direction = e.key === "ArrowUp" ? 1 : -1;
+						const maximum = Math.round(window.innerHeight * maxHeightPercent);
+						setDrawerHeight((height) =>
+							Math.min(Math.max(height + direction * 10, minHeight), maximum),
+						);
 					}}
 					title="Drag to resize"
 				/>
@@ -214,11 +225,16 @@ export default function LogDrawer({
 						) : (
 							<div className="log-drawer-scroll" ref={logScrollRef}>
 								{logs.map((log, i) => (
-									<div
+									<button
+										type="button"
 										key={i}
-										className={`log-drawer-line ${getLogClass(log)}`}
-										onContextMenu={(e) => handleCopyLine(log, i, e)}
-										title="Right-click to copy line"
+										className={`log-drawer-line unstyled-button ${getLogClass(log)}`}
+										onClick={() => handleCopyLine(log, i)}
+										onContextMenu={(e) => {
+											e.preventDefault();
+											handleCopyLine(log, i);
+										}}
+										title="Copy line"
 									>
 										<span className="log-drawer-line-number">
 											{String(i + 1).padStart(3, " ")}
@@ -227,7 +243,7 @@ export default function LogDrawer({
 										{copyFeedback?.id === i && (
 											<span className="log-line-feedback">Copied!</span>
 										)}
-									</div>
+									</button>
 								))}
 							</div>
 						)}

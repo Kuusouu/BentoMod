@@ -2430,7 +2430,7 @@ function App() {
 		setIsResizing(false);
 	};
 
-	const handleFiltersResizeStart = (e: React.MouseEvent<HTMLDivElement>) => {
+	const handleFiltersResizeStart = (e: React.MouseEvent<HTMLHRElement>) => {
 		setIsFiltersResizing(true);
 		const filtersElement = e.currentTarget.previousElementSibling as HTMLElement;
 		filtersResizeRef.current = {
@@ -2439,6 +2439,18 @@ function App() {
 				filtersHeight !== null ? filtersHeight : filtersElement?.offsetHeight || 200,
 		};
 		e.preventDefault();
+	};
+
+	const handleFiltersResizeKeyDown = (e: React.KeyboardEvent<HTMLHRElement>) => {
+		if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+
+		e.preventDefault();
+		const filtersElement = e.currentTarget.previousElementSibling as HTMLElement;
+		const currentHeight = filtersHeight ?? filtersElement?.offsetHeight ?? 200;
+		const direction = e.key === "ArrowUp" ? -1 : 1;
+		setFiltersHeight(
+			Math.max(50, Math.min(window.innerHeight - 200, currentHeight + direction * 10)),
+		);
 	};
 
 	const handleFiltersResizeMove = (e: MouseEvent) => {
@@ -3532,7 +3544,7 @@ function App() {
 				)}
 
 				{/* Main 3-Panel Layout */}
-				<div className="main-panels" onMouseMove={(e) => handleResizeMove(e.nativeEvent)}>
+				<div className="main-panels">
 					{/* Wrapper for Left Sidebar and Center Panel */}
 					<motion.div
 						className="content-wrapper"
@@ -3596,9 +3608,11 @@ function App() {
 									</div>
 
 									{/* Character/Hero Chips */}
-									<div
-										className="filter-section-header"
+									<button
+										type="button"
+										className="filter-section-header unstyled-button"
 										onClick={() => setShowCharacterFilters((v) => !v)}
+										aria-expanded={showCharacterFilters}
 									>
 										<div className="filter-label-secondary">
 											Characters{" "}
@@ -3608,7 +3622,7 @@ function App() {
 										<span className="filter-chevron">
 											{showCharacterFilters ? "\u25bc" : "\u25b6"}
 										</span>
-									</div>
+									</button>
 									{showCharacterFilters && (
 										<HeroFilterDropdown
 											availableCharacters={availableCharacters}
@@ -3648,9 +3662,11 @@ function App() {
 									)}
 
 									{/* Category Chips */}
-									<div
-										className="filter-section-header with-margin"
+									<button
+										type="button"
+										className="filter-section-header with-margin unstyled-button"
 										onClick={() => setShowTypeFilters((v) => !v)}
+										aria-expanded={showTypeFilters}
 									>
 										<div className="filter-label-secondary">
 											Types{" "}
@@ -3660,7 +3676,7 @@ function App() {
 										<span className="filter-chevron">
 											{showTypeFilters ? "\u25bc" : "\u25b6"}
 										</span>
-									</div>
+									</button>
 									{showTypeFilters && (
 										<div className="filter-chips-scroll">
 											{availableCategories.map((cat) => {
@@ -3690,9 +3706,16 @@ function App() {
 								</div>
 							</div>
 							{/* Vertical Resize Handle */}
-							<div
+							<hr
 								className={`vertical-resizer ${isFiltersResizing ? "resizing" : ""}`}
+								aria-label="Resize filters and folders"
+								aria-orientation="horizontal"
+								aria-valuemin={50}
+								aria-valuemax={Math.max(50, window.innerHeight - 200)}
+								aria-valuenow={filtersHeight ?? 200}
+								tabIndex={0}
 								onMouseDown={handleFiltersResizeStart}
+								onKeyDown={handleFiltersResizeKeyDown}
 							/>
 							<div className="sidebar-header">
 								<h3>Folders</h3>

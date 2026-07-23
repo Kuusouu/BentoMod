@@ -113,15 +113,18 @@ const FolderNode = ({
 		<div className="ext-folder-node">
 			<div
 				className={`ext-folder-item ${isSelected ? "selected" : ""} ${node.isVirtual ? "virtual" : ""}`}
-				onClick={handleClick}
 				style={{ paddingLeft: `${depth * 16 + 8}px` }}
 			>
-				<span
-					className="folder-toggle"
+				<button
+					type="button"
+					className="folder-toggle unstyled-icon-button"
 					onClick={(e) => {
 						e.stopPropagation();
 						setIsOpen(!isOpen);
 					}}
+					disabled={!hasChildren}
+					aria-label={`${isOpen ? "Collapse" : "Expand"} ${node.name}`}
+					aria-expanded={hasChildren ? isOpen : undefined}
 				>
 					{hasChildren ? (
 						isOpen ? (
@@ -132,11 +135,17 @@ const FolderNode = ({
 					) : (
 						<span style={{ width: 16 }} />
 					)}
-				</span>
-				<span className="folder-icon">
-					{isSelected || isOpen ? <VscFolderOpened /> : <VscFolder />}
-				</span>
-				<span className="folder-name">{node.name}</span>
+				</button>
+				<button
+					type="button"
+					className="folder-select-button unstyled-button"
+					onClick={handleClick}
+				>
+					<span className="folder-icon">
+						{isSelected || isOpen ? <VscFolderOpened /> : <VscFolder />}
+					</span>
+					<span className="folder-name">{node.name}</span>
+				</button>
 			</div>
 
 			{hasChildren && isOpen && (
@@ -288,15 +297,16 @@ const ExtensionModOverlay = ({
 								<div className="folder-tree-container" ref={folderTreeRef}>
 									{/* Root folder */}
 									{rootFolder && (
-										<div
-											className={`ext-folder-item root-item ${selectedFolderId === null ? "selected" : ""}`}
+										<button
+											type="button"
+											className={`ext-folder-item root-item unstyled-button ${selectedFolderId === null ? "selected" : ""}`}
 											onClick={() => setSelectedFolderId(null)}
 										>
 											<span className="folder-icon">
 												<VscFolderOpened />
 											</span>
 											<span className="folder-name">{rootFolder.name}</span>
-										</div>
+										</button>
 									)}
 
 									{/* Subfolders */}

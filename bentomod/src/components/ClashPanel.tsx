@@ -23,6 +23,8 @@ type ClashPanelProps = {
 
 const ClashPanel = ({ clashes, mods = [], onSetPriority, onClose }: ClashPanelProps) => {
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: Backdrop click is an optional pointer shortcut; the dialog has keyboard-accessible close buttons.
+		// biome-ignore lint/a11y/useKeyWithClickEvents: Keyboard users close the dialog with its native buttons.
 		<div className="modal-overlay clash-overlay" onClick={onClose}>
 			<motion.div
 				className="clash-panel-content"

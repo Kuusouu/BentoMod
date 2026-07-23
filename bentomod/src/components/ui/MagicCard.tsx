@@ -31,6 +31,7 @@ export function MagicCard({
 	};
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: Mouse movement only drives a decorative lighting effect.
 		<div
 			ref={cardRef}
 			className={`magic-card ${className}`}
