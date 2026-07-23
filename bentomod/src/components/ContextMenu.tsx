@@ -412,6 +412,7 @@ const ContextMenu = ({
 							<span className="context-menu-item-label">{tag}</span>
 							{onDeleteTag && (
 								<button
+									type="button"
 									className="context-menu-item-delete"
 									onClick={(e) => {
 										e.stopPropagation();

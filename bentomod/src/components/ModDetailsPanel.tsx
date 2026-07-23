@@ -166,6 +166,7 @@ export default function ModDetailsPanel({
 				<h2>{cleanName}</h2>
 				{onUpdateMod && (
 					<button
+						type="button"
 						className="header-action-btn"
 						onClick={onUpdateMod}
 						title="Replace Mod File"
@@ -420,6 +421,7 @@ export default function ModDetailsPanel({
 							<div className="detail-section-header">
 								<h3>File Contents ({details.file_count} files)</h3>
 								<button
+									type="button"
 									className="copy-paths-btn"
 									onClick={() => {
 										const allPaths = (details.files || [])

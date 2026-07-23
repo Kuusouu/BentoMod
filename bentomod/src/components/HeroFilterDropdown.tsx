@@ -159,6 +159,7 @@ const HeroFilterItem = ({ hero, selectedCharacters, onToggle }: HeroFilterItemPr
 		<div className="hero-filter-item">
 			<div className="hero-filter-row">
 				<button
+					type="button"
 					className="hero-expand-btn"
 					onClick={handleExpandClick}
 					style={{ visibility: hasSkins || hero.baseModCount > 0 ? "visible" : "hidden" }}
@@ -166,6 +167,7 @@ const HeroFilterItem = ({ hero, selectedCharacters, onToggle }: HeroFilterItemPr
 					{isExpanded ? "▼" : "▶"}
 				</button>
 				<button
+					type="button"
 					className={parentClass}
 					onClick={handleGroupClick}
 					title={`Toggle all ${hero.baseName} skins`}
@@ -181,6 +183,7 @@ const HeroFilterItem = ({ hero, selectedCharacters, onToggle }: HeroFilterItemPr
 					{/* Explicit "Default Skin" entry if base mods exist */}
 					{hero.baseModCount > 0 && (
 						<button
+							type="button"
 							className={`hero-skin-item ${isDefaultSelected ? "active" : ""} default-skin-entry`}
 							onClick={handleDefaultSkinClick}
 							title={`${hero.baseName} (Default Skin)`}
@@ -193,6 +196,7 @@ const HeroFilterItem = ({ hero, selectedCharacters, onToggle }: HeroFilterItemPr
 					{/* Other Skins */}
 					{hero.skins.map((skin) => (
 						<button
+							type="button"
 							key={skin.fullName}
 							className={`hero-skin-item ${selectedCharacters.has(skin.fullName) ? "active" : ""}`}
 							onClick={(e) => handleSkinClick(e, skin.fullName)}
@@ -239,6 +243,7 @@ export default function HeroFilterDropdown({
 			{/* Special filters - always visible */}
 			<div className="hero-filter-special">
 				<button
+					type="button"
 					className={`filter-chip-compact ${selectedCharacters.has("__multi") ? "active" : ""}`}
 					onClick={() => onToggle("__multi")}
 					title="Multiple Heroes"
@@ -246,6 +251,7 @@ export default function HeroFilterDropdown({
 					Multi {multiModCount > 0 && <span className="chip-count">{multiModCount}</span>}
 				</button>
 				<button
+					type="button"
 					className={`filter-chip-compact ${selectedCharacters.has("__generic") ? "active" : ""}`}
 					onClick={() => onToggle("__generic")}
 					title="Generic/Global"

@@ -89,6 +89,7 @@ const CustomDropdown = ({
 	return (
 		<div className={`custom-dropdown-container ${className}`} ref={dropdownRef}>
 			<button
+				type="button"
 				className={`custom-dropdown-trigger ${isOpen ? "open" : ""} ${value ? "active" : ""}`}
 				onClick={handleToggle}
 				title={getLabel(value)}
@@ -129,6 +130,7 @@ const CustomDropdown = ({
 									<span className="custom-dropdown-item-label">{optLabel}</span>
 									{onDeleteOption && optValue && optShowDelete && (
 										<button
+											type="button"
 											className={`custom-dropdown-item-delete ${alwaysShowDeleteIcon ? "always-visible" : ""}`}
 											onClick={(e) => {
 												e.stopPropagation();

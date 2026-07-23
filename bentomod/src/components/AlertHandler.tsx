@@ -476,6 +476,7 @@ function ToastContainer({
 							<span className="toast-count-badge">+{toasts.length - maxVisible}</span>
 						)}
 						<button
+							type="button"
 							className="toast-clear-all"
 							onClick={onDismissAll}
 							title="Clear all notifications"
@@ -639,6 +640,7 @@ const ToastItem = memo(function ToastItem({
 				<div className="toast-end-content">
 					{action.label && action.onClick ? (
 						<button
+							type="button"
 							className="toast-action-btn"
 							onClick={(e) => {
 								e.stopPropagation();
@@ -655,7 +657,12 @@ const ToastItem = memo(function ToastItem({
 
 			{endContent && <div className="toast-end-content">{endContent}</div>}
 
-			<button className="toast-close" onClick={() => onDismiss(id)} aria-label="Close">
+			<button
+				type="button"
+				className="toast-close"
+				onClick={() => onDismiss(id)}
+				aria-label="Close"
+			>
 				<svg
 					width="14"
 					height="14"

@@ -151,7 +151,7 @@ export default function LogDrawer({
 					)}
 				</div>
 				<div className="log-drawer-actions" onClick={(e) => e.stopPropagation()}>
-					<button className="log-drawer-btn" onClick={onToggle}>
+					<button type="button" className="log-drawer-btn" onClick={onToggle}>
 						{isOpen ? "Hide ▼" : "Show ▲"}
 					</button>
 				</div>
@@ -184,6 +184,7 @@ export default function LogDrawer({
 							{logs.length > 0 && (
 								<>
 									<button
+										type="button"
 										className="log-drawer-action-btn"
 										onClick={handleCopyAll}
 										title="Copy all logs"
@@ -192,6 +193,7 @@ export default function LogDrawer({
 									</button>
 									{onClear && (
 										<button
+											type="button"
 											className="log-drawer-action-btn"
 											onClick={onClear}
 											title="Clear logs"

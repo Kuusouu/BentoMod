@@ -36,7 +36,7 @@ function ShortcutsHelpModal({ isOpen, onClose }: ShortcutsHelpModalProps) {
 			>
 				<div className="modal-header">
 					<h2>⌨️ Keyboard Shortcuts</h2>
-					<button className="modal-close" onClick={onClose}>
+					<button type="button" className="modal-close" onClick={onClose}>
 						×
 					</button>
 				</div>

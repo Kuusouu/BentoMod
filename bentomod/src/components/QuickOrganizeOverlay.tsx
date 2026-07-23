@@ -270,7 +270,7 @@ const QuickOrganizeOverlay = ({
 									(Audio/Config)
 								</p>
 							</div>
-							<button className="close-btn" onClick={onCancel}>
+							<button type="button" className="close-btn" onClick={onCancel}>
 								<VscClose />
 							</button>
 						</div>
@@ -313,6 +313,7 @@ const QuickOrganizeOverlay = ({
 												onClick={(e) => e.stopPropagation()}
 											/>
 											<button
+												type="button"
 												className="btn-confirm-folder"
 												onClick={handleConfirmNewFolder}
 												title="Confirm"
@@ -320,6 +321,7 @@ const QuickOrganizeOverlay = ({
 												<VscCheck />
 											</button>
 											<button
+												type="button"
 												className="btn-cancel-folder"
 												onClick={handleCancelNewFolder}
 												title="Cancel"
@@ -329,6 +331,7 @@ const QuickOrganizeOverlay = ({
 										</div>
 									) : (
 										<button
+											type="button"
 											className="btn-new-folder"
 											onClick={handleNewFolderClick}
 											disabled={isCreatingFolder}
@@ -377,10 +380,11 @@ const QuickOrganizeOverlay = ({
 
 						{/* Footer */}
 						<div className="qo-footer">
-							<button className="btn-cancel" onClick={onCancel}>
+							<button type="button" className="btn-cancel" onClick={onCancel}>
 								Cancel
 							</button>
 							<button
+								type="button"
 								className={`btn-copy ${isInstalling ? "loading" : ""}`}
 								onClick={handleInstall}
 								disabled={isInstalling}

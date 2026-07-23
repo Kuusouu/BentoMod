@@ -198,7 +198,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
 				>
 					<div className="modal-header">
 						<h2>Tools</h2>
-						<button className="modal-close" onClick={onClose}>
+						<button type="button" className="modal-close" onClick={onClose}>
 							×
 						</button>
 					</div>
@@ -224,6 +224,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
 									}}
 								>
 									<button
+										type="button"
 										onClick={handleBackupMods}
 										style={{
 											display: "flex",
@@ -270,6 +271,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
 									}}
 								>
 									<button
+										type="button"
 										onClick={handleToggleSigBypasser}
 										disabled={
 											isTogglingSigBypasser ||
@@ -367,6 +369,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
 									}}
 								>
 									<button
+										type="button"
 										onClick={handleSkipLauncherPatch}
 										disabled={isSkippingLauncher}
 										style={{
@@ -517,6 +520,7 @@ export default function ToolsPanel({ onClose, mods = [], onToggleMod }: ToolsPan
 
 					<div className="modal-footer" style={{ gap: "0.5rem" }}>
 						<button
+							type="button"
 							onClick={onClose}
 							className="btn-primary"
 							style={{ padding: "0.4rem 1rem", fontSize: "0.9rem", minWidth: "auto" }}

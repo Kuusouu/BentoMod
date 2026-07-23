@@ -50,7 +50,7 @@ const ClashPanel = ({ clashes, mods = [], onSetPriority, onClose }: ClashPanelPr
 							</span>
 						)}
 					</h2>
-					<button className="close-icon-btn" onClick={onClose}>
+					<button type="button" className="close-icon-btn" onClick={onClose}>
 						<Close fontSize="small" />
 					</button>
 				</div>
@@ -111,7 +111,7 @@ const ClashPanel = ({ clashes, mods = [], onSetPriority, onClose }: ClashPanelPr
 				</div>
 
 				<div className="clash-footer">
-					<button className="btn-primary" onClick={onClose}>
+					<button type="button" className="btn-primary" onClick={onClose}>
 						Close
 					</button>
 				</div>

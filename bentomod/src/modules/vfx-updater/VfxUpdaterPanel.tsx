@@ -604,15 +604,17 @@ export default function VfxUpdaterPanel() {
 					>
 						<div className="vfx-inputs-container">
 							<div className="vfx-setting-row">
-								<label>USMAP File</label>
+								<label htmlFor="vfx-usmap-path">USMAP File</label>
 								<div className="vfx-input-group">
 									<input
+										id="vfx-usmap-path"
 										type="text"
 										value={usmapPath || ""}
 										readOnly
 										placeholder="Select .usmap file..."
 									/>
 									<button
+										type="button"
 										onClick={() => {
 											void runUsmapCheck(true);
 										}}
@@ -622,6 +624,7 @@ export default function VfxUpdaterPanel() {
 										{isFetchingUsmap ? "Fetching..." : "Fetch"}
 									</button>
 									<button
+										type="button"
 										onClick={() =>
 											handleFilePick(
 												setUsmapPath,
@@ -636,15 +639,17 @@ export default function VfxUpdaterPanel() {
 							</div>
 
 							<div className="vfx-setting-row">
-								<label>Mod File (.utoc)</label>
+								<label htmlFor="vfx-mod-path">Mod File (.utoc)</label>
 								<div className="vfx-input-group">
 									<input
+										id="vfx-mod-path"
 										type="text"
 										value={modPath || ""}
 										readOnly
 										placeholder="Select mod to update..."
 									/>
 									<button
+										type="button"
 										onClick={() =>
 											handleFilePick(setModPath, [
 												{ name: "IOStore", extensions: ["utoc"] },
@@ -671,6 +676,7 @@ export default function VfxUpdaterPanel() {
 							}
 						>
 							<button
+								type="button"
 								className="vfx-start-btn"
 								onClick={handleStart}
 								disabled={isStartDisabled}
@@ -771,7 +777,11 @@ export default function VfxUpdaterPanel() {
 							</div>
 						</div>
 
-						<button className="vfx-cancel-btn" onClick={handleCancelProcess}>
+						<button
+							type="button"
+							className="vfx-cancel-btn"
+							onClick={handleCancelProcess}
+						>
 							<VscClose size={18} />
 							<span>Cancel Process</span>
 						</button>
@@ -819,6 +829,7 @@ export default function VfxUpdaterPanel() {
 						</div>
 						<div className="vfx-complete-footer">
 							<button
+								type="button"
 								className="btn-secondary"
 								onClick={() => {
 									void emitModsRefresh();
@@ -827,7 +838,7 @@ export default function VfxUpdaterPanel() {
 							>
 								Leave in ~mods
 							</button>
-							<button className="btn-save" onClick={handleSaveOutput}>
+							<button type="button" className="btn-save" onClick={handleSaveOutput}>
 								Save to Selected
 							</button>
 						</div>
@@ -838,6 +849,7 @@ export default function VfxUpdaterPanel() {
 			<div className="vfx-logs">
 				{logs.length > 0 && (
 					<button
+						type="button"
 						className="vfx-logs-copy-btn"
 						onClick={handleCopyLogs}
 						title="Copy all logs"

@@ -533,6 +533,7 @@ const ModItem = memo(function ModItem({
 						/>
 					</div>
 					<button
+						type="button"
 						className={`hold-delete ${isDeleteHolding ? "holding" : ""}`}
 						onMouseDown={startDeleteHold}
 						onMouseUp={cancelDeleteHold}

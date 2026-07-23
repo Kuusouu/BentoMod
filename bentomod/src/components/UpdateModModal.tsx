@@ -152,10 +152,11 @@ export default function UpdateModModal({
 						</div>
 
 						<div className="modal-footer">
-							<button className="cancel-btn" onClick={onClose}>
+							<button type="button" className="cancel-btn" onClick={onClose}>
 								Cancel
 							</button>
 							<button
+								type="button"
 								className="btn-install"
 								onClick={() => onConfirm(preserveName, obfuscate)}
 								autoFocus

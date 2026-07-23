@@ -357,6 +357,7 @@ function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
 						<div className="onboarding-dots">
 							{TOUR_STEPS.map((_, i) => (
 								<button
+									type="button"
 									key={i}
 									className={`onboarding-dot ${i === currentStep ? "active" : ""}`}
 									onClick={() => setCurrentStep(i)}
@@ -366,6 +367,7 @@ function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
 
 						<div className="onboarding-actions">
 							<button
+								type="button"
 								className="onboarding-skip-btn"
 								onClick={onClose}
 								style={{ opacity: "0.7" }}
@@ -374,6 +376,7 @@ function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
 							</button>
 							{!isFirst && (
 								<button
+									type="button"
 									className="onboarding-back-btn"
 									onClick={() => setCurrentStep((s) => s - 1)}
 								>
@@ -381,6 +384,7 @@ function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
 								</button>
 							)}
 							<button
+								type="button"
 								className="onboarding-next-btn"
 								onClick={() => {
 									if (isLast) {

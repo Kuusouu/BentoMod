@@ -3325,6 +3325,7 @@ function App() {
 				</div>
 				<div className="header-actions-right">
 					<button
+						type="button"
 						className="btn-settings"
 						data-tour="launch-btn"
 						title={gameRunning ? "Game is currently running" : "Launch Rivals"}
@@ -3391,6 +3392,7 @@ function App() {
 
 					{/* VFX Updater Button */}
 					<button
+						type="button"
 						className="btn-settings btn-vfx"
 						data-tour="vfx-updater-btn"
 						title="Open Bento VFX Updater"
@@ -3403,6 +3405,7 @@ function App() {
 					</button>
 
 					<button
+						type="button"
 						onClick={() => setPanel("tools", true)}
 						className="btn-settings"
 						data-tour="tools-btn"
@@ -3411,6 +3414,7 @@ function App() {
 						<FaToolbox size={20} /> Tools
 					</button>
 					<button
+						type="button"
 						onClick={() => setPanel("settings", true)}
 						className="btn-settings"
 						data-tour="settings-btn"
@@ -3518,6 +3522,7 @@ function App() {
 					<div className="config-warning">
 						⚠️ Game path not configured.{" "}
 						<button
+							type="button"
 							onClick={() => setPanel("settings", true)}
 							className="btn-link-warning"
 						>
@@ -3556,6 +3561,7 @@ function App() {
 											selectedCategories.size > 0 ||
 											statusFilter !== "all") && (
 											<button
+												type="button"
 												className="btn-ghost-mini"
 												onClick={() => {
 													setSelectedCharacters(new Set());
@@ -3579,6 +3585,7 @@ function App() {
 									>
 										{(["all", "enabled", "disabled"] as const).map((status) => (
 											<button
+												type="button"
 												key={status}
 												className={`filter-chip-compact ${statusFilter === status ? "active" : ""}`}
 												onClick={() => setStatusFilter(status)}
@@ -3660,6 +3667,7 @@ function App() {
 												const active = selectedCategories.has(cat);
 												return (
 													<button
+														type="button"
 														key={cat}
 														className={`filter-chip-compact ${active ? "active" : ""}`}
 														onClick={() =>
@@ -3690,6 +3698,7 @@ function App() {
 								<h3>Folders</h3>
 								<div className="sidebar-header-actions">
 									<button
+										type="button"
 										onClick={() =>
 											handleCreateFolder({
 												parentId:
@@ -3750,6 +3759,7 @@ function App() {
 								</div>
 								<div className="header-actions" data-tour="header-actions">
 									<button
+										type="button"
 										onClick={handleCheckClashes}
 										className="btn-ghost btn-check-conflicts"
 										title="Check for conflicts"
@@ -3767,6 +3777,7 @@ function App() {
 									<div className="divider-vertical" />
 									<div className="view-switcher">
 										<button
+											type="button"
 											onClick={() => handleViewModeChange("grid")}
 											className={`btn-icon-small ${viewMode === "grid" ? "active" : ""}`}
 											title="Grid View"
@@ -3774,6 +3785,7 @@ function App() {
 											<GridViewIcon fontSize="small" />
 										</button>
 										<button
+											type="button"
 											onClick={() => handleViewModeChange("compact")}
 											className={`btn-icon-small ${viewMode === "compact" ? "active" : ""}`}
 											title="Compact Grid View"
@@ -3781,6 +3793,7 @@ function App() {
 											<ViewModuleIcon fontSize="small" />
 										</button>
 										<button
+											type="button"
 											onClick={() => handleViewModeChange("list")}
 											className={`btn-icon-small ${viewMode === "list" ? "active" : ""}`}
 											title="List View"
@@ -3789,6 +3802,7 @@ function App() {
 										</button>
 										{showExperimental && (
 											<button
+												type="button"
 												onClick={() => handleViewModeChange("list-compact")}
 												className={`btn-icon-small ${viewMode === "list-compact" ? "active" : ""}`}
 												title="Compact List View (Experimental)"
@@ -3799,6 +3813,7 @@ function App() {
 									</div>
 									<div className="divider-vertical" />
 									<button
+										type="button"
 										onClick={toggleRightPanel}
 										className={`btn-ghost ${!isRightPanelOpen ? "active" : ""}`}
 										title={
@@ -3816,6 +3831,7 @@ function App() {
 									</button>
 									<div className="divider-vertical" />
 									<button
+										type="button"
 										onClick={loadMods}
 										className="btn-ghost"
 										title="Refresh list"
@@ -3835,6 +3851,7 @@ function App() {
 								>
 									<span>{selectedMods.size} selected</span>
 									<button
+										type="button"
 										onClick={() => {
 											const allPaths = filteredMods.map((m) => m.path);
 											setSelectedMods(new Set(allPaths));
@@ -3845,6 +3862,7 @@ function App() {
 										Select All
 									</button>
 									<button
+										type="button"
 										onClick={handleDeselectAll}
 										className="btn-ghost"
 										style={{ padding: "4px 12px", height: "32px" }}
@@ -3945,6 +3963,7 @@ function App() {
 												style={{ height: "40px" }}
 											>
 												<button
+													type="button"
 													onClick={() => handleBulkToggle(true)}
 													className="btn-ghost left"
 													style={{
@@ -3965,6 +3984,7 @@ function App() {
 													{disabledCount > 0 && `(${disabledCount})`}
 												</button>
 												<button
+													type="button"
 													onClick={() => handleBulkToggle(false)}
 													className="btn-ghost right"
 													style={{
@@ -3991,6 +4011,7 @@ function App() {
 									})()}
 
 									<button
+										type="button"
 										className={`btn-ghost danger ${isDeletingBulk ? "holding" : ""}`}
 										onMouseDown={handleBulkDeleteDown}
 										onMouseUp={handleBulkDeleteUp}

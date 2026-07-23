@@ -127,7 +127,7 @@ export default function ChangelogModal({
 				>
 					<div className="modal-header">
 						<h2>📋 What's New in v{version}</h2>
-						<button className="modal-close" onClick={onClose}>
+						<button type="button" className="modal-close" onClick={onClose}>
 							<MdClose />
 						</button>
 					</div>
@@ -143,7 +143,7 @@ export default function ChangelogModal({
 					</div>
 
 					<div className="modal-footer">
-						<button className="btn-primary" onClick={onClose}>
+						<button type="button" className="btn-primary" onClick={onClose}>
 							Got it!
 						</button>
 					</div>

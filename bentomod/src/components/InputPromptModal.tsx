@@ -110,7 +110,7 @@ const InputPromptModal = ({
 						<div className="prompt-header">
 							<div className="prompt-icon">{icon}</div>
 							<h3>{title}</h3>
-							<button className="prompt-close" onClick={onCancel}>
+							<button type="button" className="prompt-close" onClick={onCancel}>
 								<VscClose />
 							</button>
 						</div>

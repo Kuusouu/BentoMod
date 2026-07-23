@@ -93,11 +93,17 @@ const TitleBar = ({ title = "BentoMod", hideMaximize = false }: TitleBarProps) =
 			</div>
 
 			<div className="titlebar-controls">
-				<button className="titlebar-button" onClick={handleMinimize} title="Minimize">
+				<button
+					type="button"
+					className="titlebar-button"
+					onClick={handleMinimize}
+					title="Minimize"
+				>
 					<MdMinimize />
 				</button>
 				{!hideMaximize && (
 					<button
+						type="button"
 						className="titlebar-button"
 						onClick={handleMaximize}
 						title={isMaximized ? "Restore" : "Maximize"}
@@ -105,7 +111,12 @@ const TitleBar = ({ title = "BentoMod", hideMaximize = false }: TitleBarProps) =
 						{isMaximized ? <CgMinimizeAlt /> : <CgMaximizeAlt />}
 					</button>
 				)}
-				<button className="titlebar-button close" onClick={handleClose} title="Close">
+				<button
+					type="button"
+					className="titlebar-button close"
+					onClick={handleClose}
+					title="Close"
+				>
 					<GrClose />
 				</button>
 			</div>

@@ -262,7 +262,7 @@ const ExtensionModOverlay = ({
 									{fileName}
 								</p>
 							</div>
-							<button className="close-btn" onClick={onCancel}>
+							<button type="button" className="close-btn" onClick={onCancel}>
 								<VscClose />
 							</button>
 						</div>
@@ -274,6 +274,7 @@ const ExtensionModOverlay = ({
 									<MdCreateNewFolder />
 									<span>Choose installation folder</span>
 									<button
+										type="button"
 										className="btn-new-folder"
 										onClick={handleNewFolder}
 										disabled={isCreatingFolder}
@@ -321,10 +322,11 @@ const ExtensionModOverlay = ({
 
 						{/* Footer */}
 						<div className="extension-footer">
-							<button className="btn-cancel" onClick={onCancel}>
+							<button type="button" className="btn-cancel" onClick={onCancel}>
 								Cancel
 							</button>
 							<button
+								type="button"
 								className={`btn-install ${isInstalling ? "loading" : ""}`}
 								onClick={handleInstall}
 								disabled={isInstalling}

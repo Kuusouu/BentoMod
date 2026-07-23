@@ -150,7 +150,7 @@ export default function SettingsPanel({
 			>
 				<div className="modal-header">
 					<h2>Settings</h2>
-					<button className="modal-close" onClick={onClose}>
+					<button type="button" className="modal-close" onClick={onClose}>
 						×
 					</button>
 				</div>
@@ -172,6 +172,7 @@ export default function SettingsPanel({
 								/>
 								<div className="input-actions">
 									<button
+										type="button"
 										onClick={onAutoDetectGamePath}
 										disabled={isGamePathLoading}
 										className="action-btn"
@@ -181,6 +182,7 @@ export default function SettingsPanel({
 										{isGamePathLoading ? "Detecting…" : "Auto Detect"}
 									</button>
 									<button
+										type="button"
 										onClick={onBrowseGamePath}
 										className="action-btn icon-only"
 										title="Browse Folder"
@@ -204,6 +206,7 @@ export default function SettingsPanel({
 								}}
 							>
 								<button
+									type="button"
 									onClick={onCheckForUpdates}
 									disabled={isCheckingUpdates}
 									className="action-btn"
@@ -214,6 +217,7 @@ export default function SettingsPanel({
 									{isCheckingUpdates ? "Checking..." : "Check Now"}
 								</button>
 								<button
+									type="button"
 									onClick={onViewChangelog}
 									className="action-btn"
 									title="View changelog"
@@ -256,6 +260,7 @@ export default function SettingsPanel({
 
 							<div className="segmented-control" style={{ maxWidth: "400px" }}>
 								<button
+									type="button"
 									className={`segment-btn ${launcherType === "steam" ? "active" : ""}`}
 									onClick={() => setLauncherType("steam")}
 									title="Launch via Steam protocol"
@@ -263,6 +268,7 @@ export default function SettingsPanel({
 									<FaSteam size={18} /> Steam
 								</button>
 								<button
+									type="button"
 									className={`segment-btn ${launcherType === "epic" ? "active" : ""}`}
 									onClick={() => setLauncherType("epic")}
 									title="Launch via Epic Games executable"
@@ -539,52 +545,61 @@ export default function SettingsPanel({
 								</span>
 							</div>
 
-							<label
+							<fieldset
 								style={{
-									display: "block",
-									marginBottom: "0.5rem",
-									fontSize: "0.9rem",
-									opacity: 0.9,
+									border: "none",
+									padding: 0,
+									margin: 0,
+									minWidth: 0,
 								}}
 							>
-								Accent Color
-							</label>
-							<div className="color-options">
-								{Object.entries(ACCENT_COLORS).map(([name, color]) => (
-									<button
-										key={name}
-										className={`color-option ${accentColor === color ? "selected" : ""}`}
-										style={{ backgroundColor: color }}
-										onClick={() => setAccentColor(color)}
-										title={name.charAt(0).toUpperCase() + name.slice(1)}
-									/>
-								))}
-								<div
-									className={`color-option ${!Object.values(ACCENT_COLORS).includes(accentColor) ? "selected" : ""}`}
-									style={{ position: "relative", overflow: "hidden" }}
-									title="Custom HEX Color"
+								<legend
+									style={{
+										marginBottom: "0.5rem",
+										fontSize: "0.9rem",
+										opacity: 0.9,
+									}}
 								>
-									<input
-										type="color"
-										value={
-											Object.values(ACCENT_COLORS).includes(accentColor)
-												? "#ffffff"
-												: accentColor
-										}
-										onChange={(e) => setAccentColor(e.target.value)}
-										style={{
-											position: "absolute",
-											top: "-10px",
-											left: "-10px",
-											width: "200%",
-											height: "200%",
-											cursor: "pointer",
-											border: "none",
-											padding: 0,
-										}}
-									/>
+									Accent Color
+								</legend>
+								<div className="color-options">
+									{Object.entries(ACCENT_COLORS).map(([name, color]) => (
+										<button
+											type="button"
+											key={name}
+											className={`color-option ${accentColor === color ? "selected" : ""}`}
+											style={{ backgroundColor: color }}
+											onClick={() => setAccentColor(color)}
+											title={name.charAt(0).toUpperCase() + name.slice(1)}
+										/>
+									))}
+									<div
+										className={`color-option ${!Object.values(ACCENT_COLORS).includes(accentColor) ? "selected" : ""}`}
+										style={{ position: "relative", overflow: "hidden" }}
+										title="Custom HEX Color"
+									>
+										<input
+											type="color"
+											value={
+												Object.values(ACCENT_COLORS).includes(accentColor)
+													? "#ffffff"
+													: accentColor
+											}
+											onChange={(e) => setAccentColor(e.target.value)}
+											style={{
+												position: "absolute",
+												top: "-10px",
+												left: "-10px",
+												width: "200%",
+												height: "200%",
+												cursor: "pointer",
+												border: "none",
+												padding: 0,
+											}}
+										/>
+									</div>
 								</div>
-							</div>
+							</fieldset>
 						</div>
 					</div>
 
@@ -602,6 +617,7 @@ export default function SettingsPanel({
 									Replay the app tour to learn about key features
 								</span>
 								<button
+									type="button"
 									onClick={onReplayTour}
 									className="action-btn"
 									title="Replay the onboarding tour"
@@ -624,6 +640,7 @@ export default function SettingsPanel({
 									all available keyboard shortcuts
 								</span>
 								<button
+									type="button"
 									onClick={onOpenShortcuts}
 									className="action-btn"
 									title="View keyboard shortcuts"
@@ -638,6 +655,7 @@ export default function SettingsPanel({
 
 				<div className="modal-footer">
 					<button
+						type="button"
 						onClick={onClose}
 						className="btn-secondary"
 						style={{ padding: "0.4rem 1rem", fontSize: "0.9rem", minWidth: "auto" }}
@@ -645,6 +663,7 @@ export default function SettingsPanel({
 						Cancel
 					</button>
 					<button
+						type="button"
 						onClick={handleSave}
 						className="btn-primary"
 						style={{ padding: "0.4rem 1rem", fontSize: "0.9rem", minWidth: "auto" }}

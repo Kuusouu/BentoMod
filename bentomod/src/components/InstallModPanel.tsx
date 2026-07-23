@@ -425,7 +425,7 @@ export default function InstallModPanel({
 			>
 				<div className="install-header">
 					<h2>Install Mods</h2>
-					<button className="close-btn" onClick={onCancel}>
+					<button type="button" className="close-btn" onClick={onCancel}>
 						×
 					</button>
 				</div>
@@ -467,6 +467,7 @@ export default function InstallModPanel({
 									</span>
 								</div>
 								<button
+									type="button"
 									className="btn-hybrid"
 									onClick={() => {
 										const uassetMod = mods.find(
@@ -526,11 +527,15 @@ export default function InstallModPanel({
 													/>
 												)}
 												<div className="install-mod-card__title">
-													<label className="field-label">
+													<label
+														className="field-label"
+														htmlFor={`install-mod-custom-name-${idx}`}
+													>
 														Custom Name
 													</label>
 													<div className="mod-name-input-wrapper">
 														<input
+															id={`install-mod-custom-name-${idx}`}
 															type="text"
 															placeholder="Insert custom name here"
 															value={
@@ -636,6 +641,7 @@ export default function InstallModPanel({
 															onClick={(e) => e.stopPropagation()}
 														>
 															<button
+																type="button"
 																className="add-tag-btn"
 																onClick={(e) => {
 																	const rect =
@@ -706,6 +712,7 @@ export default function InstallModPanel({
 																			</span>
 																			{onDeleteTag && (
 																				<button
+																					type="button"
 																					className="dropdown-item-delete"
 																					onClick={(
 																						e,
@@ -884,6 +891,7 @@ export default function InstallModPanel({
 													<MdCreateNewFolder />
 													<span>Install to</span>
 													<button
+														type="button"
 														className="imp-btn-new-folder"
 														onClick={() => handleNewFolder(idx)}
 														disabled={isCreatingFolder}
@@ -947,10 +955,11 @@ export default function InstallModPanel({
 
 				{/* Action Buttons */}
 				<div className="install-actions">
-					<button onClick={onCancel} className="btn-cancel">
+					<button type="button" onClick={onCancel} className="btn-cancel">
 						Cancel
 					</button>
 					<button
+						type="button"
 						onClick={handleInstall}
 						className="btn-install"
 						disabled={enabledCount === 0}

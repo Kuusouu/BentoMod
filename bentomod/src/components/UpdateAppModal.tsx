@@ -181,7 +181,7 @@ export default function UpdateAppModal({
 				>
 					<div className="modal-header">
 						<h2>🎉 Update Available!</h2>
-						<button className="modal-close" onClick={onClose}>
+						<button type="button" className="modal-close" onClick={onClose}>
 							<MdClose />
 						</button>
 					</div>
@@ -220,6 +220,7 @@ export default function UpdateAppModal({
 						{!isReady && !isDownloading && (
 							<>
 								<button
+									type="button"
 									className="btn-secondary"
 									onClick={() => onOpenReleasePage(updateInfo.url || "")}
 									disabled={!updateInfo.url}
@@ -227,7 +228,11 @@ export default function UpdateAppModal({
 									<MdOpenInNew /> View Release
 								</button>
 								{updateInfo.asset_url && (
-									<button className="btn-primary" onClick={onDownload}>
+									<button
+										type="button"
+										className="btn-primary"
+										onClick={onDownload}
+									>
 										<MdDownload /> Download Update
 									</button>
 								)}
@@ -235,12 +240,12 @@ export default function UpdateAppModal({
 						)}
 
 						{isReady && (
-							<button className="btn-primary" onClick={onApply}>
+							<button type="button" className="btn-primary" onClick={onApply}>
 								Install & Restart
 							</button>
 						)}
 
-						<button className="btn-secondary" onClick={onClose}>
+						<button type="button" className="btn-secondary" onClick={onClose}>
 							Later
 						</button>
 					</div>

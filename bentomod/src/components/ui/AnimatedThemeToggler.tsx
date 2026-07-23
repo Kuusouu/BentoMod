@@ -76,6 +76,7 @@ export function AnimatedThemeToggler({
         }
       `}</style>
 			<button
+				type="button"
 				ref={buttonRef}
 				onClick={toggleTheme}
 				style={{

@@ -151,6 +151,7 @@ export function Alert({
 			{endContent && <div className="toast-end-content">{endContent}</div>}
 			{showCloseButton && (
 				<button
+					type="button"
 					className="toast-close"
 					onClick={onClose}
 					aria-label="Close"
