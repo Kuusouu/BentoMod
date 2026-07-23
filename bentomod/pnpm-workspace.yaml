@@ -3,4 +3,5 @@ packages:
 
 allowBuilds:
   '@heroui/shared-utils': true
+  core-js: set this to true or false
   esbuild: true
