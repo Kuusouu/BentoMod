@@ -400,32 +400,31 @@ const ContextMenu = ({
 						+ New Tag...
 					</div>
 					{allTags && allTags.length > 0 && <div className="context-menu-separator" />}
-					{allTags &&
-						allTags.map((tag) => (
-							<div
-								key={tag}
-								className="context-menu-item"
-								onClick={() => {
-									onAssignTag(tag);
-									onClose();
-								}}
-							>
-								<span className="context-menu-item-label">{tag}</span>
-								{onDeleteTag && (
-									<button
-										className="context-menu-item-delete"
-										onClick={(e) => {
-											e.stopPropagation();
-											onDeleteTag(tag);
-											onClose();
-										}}
-										title={`Delete "${tag}" tag`}
-									>
-										×
-									</button>
-								)}
-							</div>
-						))}
+					{allTags?.map((tag) => (
+						<div
+							key={tag}
+							className="context-menu-item"
+							onClick={() => {
+								onAssignTag(tag);
+								onClose();
+							}}
+						>
+							<span className="context-menu-item-label">{tag}</span>
+							{onDeleteTag && (
+								<button
+									className="context-menu-item-delete"
+									onClick={(e) => {
+										e.stopPropagation();
+										onDeleteTag(tag);
+										onClose();
+									}}
+									title={`Delete "${tag}" tag`}
+								>
+									×
+								</button>
+							)}
+						</div>
+					))}
 				</div>
 			</div>
 

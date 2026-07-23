@@ -4,7 +4,6 @@ import type { ButtonGroupProps } from "@mui/material/ButtonGroup";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import { styled } from "@mui/material/styles";
 import { open } from "@tauri-apps/plugin-dialog";
-import React from "react";
 import { GrInstall } from "react-icons/gr";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({

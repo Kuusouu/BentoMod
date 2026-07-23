@@ -1,6 +1,5 @@
 // VFX Updater - Main Page Component (for separate window)
 
-import React from "react";
 import VfxUpdaterPanel from "./VfxUpdaterPanel";
 import "./VfxUpdater.css";
 import TitleBar from "../../components/TitleBar";

@@ -25,7 +25,7 @@ export function getAdditionalCategories(details?: ModDetails | null): string[] {
 	// Parse from mod_type string (e.g., "Skin [Blueprint, VFX]")
 	if (typeof details.mod_type === "string") {
 		const match = details.mod_type.match(/\[(.*?)\]/);
-		if (match && match[1]) {
+		if (match?.[1]) {
 			return match[1].split(",").map((s: string) => s.trim());
 		}
 	}

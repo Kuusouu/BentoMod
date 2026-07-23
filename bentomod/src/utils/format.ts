@@ -13,7 +13,7 @@ export function formatFileSize(bytes: number): string {
 	const sizes = ["B", "KB", "MB", "GB"];
 	const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
 	const unit = sizes[i] ?? "B";
-	return Math.round((bytes / k ** i) * 100) / 100 + " " + unit;
+	return `${Math.round((bytes / k ** i) * 100) / 100} ${unit}`;
 }
 
 /**

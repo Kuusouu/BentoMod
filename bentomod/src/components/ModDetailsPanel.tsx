@@ -114,7 +114,7 @@ export default function ModDetailsPanel({
 	}, [mod, initialDetails]);
 
 	const heroesList = useMemo(() => {
-		if (details && details.files && characterData.length > 0) {
+		if (details?.files && characterData.length > 0) {
 			return detectHeroesWithData(details.files, characterData);
 		}
 		return [];
@@ -136,7 +136,7 @@ export default function ModDetailsPanel({
 		// Format: "Name - Category [Add1, Add2]"
 		if (details.mod_type) {
 			const match = details.mod_type.match(/\[(.*?)\]/);
-			if (match && match[1]) {
+			if (match?.[1]) {
 				match[1].split(",").forEach((s: string) => {
 					badges.add(s.trim());
 				});
@@ -246,7 +246,7 @@ export default function ModDetailsPanel({
 									</Tooltip>
 								)}
 								<div
-									className={`category-badge ${details.category ? details.category.toLowerCase().replace(/\s+/g, "-") + "-badge" : ""}`}
+									className={`category-badge ${details.category ? `${details.category.toLowerCase().replace(/\s+/g, "-")}-badge` : ""}`}
 									title="Mod Type"
 								>
 									{details.category || "Unknown"}

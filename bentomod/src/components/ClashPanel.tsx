@@ -1,11 +1,5 @@
-import {
-	CheckCircleOutline,
-	Close,
-	InsertDriveFileOutlined,
-	WarningAmberRounded,
-} from "@mui/icons-material";
+import { CheckCircleOutline, Close, InsertDriveFileOutlined } from "@mui/icons-material";
 import { motion } from "framer-motion";
-import React from "react";
 import { IoMdWarning } from "react-icons/io";
 import NumberInput from "./ui/NumberInput";
 import "./ClashPanel.css";
@@ -101,8 +95,7 @@ const ClashPanel = ({ clashes, mods = [], onSetPriority, onClose }: ClashPanelPr
 																min={0}
 																max={99}
 																onChange={(val) =>
-																	onSetPriority &&
-																	onSetPriority(path, val)
+																	onSetPriority?.(path, val)
 																}
 															/>
 														</div>

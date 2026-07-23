@@ -1,10 +1,7 @@
 import {
 	Check as CheckIcon,
-	ChevronRight as ChevronRightIcon,
 	Clear as ClearIcon,
 	CreateNewFolder as CreateNewFolderIcon,
-	ExpandMore as ExpandMoreIcon,
-	Folder as FolderIcon,
 	GridView as GridViewIcon,
 	PlayArrow as PlayArrowIcon,
 	Refresh as RefreshIcon,
@@ -16,7 +13,7 @@ import {
 	ViewModule as ViewModuleIcon,
 	ViewSidebar as ViewSidebarIcon,
 } from "@mui/icons-material";
-import { IconButton, Tooltip } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { invoke } from "@tauri-apps/api/core";
 import type { UnlistenFn } from "@tauri-apps/api/event";
 import { listen } from "@tauri-apps/api/event";
@@ -26,8 +23,7 @@ import type { ChangeEvent } from "react";
 import { useEffect, useRef, useState } from "react";
 import { FaSort, FaTag, FaToolbox } from "react-icons/fa6";
 import { GiLightningTrio } from "react-icons/gi";
-import { GrInstall } from "react-icons/gr";
-import { IoIosSettings, IoMdWarning, IoMdWifi } from "react-icons/io";
+import { IoIosSettings, IoMdWarning } from "react-icons/io";
 import { MdDriveFileMoveOutline } from "react-icons/md";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 import { useDebouncedCallback } from "use-debounce";
@@ -46,11 +42,6 @@ import PromiseTransitionLoader from "./components/PromiseTransitionLoader";
 import QuickOrganizeOverlay from "./components/QuickOrganizeOverlay";
 import UpdateAppModal from "./components/UpdateAppModal";
 import UpdateModModal from "./components/UpdateModModal";
-import { AuroraText } from "./components/ui/AuroraText";
-import Checkbox from "./components/ui/Checkbox";
-import NumberInput from "./components/ui/NumberInput";
-
-import Switch from "./components/ui/Switch";
 import { useGlobalTooltips } from "./hooks/useGlobalTooltips";
 import "./App.css";
 import "./styles/theme.css";
@@ -63,7 +54,7 @@ import CustomDropdown from "./components/CustomDropdown";
 import HeroFilterDropdown from "./components/HeroFilterDropdown";
 import OnboardingTour from "./components/OnboardingTour";
 import ShortcutsHelpModal from "./components/ShortcutsHelpModal";
-import { formatFileSize, normalizeModBaseName } from "./utils/format";
+import { normalizeModBaseName } from "./utils/format";
 import { detectHeroesWithData } from "./utils/heroes";
 import { getAdditionalCategories } from "./utils/mods";
 // Utility functions
@@ -642,7 +633,7 @@ function App() {
 				});
 			});
 		} catch (error) {
-			setStatus("Error checking clashes: " + error);
+			setStatus(`Error checking clashes: ${error}`);
 			console.error("[Conflicts] Global conflict check failed:", error);
 		}
 	};
@@ -813,7 +804,7 @@ function App() {
 				});
 			});
 		} catch (error) {
-			setStatus("Error checking mod conflicts: " + error);
+			setStatus(`Error checking mod conflicts: ${error}`);
 			console.error("[Conflicts] Single-mod conflict check failed:", error);
 		}
 	};
@@ -861,7 +852,7 @@ function App() {
 				}
 			}
 		} catch (error) {
-			setStatus("Error setting priority: " + error);
+			setStatus(`Error setting priority: ${error}`);
 		}
 	};
 
@@ -954,7 +945,7 @@ function App() {
 			await loadFolders();
 		} catch (e) {
 			console.error("Bulk delete failed:", e);
-			setStatus("Bulk delete failed: " + e);
+			setStatus(`Bulk delete failed: ${e}`);
 		} finally {
 			setIsModsLoading(false);
 			setModLoadingProgress(0);
@@ -1047,7 +1038,7 @@ function App() {
 			scheduleSafeModsRefresh("bulk-toggle-post-reload");
 		} catch (e) {
 			console.error("Bulk toggle failed:", e);
-			setStatus("Bulk toggle failed: " + e);
+			setStatus(`Bulk toggle failed: ${e}`);
 		}
 	};
 
@@ -1578,7 +1569,7 @@ function App() {
 			return modList as ModRecord[];
 		} catch (error) {
 			console.error("Error loading mods:", error);
-			setStatus("Error loading mods: " + error);
+			setStatus(`Error loading mods: ${error}`);
 			return [];
 		} finally {
 			setIsModsLoading(false);
@@ -1723,11 +1714,11 @@ function App() {
 			setLoading(true);
 			const path = (await invoke("auto_detect_game_path")) as any;
 			setGamePath(path);
-			setStatus("Game path detected: " + path);
+			setStatus(`Game path detected: ${path}`);
 			await loadMods();
 			await loadFolders();
 		} catch (error) {
-			setStatus("Failed to auto-detect: " + error);
+			setStatus(`Failed to auto-detect: ${error}`);
 		} finally {
 			setLoading(false);
 		}
@@ -1744,12 +1735,12 @@ function App() {
 			if (selected) {
 				await invoke("set_game_path", { path: selected });
 				setGamePath(selected);
-				setStatus("Game path set: " + selected);
+				setStatus(`Game path set: ${selected}`);
 				await loadMods();
 				await loadFolders();
 			}
 		} catch (error) {
-			setStatus("Error setting game path: " + error);
+			setStatus(`Error setting game path: ${error}`);
 		}
 	};
 
@@ -1773,7 +1764,7 @@ function App() {
 				setPanel("install", true);
 			}
 		} catch (error) {
-			setStatus("Error selecting mods: " + error);
+			setStatus(`Error selecting mods: ${error}`);
 		}
 	};
 
@@ -1825,7 +1816,7 @@ function App() {
 
 			await loadMods();
 		} catch (error) {
-			setStatus("Error deleting mod: " + error);
+			setStatus(`Error deleting mod: ${error}`);
 		}
 	};
 
@@ -1857,7 +1848,7 @@ function App() {
 
 			scheduleSafeModsRefresh("single-toggle-post-reload");
 		} catch (error) {
-			setStatus("Error toggling mod: " + error);
+			setStatus(`Error toggling mod: ${error}`);
 		}
 	};
 
@@ -1880,7 +1871,7 @@ function App() {
 			// The folder ID is just the folder name
 			return name;
 		} catch (error) {
-			setStatus("Error creating folder: " + error);
+			setStatus(`Error creating folder: ${error}`);
 			throw error;
 		}
 	};
@@ -2016,7 +2007,7 @@ function App() {
 			await loadMods();
 			setStatus("Folder deleted");
 		} catch (error) {
-			setStatus("Error deleting folder: " + error);
+			setStatus(`Error deleting folder: ${error}`);
 		}
 	};
 
@@ -2038,7 +2029,7 @@ function App() {
 			await loadMods();
 			setStatus(`Folder moved to "${newId}"`);
 		} catch (error) {
-			setStatus("Error moving folder: " + error);
+			setStatus(`Error moving folder: ${error}`);
 		}
 	};
 
@@ -2059,7 +2050,7 @@ function App() {
 			await loadMods();
 			setStatus(`Folder renamed to "${newName}"`);
 		} catch (error) {
-			setStatus("Error renaming folder: " + error);
+			setStatus(`Error renaming folder: ${error}`);
 		}
 	};
 
@@ -2172,7 +2163,7 @@ function App() {
 			await loadMods();
 			await loadFolders();
 		} catch (error) {
-			setStatus("Error moving mod: " + error);
+			setStatus(`Error moving mod: ${error}`);
 		}
 	};
 
@@ -2183,7 +2174,7 @@ function App() {
 			await loadMods();
 			await loadTags();
 		} catch (error) {
-			setStatus("Error adding tag: " + error);
+			setStatus(`Error adding tag: ${error}`);
 		}
 	};
 
@@ -2577,7 +2568,7 @@ function App() {
 				// e.g. if selected is "Category", match "Category" and "Category/Sub"
 				return (
 					mod.folder_id === selectedFolderId ||
-					(mod.folder_id && mod.folder_id.startsWith(selectedFolderId + "/"))
+					mod.folder_id?.startsWith(`${selectedFolderId}/`)
 				);
 			} else {
 				// Match exact folder only
@@ -3359,7 +3350,7 @@ function App() {
 								setLaunchSuccess(true);
 								setTimeout(() => setLaunchSuccess(false), 3000);
 							} catch (error) {
-								setStatus("Error launching game: " + error);
+								setStatus(`Error launching game: ${error}`);
 							}
 						}}
 					>
@@ -3727,8 +3718,7 @@ function App() {
 											return baseFilteredMods.filter(
 												(m) =>
 													m.folder_id === id ||
-													(m.folder_id &&
-														m.folder_id.startsWith(id + "/")),
+													m.folder_id?.startsWith(`${id}/`),
 											).length;
 										} else {
 											return baseFilteredMods.filter(

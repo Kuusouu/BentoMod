@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import { FaTag } from "react-icons/fa6";
@@ -398,7 +397,7 @@ export default function InstallModPanel({
 	const handleNewFolder = (targetModIdx: number) => {
 		if (onNewFolder) {
 			onNewFolder(async (name) => {
-				if (!name || !name.trim()) return;
+				if (!name?.trim()) return;
 				setIsCreatingFolder(true);
 				try {
 					if (onCreateFolder) {
@@ -668,10 +667,7 @@ export default function InstallModPanel({
 																		className="dropdown-item"
 																		onClick={() => {
 																			onNewTag((tag) => {
-																				if (
-																					tag &&
-																					tag.trim()
-																				) {
+																				if (tag?.trim()) {
 																					handleAddTag(
 																						idx,
 																						tag,
@@ -691,42 +687,41 @@ export default function InstallModPanel({
 																		allTags.length > 0 && (
 																			<div className="dropdown-separator" />
 																		)}
-																	{allTags &&
-																		allTags.map((tag) => (
-																			<div
-																				key={tag}
-																				className="dropdown-item"
-																				onClick={() => {
-																					handleAddTag(
-																						idx,
-																						tag,
-																					);
-																					setOpenDropdown(
-																						null,
-																					);
-																				}}
-																			>
-																				<span className="dropdown-item-label">
-																					{tag}
-																				</span>
-																				{onDeleteTag && (
-																					<button
-																						className="dropdown-item-delete"
-																						onClick={(
-																							e,
-																						) => {
-																							e.stopPropagation();
-																							onDeleteTag(
-																								tag,
-																							);
-																						}}
-																						title={`Delete "${tag}" tag`}
-																					>
-																						×
-																					</button>
-																				)}
-																			</div>
-																		))}
+																	{allTags?.map((tag) => (
+																		<div
+																			key={tag}
+																			className="dropdown-item"
+																			onClick={() => {
+																				handleAddTag(
+																					idx,
+																					tag,
+																				);
+																				setOpenDropdown(
+																					null,
+																				);
+																			}}
+																		>
+																			<span className="dropdown-item-label">
+																				{tag}
+																			</span>
+																			{onDeleteTag && (
+																				<button
+																					className="dropdown-item-delete"
+																					onClick={(
+																						e,
+																					) => {
+																						e.stopPropagation();
+																						onDeleteTag(
+																							tag,
+																						);
+																					}}
+																					title={`Delete "${tag}" tag`}
+																				>
+																					×
+																				</button>
+																			)}
+																		</div>
+																	))}
 																</div>
 															)}
 														</div>

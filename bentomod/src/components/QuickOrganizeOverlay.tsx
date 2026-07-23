@@ -221,7 +221,7 @@ const QuickOrganizeOverlay = ({
 	};
 
 	const handleConfirmNewFolder = async () => {
-		if (!newFolderName || !newFolderName.trim()) return;
+		if (!newFolderName?.trim()) return;
 
 		setIsCreatingFolder(true);
 		try {

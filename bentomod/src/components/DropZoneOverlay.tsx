@@ -298,7 +298,7 @@ const DropZoneOverlay = ({
 	const handleNewFolder = async (e: React.MouseEvent) => {
 		e.stopPropagation();
 		const name = prompt("Enter new folder name:");
-		if (!name || !name.trim()) return;
+		if (!name?.trim()) return;
 
 		setIsCreatingFolder(true);
 		try {

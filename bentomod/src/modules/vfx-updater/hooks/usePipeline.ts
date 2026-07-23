@@ -2,17 +2,10 @@
 // Orchestrates the 8-step VFX update pipeline
 
 import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import { useCallback, useRef, useState } from "react";
 import { applyColorToJson } from "../lib/colors/applyColors";
 import { parseJsonAndExtractColors } from "../lib/colors/extractColors";
-import type {
-	ColorParam,
-	PIPELINE_STEPS,
-	PipelineStep,
-	VfxPipelineProgress,
-	VfxTempDirectories,
-} from "../types";
+import type { ColorParam, VfxTempDirectories } from "../types";
 
 interface StepStatus {
 	message?: string;

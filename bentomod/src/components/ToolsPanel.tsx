@@ -1,12 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
 import { save } from "@tauri-apps/plugin-dialog";
-import { open } from "@tauri-apps/plugin-shell";
 import { motion } from "framer-motion";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IoIosSkipForward } from "react-icons/io";
 import { MdBackup, MdRemoveModerator } from "react-icons/md";
-import Progress from "./ui/Progress";
 import Switch from "./ui/Switch";
 import "./SettingsPanel.css"; // Reuse the same styles
 

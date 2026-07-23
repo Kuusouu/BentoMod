@@ -1,5 +1,4 @@
 import { Tooltip } from "@mui/material";
-import { motion } from "framer-motion";
 import type React from "react";
 import { memo, useEffect, useRef, useState } from "react";
 import { FaTag } from "react-icons/fa6";
@@ -284,7 +283,7 @@ const ModItem = memo(function ModItem({
 
 	// Detect heroes for multi-hero mods - check both characterName and mod_type
 	const isMultiHero =
-		(characterName && characterName.toLowerCase().includes("multiple")) ||
+		characterName?.toLowerCase().includes("multiple") ||
 		(modDetails?.mod_type &&
 			typeof modDetails.mod_type === "string" &&
 			modDetails.mod_type.startsWith("Multiple Heroes"));

@@ -154,7 +154,7 @@ export function parseJsonAndExtractColors(
 	const vectorParamsArray = Array.isArray(exportData)
 		? exportData.find((p: any) => p.Name === "VectorParameterValues")
 		: undefined;
-	if (vectorParamsArray && vectorParamsArray.Value) {
+	if (vectorParamsArray?.Value) {
 		vectorParamsArray.Value.forEach((param: any, paramIndex: number) => {
 			const paramInfo = param?.Value?.find((p: any) => p.Name === "ParameterInfo");
 			const paramName = paramInfo?.Value?.find((p: any) => p.Name === "Name")?.Value;

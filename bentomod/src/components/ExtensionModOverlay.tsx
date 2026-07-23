@@ -215,7 +215,7 @@ const ExtensionModOverlay = ({
 	const handleNewFolder = () => {
 		if (onNewFolder) {
 			onNewFolder(async (name) => {
-				if (!name || !name.trim()) return;
+				if (!name?.trim()) return;
 				setIsCreatingFolder(true);
 				try {
 					if (onCreateFolder) {

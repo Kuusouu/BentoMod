@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BsKeyboardFill } from "react-icons/bs";
 import { CgPerformance } from "react-icons/cg";
 import { FaSteam } from "react-icons/fa";
