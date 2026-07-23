@@ -161,7 +161,6 @@ export default function UpdateModModal({
 								type="button"
 								className="btn-install"
 								onClick={() => onConfirm(preserveName, obfuscate)}
-								autoFocus
 							>
 								Update Mod
 							</button>

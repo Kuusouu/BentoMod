@@ -317,6 +317,7 @@ const QuickOrganizeOverlay = ({
 												value={newFolderName}
 												onChange={(e) => setNewFolderName(e.target.value)}
 												placeholder="Folder name"
+												// biome-ignore lint/a11y/noAutofocus: The newly revealed folder-name field is the user's immediate typing target.
 												autoFocus
 												onKeyDown={(e) => {
 													if (e.key === "Enter") handleConfirmNewFolder();

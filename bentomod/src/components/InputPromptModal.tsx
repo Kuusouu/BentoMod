@@ -127,6 +127,7 @@ const InputPromptModal = ({
 									onChange={(e) => setValue(e.target.value)}
 									placeholder={placeholder}
 									className="prompt-input"
+									// biome-ignore lint/a11y/noAutofocus: Opening a text-entry prompt should place the cursor in its primary input.
 									autoFocus
 								/>
 							)}
