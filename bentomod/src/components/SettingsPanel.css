@@ -109,6 +109,11 @@
 	font-weight: 500;
 }
 
+.setting-group label.bentomod-checkbox {
+	display: inline-flex;
+	margin-bottom: 0;
+}
+
 .setting-description {
 	margin: 0;
 	color: var(--text-secondary);
