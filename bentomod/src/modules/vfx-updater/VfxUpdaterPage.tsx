@@ -6,12 +6,12 @@ import "./VfxUpdater.css";
 import TitleBar from "../../components/TitleBar";
 
 export default function VfxUpdaterPage() {
-  return (
-    <div className="vfx-window-container">
-      <TitleBar title="Bento VFX Updater" hideMaximize={true} />
-      <div className="vfx-updater-page">
-        <VfxUpdaterPanel />
-      </div>
-    </div>
-  );
+	return (
+		<div className="vfx-window-container">
+			<TitleBar title="Bento VFX Updater" hideMaximize={true} />
+			<div className="vfx-updater-page">
+				<VfxUpdaterPanel />
+			</div>
+		</div>
+	);
 }
