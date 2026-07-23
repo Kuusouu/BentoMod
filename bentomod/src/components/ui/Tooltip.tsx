@@ -1,25 +1,33 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import './Tooltip.css';
+import { AnimatePresence, motion } from "framer-motion";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import "./Tooltip.css";
 
 type TooltipProps = {
-  children: React.ReactNode;
-  content: React.ReactNode;
-  placement?: 'top' | 'bottom' | 'left' | 'right';
-  color?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  radius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
-  delay?: number;
-  closeDelay?: number;
-  offset?: number;
-  showArrow?: boolean;
-  isDisabled?: boolean;
-  className?: string;
+	children: React.ReactNode;
+	content: React.ReactNode;
+	placement?: "top" | "bottom" | "left" | "right";
+	color?: "default" | "primary" | "secondary" | "success" | "warning" | "danger";
+	size?: "sm" | "md" | "lg";
+	radius?: "none" | "sm" | "md" | "lg" | "full";
+	delay?: number;
+	closeDelay?: number;
+	offset?: number;
+	showArrow?: boolean;
+	isDisabled?: boolean;
+	className?: string;
+};
+
+function clearTimeoutRef(timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>) {
+	if (timeoutRef.current !== null) {
+		clearTimeout(timeoutRef.current);
+		timeoutRef.current = null;
+	}
 }
 
 /**
  * bentomod-style Tooltip component
- * 
+ *
  * @param {Object} props
  * @param {React.ReactNode} props.children - The trigger element
  * @param {React.ReactNode} props.content - The content of the tooltip
@@ -35,144 +43,145 @@ type TooltipProps = {
  * @param {string} [props.className] - Additional classes for the tooltip content
  */
 const Tooltip = ({
-  children,
-  content,
-  placement = 'top',
-  color = 'default',
-  size = 'md',
-  radius = 'md',
-  delay = 0,
-  closeDelay = 100,
-  offset = 7,
-  showArrow = false,
-  isDisabled = false,
-  className = '',
-  ...props
+	children,
+	content,
+	placement = "top",
+	color = "default",
+	size = "md",
+	radius = "md",
+	delay = 0,
+	closeDelay = 100,
+	offset = 7,
+	showArrow = false,
+	isDisabled = false,
+	className = "",
+	...props
 }: TooltipProps) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const openTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const [isVisible, setIsVisible] = useState(false);
+	const openTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const clearTimeoutRef = (timeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>) => {
-    if (timeoutRef.current !== null) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  };
+	const handleMouseEnter = () => {
+		if (isDisabled) return;
+		clearTimeoutRef(closeTimeout);
 
-  const handleMouseEnter = () => {
-    if (isDisabled) return;
-    clearTimeoutRef(closeTimeout);
-    
-    if (delay > 0) {
-      openTimeout.current = setTimeout(() => setIsVisible(true), delay);
-    } else {
-      setIsVisible(true);
-    }
-  };
+		if (delay > 0) {
+			openTimeout.current = setTimeout(() => setIsVisible(true), delay);
+		} else {
+			setIsVisible(true);
+		}
+	};
 
-  const handleMouseLeave = () => {
-    clearTimeoutRef(openTimeout);
-    
-    if (closeDelay > 0) {
-      closeTimeout.current = setTimeout(() => setIsVisible(false), closeDelay);
-    } else {
-      setIsVisible(false);
-    }
-  };
+	const handleMouseLeave = () => {
+		clearTimeoutRef(openTimeout);
 
-  useEffect(() => {
-    return () => {
-      clearTimeoutRef(openTimeout);
-      clearTimeoutRef(closeTimeout);
-    };
-  }, []);
+		if (closeDelay > 0) {
+			closeTimeout.current = setTimeout(() => setIsVisible(false), closeDelay);
+		} else {
+			setIsVisible(false);
+		}
+	};
 
-  // Animation variants with directional slide
-  const getAnimationVariants = () => {
-    const slideDistance = 8;
-    switch (placement) {
-      case 'top':
-        return {
-          initial: { opacity: 0, scale: 0.92, y: slideDistance },
-          animate: { opacity: 1, scale: 1, y: 0 },
-          exit: { opacity: 0, scale: 0.92, y: slideDistance / 2 }
-        };
-      case 'bottom':
-        return {
-          initial: { opacity: 0, scale: 0.92, y: -slideDistance },
-          animate: { opacity: 1, scale: 1, y: 0 },
-          exit: { opacity: 0, scale: 0.92, y: -slideDistance / 2 }
-        };
-      case 'left':
-        return {
-          initial: { opacity: 0, scale: 0.92, x: slideDistance },
-          animate: { opacity: 1, scale: 1, x: 0 },
-          exit: { opacity: 0, scale: 0.92, x: slideDistance / 2 }
-        };
-      case 'right':
-        return {
-          initial: { opacity: 0, scale: 0.92, x: -slideDistance },
-          animate: { opacity: 1, scale: 1, x: 0 },
-          exit: { opacity: 0, scale: 0.92, x: -slideDistance / 2 }
-        };
-      default:
-        return {
-          initial: { opacity: 0, scale: 0.92 },
-          animate: { opacity: 1, scale: 1 },
-          exit: { opacity: 0, scale: 0.92 }
-        };
-    }
-  };
+	useEffect(() => {
+		return () => {
+			clearTimeoutRef(openTimeout);
+			clearTimeoutRef(closeTimeout);
+		};
+	}, []);
 
-  // Adjust transform origin based on placement for better animation
-  const getTransformOrigin = () => {
-    switch (placement) {
-      case 'top': return 'bottom center';
-      case 'bottom': return 'top center';
-      case 'left': return 'center right';
-      case 'right': return 'center left';
-      default: return 'center';
-    }
-  };
+	// Animation variants with directional slide
+	const getAnimationVariants = () => {
+		const slideDistance = 8;
+		switch (placement) {
+			case "top":
+				return {
+					initial: { opacity: 0, scale: 0.92, y: slideDistance },
+					animate: { opacity: 1, scale: 1, y: 0 },
+					exit: { opacity: 0, scale: 0.92, y: slideDistance / 2 },
+				};
+			case "bottom":
+				return {
+					initial: { opacity: 0, scale: 0.92, y: -slideDistance },
+					animate: { opacity: 1, scale: 1, y: 0 },
+					exit: { opacity: 0, scale: 0.92, y: -slideDistance / 2 },
+				};
+			case "left":
+				return {
+					initial: { opacity: 0, scale: 0.92, x: slideDistance },
+					animate: { opacity: 1, scale: 1, x: 0 },
+					exit: { opacity: 0, scale: 0.92, x: slideDistance / 2 },
+				};
+			case "right":
+				return {
+					initial: { opacity: 0, scale: 0.92, x: -slideDistance },
+					animate: { opacity: 1, scale: 1, x: 0 },
+					exit: { opacity: 0, scale: 0.92, x: -slideDistance / 2 },
+				};
+			default:
+				return {
+					initial: { opacity: 0, scale: 0.92 },
+					animate: { opacity: 1, scale: 1 },
+					exit: { opacity: 0, scale: 0.92 },
+				};
+		}
+	};
 
-  return (
-    <div 
-      className="bentomod-tooltip-trigger"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onFocus={handleMouseEnter}
-      onBlur={handleMouseLeave}
-    >
-      {children}
-      <AnimatePresence>
-        {isVisible && content && (
-          <motion.div
-            className={`bentomod-tooltip-content ${color} ${size} radius-${radius} ${className}`}
-            data-placement={placement}
-            style={{ 
-              '--tooltip-offset': `${offset}px`,
-              transformOrigin: getTransformOrigin()
-            } as React.CSSProperties}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={getAnimationVariants()}
-            transition={{ 
-              type: 'spring',
-              damping: 20,
-              stiffness: 300,
-              mass: 0.8
-            }}
-            {...props}
-          >
-            {showArrow && <div className="bentomod-tooltip-arrow" />}
-            {content}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+	// Adjust transform origin based on placement for better animation
+	const getTransformOrigin = () => {
+		switch (placement) {
+			case "top":
+				return "bottom center";
+			case "bottom":
+				return "top center";
+			case "left":
+				return "center right";
+			case "right":
+				return "center left";
+			default:
+				return "center";
+		}
+	};
+
+	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: Hover and focus both expose the same tooltip content.
+		<div
+			className="bentomod-tooltip-trigger"
+			onMouseEnter={handleMouseEnter}
+			onMouseLeave={handleMouseLeave}
+			onFocus={handleMouseEnter}
+			onBlur={handleMouseLeave}
+		>
+			{children}
+			<AnimatePresence>
+				{isVisible && content && (
+					<motion.div
+						className={`bentomod-tooltip-content ${color} ${size} radius-${radius} ${className}`}
+						data-placement={placement}
+						style={
+							{
+								"--tooltip-offset": `${offset}px`,
+								transformOrigin: getTransformOrigin(),
+							} as React.CSSProperties
+						}
+						initial="initial"
+						animate="animate"
+						exit="exit"
+						variants={getAnimationVariants()}
+						transition={{
+							type: "spring",
+							damping: 20,
+							stiffness: 300,
+							mass: 0.8,
+						}}
+						{...props}
+					>
+						{showArrow && <div className="bentomod-tooltip-arrow" />}
+						{content}
+					</motion.div>
+				)}
+			</AnimatePresence>
+		</div>
+	);
 };
 
 export default Tooltip;

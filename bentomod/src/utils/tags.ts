@@ -7,4 +7,5 @@
  * @param {string|string[]|null|undefined} tags - Tags in any format
  * @returns {string[]} Array of tag strings
  */
-export const toTagArray = (tags: any): string[] => Array.isArray(tags) ? tags : (tags ? [tags] : []);
+export const toTagArray = (tags: any): string[] =>
+	Array.isArray(tags) ? tags : tags ? [tags] : [];

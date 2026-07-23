@@ -1,20 +1,20 @@
-import React from 'react'
-import './Switch.css'
+import React from "react";
+import "./Switch.css";
 
-type SwitchSize = 'sm' | 'md' | 'lg'
-type SwitchColor = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger'
+type SwitchSize = "sm" | "md" | "lg";
+type SwitchColor = "default" | "primary" | "secondary" | "success" | "warning" | "danger";
 
-type SwitchProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onChange'> & {
-  checked?: boolean
-  defaultChecked?: boolean
-  size?: SwitchSize
-  color?: SwitchColor
-  isDisabled?: boolean
-  isLoading?: boolean
-  onChange?: (checked: boolean, event: React.MouseEvent<HTMLButtonElement>) => void
-  children?: React.ReactNode
-  className?: string
-}
+type SwitchProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onChange"> & {
+	checked?: boolean;
+	defaultChecked?: boolean;
+	size?: SwitchSize;
+	color?: SwitchColor;
+	isDisabled?: boolean;
+	isLoading?: boolean;
+	onChange?: (checked: boolean, event: React.MouseEvent<HTMLButtonElement>) => void;
+	children?: React.ReactNode;
+	className?: string;
+};
 
 /**
  * bentomod-style Switch component
@@ -31,70 +31,70 @@ type SwitchProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onChange
  * @param {string} [props.className] - Optional extra class names
  */
 const Switch = ({
-  checked,
-  defaultChecked = false,
-  size = 'md',
-  color = 'primary',
-  isDisabled = false,
-  isLoading = false,
-  onChange,
-  children,
-  className = '',
-  ...props
+	checked,
+	defaultChecked = false,
+	size = "md",
+	color = "primary",
+	isDisabled = false,
+	isLoading = false,
+	onChange,
+	children,
+	className = "",
+	...props
 }: SwitchProps) => {
-  const isControlled = typeof checked === 'boolean'
-  const [internalChecked, setInternalChecked] = React.useState(defaultChecked)
-  const currentChecked = isControlled ? checked : internalChecked
+	const isControlled = typeof checked === "boolean";
+	const [internalChecked, setInternalChecked] = React.useState(defaultChecked);
+	const currentChecked = isControlled ? checked : internalChecked;
 
-  React.useEffect(() => {
-    if (isControlled) return
-    setInternalChecked(defaultChecked)
-  }, [defaultChecked, isControlled])
+	React.useEffect(() => {
+		if (isControlled) return;
+		setInternalChecked(defaultChecked);
+	}, [defaultChecked, isControlled]);
 
-  const handleToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (isDisabled || isLoading) return
-    const nextValue = !currentChecked
-    if (!isControlled) {
-      setInternalChecked(nextValue)
-    }
-    if (onChange) {
-      onChange(nextValue, event)
-    }
-  }
+	const handleToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
+		if (isDisabled || isLoading) return;
+		const nextValue = !currentChecked;
+		if (!isControlled) {
+			setInternalChecked(nextValue);
+		}
+		if (onChange) {
+			onChange(nextValue, event);
+		}
+	};
 
-  const classes = [
-    'bentomod-switch',
-    size,
-    color,
-    currentChecked ? 'checked' : '',
-    isDisabled ? 'disabled' : '',
-    isLoading ? 'loading' : '',
-    className
-  ]
-    .filter(Boolean)
-    .join(' ')
+	const classes = [
+		"bentomod-switch",
+		size,
+		color,
+		currentChecked ? "checked" : "",
+		isDisabled ? "disabled" : "",
+		isLoading ? "loading" : "",
+		className,
+	]
+		.filter(Boolean)
+		.join(" ");
 
-  return (
-    <label className={classes} data-checked={currentChecked} data-disabled={isDisabled}>
-      <button
-        type="button"
-        className="bentomod-switch-control"
-        role="switch"
-        aria-checked={currentChecked}
-        aria-disabled={isDisabled || isLoading}
-        onClick={handleToggle}
-        disabled={isDisabled || isLoading}
-        title={currentChecked ? 'Disable' : 'Enable'}
-        {...props}
-      >
-        <span className="bentomod-switch-track">
-          <span className="bentomod-switch-thumb" />
-        </span>
-        {isLoading && <span className="bentomod-switch-spinner" />}
-      </button>
-      {children && <span className="bentomod-switch-label">{children}</span>}
-    </label>
-  )
-}
+	return (
+		<label className={classes} data-checked={currentChecked} data-disabled={isDisabled}>
+			<button
+				type="button"
+				className="bentomod-switch-control"
+				role="switch"
+				aria-checked={currentChecked}
+				aria-disabled={isDisabled || isLoading}
+				onClick={handleToggle}
+				disabled={isDisabled || isLoading}
+				title={currentChecked ? "Disable" : "Enable"}
+				{...props}
+			>
+				<span className="bentomod-switch-track">
+					<span className="bentomod-switch-thumb" />
+				</span>
+				{isLoading && <span className="bentomod-switch-spinner" />}
+			</button>
+			{children && <span className="bentomod-switch-label">{children}</span>}
+		</label>
+	);
+};
 
-export default Switch
+export default Switch;

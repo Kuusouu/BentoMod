@@ -1,184 +1,187 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 /**
  * Hook to enhance native browser tooltips with custom styled tooltips
  * Intercepts title attributes and shows custom tooltips instead
  */
 export const useGlobalTooltips = () => {
-  useEffect(() => {
-    let activeTooltip: HTMLDivElement | null = null;
-    let showTimeout: ReturnType<typeof setTimeout> | null = null;
-    let hideTimeout: ReturnType<typeof setTimeout> | null = null;
-    let currentTarget: HTMLElement | null = null;
+	useEffect(() => {
+		let activeTooltip: HTMLDivElement | null = null;
+		let showTimeout: ReturnType<typeof setTimeout> | null = null;
+		const hideTimeout: ReturnType<typeof setTimeout> | null = null;
+		let currentTarget: HTMLElement | null = null;
 
-    const restoreTitle = (target: HTMLElement | null) => {
-      if (!target) return;
-      const originalTitle = target.getAttribute('data-original-title');
-      if (originalTitle) {
-        target.setAttribute('title', originalTitle);
-        target.removeAttribute('data-original-title');
-      }
-    };
+		const restoreTitle = (target: HTMLElement | null) => {
+			if (!target) return;
+			const originalTitle = target.getAttribute("data-original-title");
+			if (originalTitle) {
+				target.setAttribute("title", originalTitle);
+				target.removeAttribute("data-original-title");
+			}
+		};
 
-    const createTooltip = (text: string, targetRect: DOMRect): HTMLDivElement => {
-      const tooltip = document.createElement('div');
-      tooltip.className = 'global-tooltip';
-      tooltip.textContent = text;
-      tooltip.style.visibility = 'hidden'; // Hide while measuring
-      document.body.appendChild(tooltip);
+		const createTooltip = (text: string, targetRect: DOMRect): HTMLDivElement => {
+			const tooltip = document.createElement("div");
+			tooltip.className = "global-tooltip";
+			tooltip.textContent = text;
+			tooltip.style.visibility = "hidden"; // Hide while measuring
+			document.body.appendChild(tooltip);
 
-      // Force layout to get accurate dimensions
-      tooltip.offsetHeight;
+			// Force layout to get accurate dimensions
+			tooltip.offsetHeight;
 
-      // Position tooltip
-      const tooltipRect = tooltip.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
+			// Position tooltip
+			const tooltipRect = tooltip.getBoundingClientRect();
+			const viewportWidth = window.innerWidth;
+			const viewportHeight = window.innerHeight;
 
-      // Default to top placement
-      let top = targetRect.top - tooltipRect.height - 8;
-      let left = targetRect.left + targetRect.width / 2 - tooltipRect.width / 2;
+			// Default to top placement
+			let top = targetRect.top - tooltipRect.height - 8;
+			let left = targetRect.left + targetRect.width / 2 - tooltipRect.width / 2;
 
-      tooltip.style.visibility = ''; // Show after positioning
+			tooltip.style.visibility = ""; // Show after positioning
 
-      // Adjust if tooltip goes off screen
-      if (top < 8) {
-        // Show below if no space above
-        top = targetRect.bottom + 8;
-        tooltip.setAttribute('data-placement', 'bottom');
-      } else {
-        tooltip.setAttribute('data-placement', 'top');
-      }
+			// Adjust if tooltip goes off screen
+			if (top < 8) {
+				// Show below if no space above
+				top = targetRect.bottom + 8;
+				tooltip.setAttribute("data-placement", "bottom");
+			} else {
+				tooltip.setAttribute("data-placement", "top");
+			}
 
-      if (left < 8) {
-        left = 8;
-      } else if (left + tooltipRect.width > viewportWidth - 8) {
-        left = viewportWidth - tooltipRect.width - 8;
-      }
+			if (left < 8) {
+				left = 8;
+			} else if (left + tooltipRect.width > viewportWidth - 8) {
+				left = viewportWidth - tooltipRect.width - 8;
+			}
 
-      tooltip.style.top = `${top}px`;
-      tooltip.style.left = `${left}px`;
+			tooltip.style.top = `${top}px`;
+			tooltip.style.left = `${left}px`;
 
-      // Trigger animation
-      requestAnimationFrame(() => {
-        tooltip.classList.add('visible');
-      });
+			// Trigger animation
+			requestAnimationFrame(() => {
+				tooltip.classList.add("visible");
+			});
 
-      return tooltip;
-    };
+			return tooltip;
+		};
 
-    const removeTooltip = () => {
-      if (!activeTooltip) return;
-      const tooltipToRemove = activeTooltip;
-      activeTooltip = null;
-      tooltipToRemove.classList.remove('visible');
-      setTimeout(() => {
-        if (tooltipToRemove.parentNode) {
-          tooltipToRemove.parentNode.removeChild(tooltipToRemove);
-        }
-      }, 200);
-    };
+		const removeTooltip = () => {
+			if (!activeTooltip) return;
+			const tooltipToRemove = activeTooltip;
+			activeTooltip = null;
+			tooltipToRemove.classList.remove("visible");
+			setTimeout(() => {
+				if (tooltipToRemove.parentNode) {
+					tooltipToRemove.parentNode.removeChild(tooltipToRemove);
+				}
+			}, 200);
+		};
 
-    const clearTimer = (timer: ReturnType<typeof setTimeout> | null) => {
-      if (timer !== null) {
-        clearTimeout(timer);
-      }
-    };
+		const clearTimer = (timer: ReturnType<typeof setTimeout> | null) => {
+			if (timer !== null) {
+				clearTimeout(timer);
+			}
+		};
 
-    const handleMouseEnter = (e: MouseEvent) => {
-      const eventTarget = e.target;
-      if (!(eventTarget instanceof Element)) return;
-      const target = eventTarget.closest('[title]') as HTMLElement | null;
-      if (!target || target.hasAttribute('data-no-global-tooltip')) return;
+		const handleMouseEnter = (e: MouseEvent) => {
+			const eventTarget = e.target;
+			if (!(eventTarget instanceof Element)) return;
+			const target = eventTarget.closest("[title]") as HTMLElement | null;
+			if (!target || target.hasAttribute("data-no-global-tooltip")) return;
 
-      const title = target.getAttribute('title');
-      if (!title) return;
+			const title = target.getAttribute("title");
+			if (!title) return;
 
-      // If moving to another tooltip target, restore previous title and clear old tooltip
-      if (currentTarget && currentTarget !== target) {
-        restoreTitle(currentTarget);
-        removeTooltip();
-      }
+			// If moving to another tooltip target, restore previous title and clear old tooltip
+			if (currentTarget && currentTarget !== target) {
+				restoreTitle(currentTarget);
+				removeTooltip();
+			}
 
-      // Store current target
-      currentTarget = target;
+			// Store current target
+			currentTarget = target;
 
-      // Store original title and remove it to prevent native tooltip
-      target.setAttribute('data-original-title', title);
-      target.removeAttribute('title');
+			// Store original title and remove it to prevent native tooltip
+			target.setAttribute("data-original-title", title);
+			target.removeAttribute("title");
 
-      clearTimer(hideTimeout);
-      clearTimer(showTimeout);
+			clearTimer(hideTimeout);
+			clearTimer(showTimeout);
 
-      showTimeout = setTimeout(() => {
-        if (currentTarget === target) {
-          const rect = target.getBoundingClientRect();
-          removeTooltip();
-          activeTooltip = createTooltip(title, rect);
-          console.debug('[GlobalTooltip] shown', { title, targetClass: target.className });
-        }
-      }, 500); // 500ms delay like native tooltips
-    };
+			showTimeout = setTimeout(() => {
+				if (currentTarget === target) {
+					const rect = target.getBoundingClientRect();
+					removeTooltip();
+					activeTooltip = createTooltip(title, rect);
+					console.debug("[GlobalTooltip] shown", {
+						title,
+						targetClass: target.className,
+					});
+				}
+			}, 500); // 500ms delay like native tooltips
+		};
 
-    const handleMouseLeave = (e: MouseEvent) => {
-      const eventTarget = e.target;
-      if (!(eventTarget instanceof Element)) return;
-      const target = eventTarget.closest('[data-original-title]') as HTMLElement | null;
-      const related = e.relatedTarget instanceof Node ? e.relatedTarget : null;
+		const handleMouseLeave = (e: MouseEvent) => {
+			const eventTarget = e.target;
+			if (!(eventTarget instanceof Element)) return;
+			const target = eventTarget.closest("[data-original-title]") as HTMLElement | null;
+			const related = e.relatedTarget instanceof Node ? e.relatedTarget : null;
 
-      // Ignore transitions within the same tooltip target subtree
-      if (target && related && target.contains(related)) {
-        return;
-      }
+			// Ignore transitions within the same tooltip target subtree
+			if (target && related && target.contains(related)) {
+				return;
+			}
 
-      // Always clear timeouts and remove tooltip on any mouse leave
-      clearTimer(showTimeout);
-      clearTimer(hideTimeout);
+			// Always clear timeouts and remove tooltip on any mouse leave
+			clearTimer(showTimeout);
+			clearTimer(hideTimeout);
 
-      if (target) {
-        restoreTitle(target);
-      }
+			if (target) {
+				restoreTitle(target);
+			}
 
-      // Clear current target
-      currentTarget = null;
+			// Clear current target
+			currentTarget = null;
 
-      // Remove tooltip immediately
-      removeTooltip();
-    };
+			// Remove tooltip immediately
+			removeTooltip();
+		};
 
-    const handleMouseDown = () => {
-      clearTimer(showTimeout);
-      removeTooltip();
-    };
+		const handleMouseDown = () => {
+			clearTimer(showTimeout);
+			removeTooltip();
+		};
 
-    const handleViewportChange = () => {
-      clearTimer(showTimeout);
-      removeTooltip();
-      restoreTitle(currentTarget);
-      currentTarget = null;
-    };
+		const handleViewportChange = () => {
+			clearTimer(showTimeout);
+			removeTooltip();
+			restoreTitle(currentTarget);
+			currentTarget = null;
+		};
 
-    // Add event listeners
-    document.addEventListener('mouseover', handleMouseEnter, true);
-    document.addEventListener('mouseout', handleMouseLeave, true);
-    document.addEventListener('mousedown', handleMouseDown, true);
-    window.addEventListener('blur', handleViewportChange);
-    window.addEventListener('scroll', handleViewportChange, true);
-    window.addEventListener('resize', handleViewportChange);
+		// Add event listeners
+		document.addEventListener("mouseover", handleMouseEnter, true);
+		document.addEventListener("mouseout", handleMouseLeave, true);
+		document.addEventListener("mousedown", handleMouseDown, true);
+		window.addEventListener("blur", handleViewportChange);
+		window.addEventListener("scroll", handleViewportChange, true);
+		window.addEventListener("resize", handleViewportChange);
 
-    // Cleanup
-    return () => {
-      document.removeEventListener('mouseover', handleMouseEnter, true);
-      document.removeEventListener('mouseout', handleMouseLeave, true);
-      document.removeEventListener('mousedown', handleMouseDown, true);
-      window.removeEventListener('blur', handleViewportChange);
-      window.removeEventListener('scroll', handleViewportChange, true);
-      window.removeEventListener('resize', handleViewportChange);
-      clearTimer(showTimeout);
-      clearTimer(hideTimeout);
-      restoreTitle(currentTarget);
-      currentTarget = null;
-      removeTooltip();
-    };
-  }, []);
+		// Cleanup
+		return () => {
+			document.removeEventListener("mouseover", handleMouseEnter, true);
+			document.removeEventListener("mouseout", handleMouseLeave, true);
+			document.removeEventListener("mousedown", handleMouseDown, true);
+			window.removeEventListener("blur", handleViewportChange);
+			window.removeEventListener("scroll", handleViewportChange, true);
+			window.removeEventListener("resize", handleViewportChange);
+			clearTimer(showTimeout);
+			clearTimer(hideTimeout);
+			restoreTitle(currentTarget);
+			currentTarget = null;
+			removeTooltip();
+		};
+	}, []);
 };

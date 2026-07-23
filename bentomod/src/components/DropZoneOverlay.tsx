@@ -1,397 +1,458 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { listen } from '@tauri-apps/api/event';
-import { motion, AnimatePresence } from 'framer-motion';
-import { VscFolder, VscFolderOpened, VscChevronRight, VscChevronDown, VscNewFolder } from 'react-icons/vsc';
-import { MdInstallDesktop, MdCreateNewFolder } from 'react-icons/md';
-import './DropZoneOverlay.css';
+import { listen } from "@tauri-apps/api/event";
+import { AnimatePresence, motion } from "framer-motion";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MdCreateNewFolder, MdInstallDesktop } from "react-icons/md";
+import {
+	VscChevronDown,
+	VscChevronRight,
+	VscFolder,
+	VscFolderOpened,
+	VscNewFolder,
+} from "react-icons/vsc";
+import "./DropZoneOverlay.css";
 
 type FolderRecord = {
-    id: string;
-    name: string;
-    is_root?: boolean;
+	id: string;
+	name: string;
+	is_root?: boolean;
 };
 
 type TreeNode = {
-    id?: string;
-    name: string;
-    children: TreeNode[];
-    isVirtual: boolean;
-    fullPath?: string;
-    originalName?: string;
+	id?: string;
+	name: string;
+	children: TreeNode[];
+	isVirtual: boolean;
+	fullPath?: string;
+	originalName?: string;
 };
 
 type DropZoneOverlayProps = {
-    isVisible: boolean;
-    folders?: FolderRecord[];
+	isVisible: boolean;
+	folders?: FolderRecord[];
 
-    onInstallDrop?: () => void;
-    onQuickOrganizeDrop?: (folderId: string | null) => void;
-    onClose: () => void;
-    onCreateFolder?: (name: string) => Promise<string | null>;
-    onNewFolderDrop?: () => void;
+	onInstallDrop?: () => void;
+	onQuickOrganizeDrop?: (folderId: string | null) => void;
+	onClose: () => void;
+	onCreateFolder?: (name: string) => Promise<string | null>;
+	onNewFolderDrop?: () => void;
 };
 
 // Simplified folder tree for the overlay
 const buildTree = (folders: FolderRecord[]) => {
-    const root: any = { id: 'root', name: 'root', children: {}, isVirtual: true };
-    const sortedFolders = [...folders].sort((a, b) => a.name.localeCompare(b.name));
+	const root: any = { id: "root", name: "root", children: {}, isVirtual: true };
+	const sortedFolders = [...folders].sort((a, b) => a.name.localeCompare(b.name));
 
-    sortedFolders.forEach(folder => {
-        const parts = folder.id.split(/[/\\]/);
-        let current = root;
+	sortedFolders.forEach((folder) => {
+		const parts = folder.id.split(/[/\\]/);
+		let current = root;
 
-        parts.forEach((part, index) => {
-            if (!current.children[part]) {
-                current.children[part] = {
-                    name: part,
-                    children: {},
-                    isVirtual: true,
-                    fullPath: parts.slice(0, index + 1).join('/')
-                };
-            }
-            current = current.children[part];
+		parts.forEach((part, index) => {
+			if (!current.children[part]) {
+				current.children[part] = {
+					name: part,
+					children: {},
+					isVirtual: true,
+					fullPath: parts.slice(0, index + 1).join("/"),
+				};
+			}
+			current = current.children[part];
 
-            if (index === parts.length - 1) {
-                current.id = folder.id;
-                current.isVirtual = false;
-                current.originalName = folder.name;
-            }
-        });
-    });
+			if (index === parts.length - 1) {
+				current.id = folder.id;
+				current.isVirtual = false;
+				current.originalName = folder.name;
+			}
+		});
+	});
 
-    return root;
+	return root;
 };
 
 const convertToArray = (node: any): TreeNode[] => {
-    if (!node.children) return [];
-    const children = Object.values(node.children).map((child: any) => ({
-        ...child,
-        children: convertToArray(child)
-    }));
-    children.sort((a, b) => a.name.localeCompare(b.name));
-    return children;
+	if (!node.children) return [];
+	const children = Object.values(node.children).map((child: any) => ({
+		...child,
+		children: convertToArray(child),
+	}));
+	children.sort((a, b) => a.name.localeCompare(b.name));
+	return children;
 };
 
 // Folder node with data attribute for position detection
-const DropFolderNode = ({ node, selectedFolderId, onSelect, depth = 0 }: { node: TreeNode; selectedFolderId: string | null; onSelect: (folderId: string | null) => void; depth?: number }) => {
-    const [isOpen, setIsOpen] = useState(true);
-    const hasChildren = node.children && node.children.length > 0;
-    const isSelected = selectedFolderId === node.id;
+const DropFolderNode = ({
+	node,
+	selectedFolderId,
+	onSelect,
+	depth = 0,
+}: {
+	node: TreeNode;
+	selectedFolderId: string | null;
+	onSelect: (folderId: string | null) => void;
+	depth?: number;
+}) => {
+	const [isOpen, setIsOpen] = useState(true);
+	const hasChildren = node.children && node.children.length > 0;
+	const isSelected = selectedFolderId === node.id;
 
-    const handleClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (!node.isVirtual) {
-            onSelect(node.id ?? null);
-        } else {
-            setIsOpen(!isOpen);
-        }
-    };
+	const handleClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		if (!node.isVirtual) {
+			onSelect(node.id ?? null);
+		} else {
+			setIsOpen(!isOpen);
+		}
+	};
 
-    return (
-        <div className="drop-folder-node">
-            <div
-                className={`drop-folder-item ${isSelected ? 'selected' : ''} ${node.isVirtual ? 'virtual' : ''}`}
-                data-folder-id={node.isVirtual ? undefined : node.id}
-                data-dropzone="folder"
-                onClick={handleClick}
-                style={{ paddingLeft: `${depth * 16 + 8}px` }}
-            >
-                <span className="folder-toggle" onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}>
-                    {hasChildren ? (isOpen ? <VscChevronDown /> : <VscChevronRight />) : <span style={{ width: 16 }} />}
-                </span>
-                <span className="folder-icon">
-                    {isSelected || isOpen ? <VscFolderOpened /> : <VscFolder />}
-                </span>
-                <span className="folder-name">{node.name}</span>
-            </div>
+	return (
+		<div className="drop-folder-node">
+			<div
+				className={`drop-folder-item ${isSelected ? "selected" : ""} ${node.isVirtual ? "virtual" : ""}`}
+				data-folder-id={node.isVirtual ? undefined : node.id}
+				data-dropzone="folder"
+				style={{ paddingLeft: `${depth * 16 + 8}px` }}
+			>
+				<button
+					type="button"
+					className="folder-toggle unstyled-icon-button"
+					onClick={(e) => {
+						e.stopPropagation();
+						setIsOpen(!isOpen);
+					}}
+					disabled={!hasChildren}
+					aria-label={`${isOpen ? "Collapse" : "Expand"} ${node.name}`}
+					aria-expanded={hasChildren ? isOpen : undefined}
+				>
+					{hasChildren ? (
+						isOpen ? (
+							<VscChevronDown />
+						) : (
+							<VscChevronRight />
+						)
+					) : (
+						<span style={{ width: 16 }} />
+					)}
+				</button>
+				<button
+					type="button"
+					className="folder-select-button unstyled-button"
+					onClick={handleClick}
+				>
+					<span className="folder-icon">
+						{isSelected || isOpen ? <VscFolderOpened /> : <VscFolder />}
+					</span>
+					<span className="folder-name">{node.name}</span>
+				</button>
+			</div>
 
-            {hasChildren && isOpen && (
-                <div className="drop-folder-children">
-                    {node.children.map(child => (
-                        <DropFolderNode
-                            key={child.fullPath || child.id}
-                            node={child}
-                            selectedFolderId={selectedFolderId}
-                            onSelect={onSelect}
-                            depth={depth + 1}
-                        />
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+			{hasChildren && isOpen && (
+				<div className="drop-folder-children">
+					{node.children.map((child) => (
+						<DropFolderNode
+							key={child.fullPath || child.id}
+							node={child}
+							selectedFolderId={selectedFolderId}
+							onSelect={onSelect}
+							depth={depth + 1}
+						/>
+					))}
+				</div>
+			)}
+		</div>
+	);
 };
 
 const DropZoneOverlay = ({
-    isVisible,
-    folders = [],
-    onInstallDrop,
-    onQuickOrganizeDrop,
-    onClose,
-    onCreateFolder,
-    onNewFolderDrop
+	isVisible,
+	folders = [],
+	onInstallDrop,
+	onQuickOrganizeDrop,
+	onClose,
+	onCreateFolder,
+	onNewFolderDrop,
 }: DropZoneOverlayProps) => {
-    const [hoveredZone, setHoveredZone] = useState<'install' | 'organize' | 'new-folder' | null>(null); // 'install' | 'organize' | 'new-folder'
-    const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
-    const [isCreatingFolder, setIsCreatingFolder] = useState(false);
-    const overlayRef = useRef<HTMLDivElement | null>(null);
-    const folderTreeRef = useRef<HTMLDivElement | null>(null);
-    const scrollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const [hoveredZone, setHoveredZone] = useState<"install" | "organize" | "new-folder" | null>(
+		null,
+	); // 'install' | 'organize' | 'new-folder'
+	const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+	const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+	const overlayRef = useRef<HTMLDivElement | null>(null);
+	const folderTreeRef = useRef<HTMLDivElement | null>(null);
+	const scrollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+	const rootFolder = useMemo(() => folders.find((f: FolderRecord) => f.is_root), [folders]);
+	const subfolders = useMemo(() => folders.filter((f) => !f.is_root), [folders]);
+	const treeData = useMemo(() => {
+		const root = buildTree(subfolders);
+		return convertToArray(root);
+	}, [subfolders]);
 
+	// Reset state when overlay becomes visible
+	useEffect(() => {
+		if (isVisible) {
+			setHoveredZone(null);
+			setSelectedFolderId(null);
+		}
+	}, [isVisible]);
 
-    const rootFolder = useMemo(() => folders.find((f: FolderRecord) => f.is_root), [folders]);
-    const subfolders = useMemo(() => folders.filter(f => !f.is_root), [folders]);
-    const treeData = useMemo(() => {
-        const root = buildTree(subfolders);
-        return convertToArray(root);
-    }, [subfolders]);
+	// Cleanup scroll interval on unmount
+	useEffect(() => {
+		return () => {
+			if (scrollIntervalRef.current) {
+				clearInterval(scrollIntervalRef.current);
+			}
+		};
+	}, []);
 
-    // Reset state when overlay becomes visible
-    useEffect(() => {
-        if (isVisible) {
-            setHoveredZone(null);
-            setSelectedFolderId(null);
-        }
-    }, [isVisible]);
+	// Edge scroll handlers
+	const startScrolling = useCallback((direction: "up" | "down") => {
+		if (scrollIntervalRef.current) return;
 
-    // Cleanup scroll interval on unmount
-    useEffect(() => {
-        return () => {
-            if (scrollIntervalRef.current) {
-                clearInterval(scrollIntervalRef.current);
-            }
-        };
-    }, []);
+		const scrollAmount = direction === "up" ? -8 : 8;
+		scrollIntervalRef.current = setInterval(() => {
+			if (folderTreeRef.current) {
+				folderTreeRef.current.scrollTop += scrollAmount;
+			}
+		}, 16); // ~60fps
+	}, []);
 
-    // Edge scroll handlers
-    const startScrolling = (direction: 'up' | 'down') => {
-        if (scrollIntervalRef.current) return;
+	const stopScrolling = useCallback(() => {
+		if (scrollIntervalRef.current) {
+			clearInterval(scrollIntervalRef.current);
+			scrollIntervalRef.current = null;
+		}
+	}, []);
 
-        const scrollAmount = direction === 'up' ? -8 : 8;
-        scrollIntervalRef.current = setInterval(() => {
-            if (folderTreeRef.current) {
-                folderTreeRef.current.scrollTop += scrollAmount;
-            }
-        }, 16); // ~60fps
-    };
+	// Listen to Tauri drag-over event for position-based detection
+	useEffect(() => {
+		if (!isVisible) return;
 
-    const stopScrolling = () => {
-        if (scrollIntervalRef.current) {
-            clearInterval(scrollIntervalRef.current);
-            scrollIntervalRef.current = null;
-        }
-    };
+		const handleDragOver = (event: any) => {
+			const position = event.payload?.position;
+			if (!position) return;
 
-    // Listen to Tauri drag-over event for position-based detection
-    useEffect(() => {
-        if (!isVisible) return;
+			const { x, y } = position;
 
-        const handleDragOver = (event: any) => {
-            const position = event.payload?.position;
-            if (!position) return;
+			// Check if over scroll zones and auto-scroll
+			if (folderTreeRef.current) {
+				const rect = folderTreeRef.current.getBoundingClientRect();
+				const edgeSize = 40; // Size of scroll zone in pixels
 
-            const { x, y } = position;
+				if (y >= rect.top && y <= rect.top + edgeSize && y >= rect.top) {
+					startScrolling("up");
+				} else if (y >= rect.bottom - edgeSize && y <= rect.bottom) {
+					startScrolling("down");
+				} else {
+					stopScrolling();
+				}
+			}
 
-            // Check if over scroll zones and auto-scroll
-            if (folderTreeRef.current) {
-                const rect = folderTreeRef.current.getBoundingClientRect();
-                const edgeSize = 40; // Size of scroll zone in pixels
+			// Find element at this position
+			const element = document.elementFromPoint(x, y);
+			if (!element) return;
 
-                if (y >= rect.top && y <= rect.top + edgeSize && y >= rect.top) {
-                    startScrolling('up');
-                } else if (y >= rect.bottom - edgeSize && y <= rect.bottom) {
-                    startScrolling('down');
-                } else {
-                    stopScrolling();
-                }
-            }
+			// Check if over install zone
+			const installZone = element.closest('[data-dropzone="install"]');
+			if (installZone) {
+				setHoveredZone("install");
+				setSelectedFolderId(null);
+				onInstallDrop?.();
+				return;
+			}
 
-            // Find element at this position
-            const element = document.elementFromPoint(x, y);
-            if (!element) return;
+			// Check if over new-folder drop target
+			const newFolderZone = element.closest('[data-dropzone="new-folder"]');
+			if (newFolderZone) {
+				setHoveredZone("new-folder");
+				setSelectedFolderId(null);
+				onNewFolderDrop?.();
+				return;
+			}
 
-            // Check if over install zone
-            const installZone = element.closest('[data-dropzone="install"]');
-            if (installZone) {
-                setHoveredZone('install');
-                setSelectedFolderId(null);
-                onInstallDrop?.();
-                return;
-            }
+			// Check if over a specific folder
+			const folderItem = element.closest("[data-folder-id]");
+			if (folderItem) {
+				const folderId = folderItem.getAttribute("data-folder-id");
+				setHoveredZone("organize");
+				setSelectedFolderId(folderId);
+				onQuickOrganizeDrop?.(folderId);
+				return;
+			}
 
-            // Check if over new-folder drop target
-            const newFolderZone = element.closest('[data-dropzone="new-folder"]');
-            if (newFolderZone) {
-                setHoveredZone('new-folder');
-                setSelectedFolderId(null);
-                onNewFolderDrop?.();
-                return;
-            }
+			// Check if over organize zone (but not specific folder)
+			const organizeZone = element.closest('[data-dropzone="organize"]');
+			if (organizeZone) {
+				setHoveredZone("organize");
+				// Keep current folder selection if any
+				if (selectedFolderId) {
+					onQuickOrganizeDrop?.(selectedFolderId);
+				} else {
+					onInstallDrop?.();
+				}
+				return;
+			}
 
-            // Check if over a specific folder
-            const folderItem = element.closest('[data-folder-id]');
-            if (folderItem) {
-                const folderId = folderItem.getAttribute('data-folder-id');
-                setHoveredZone('organize');
-                setSelectedFolderId(folderId);
-                onQuickOrganizeDrop?.(folderId);
-                return;
-            }
+			// Not over any zone — clear hover state
+			setHoveredZone(null);
+		};
 
-            // Check if over organize zone (but not specific folder)
-            const organizeZone = element.closest('[data-dropzone="organize"]');
-            if (organizeZone) {
-                setHoveredZone('organize');
-                // Keep current folder selection if any
-                if (selectedFolderId) {
-                    onQuickOrganizeDrop?.(selectedFolderId);
-                } else {
-                    onInstallDrop?.();
-                }
-                return;
-            }
+		const unlistenDragOver = listen("tauri://drag-over", handleDragOver);
 
-            // Not over any zone — clear hover state
-            setHoveredZone(null);
-        };
+		return () => {
+			unlistenDragOver.then((f) => f());
+			stopScrolling();
+		};
+	}, [
+		isVisible,
+		onInstallDrop,
+		onNewFolderDrop,
+		onQuickOrganizeDrop,
+		selectedFolderId,
+		startScrolling,
+		stopScrolling,
+	]);
 
-        const unlistenDragOver = listen('tauri://drag-over', handleDragOver);
+	const handleNewFolder = async (e: React.MouseEvent) => {
+		e.stopPropagation();
+		const name = prompt("Enter new folder name:");
+		if (!name?.trim()) return;
 
-        return () => {
-            unlistenDragOver.then(f => f());
-            stopScrolling();
-        };
-    }, [isVisible, selectedFolderId, onInstallDrop, onQuickOrganizeDrop, onNewFolderDrop]);
+		setIsCreatingFolder(true);
+		try {
+			if (onCreateFolder) {
+				const newFolderId = await onCreateFolder(name.trim());
+				if (newFolderId) {
+					setSelectedFolderId(newFolderId);
+				}
+			}
+		} catch (err) {
+			console.error("Failed to create folder:", err);
+		} finally {
+			setIsCreatingFolder(false);
+		}
+	};
 
-    const handleNewFolder = async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        const name = prompt('Enter new folder name:');
-        if (!name || !name.trim()) return;
+	return (
+		<AnimatePresence>
+			{isVisible && (
+				<motion.div
+					ref={overlayRef}
+					className="dropzone-overlay"
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					exit={{ opacity: 0 }}
+					transition={{ duration: 0.2 }}
+				>
+					<div className="dropzone-container">
+						{/* Install Zone */}
+						<motion.div
+							className={`dropzone-card install-zone ${hoveredZone === "install" ? "active" : ""}`}
+							data-dropzone="install"
+							initial={{ x: -50, opacity: 0 }}
+							animate={{ opacity: 1 }}
+							transition={{ delay: 0.1 }}
+						>
+							<div className="zone-icon">
+								<MdInstallDesktop />
+							</div>
+							<h2>Install Mods</h2>
+							<p>
+								Drop files here to open the install panel with full configuration
+								options for legacy .pak files from UE or single-pak old mods.
+							</p>
+							<div className="zone-hint">Supports .pak, .zip, .rar, .7z, folders</div>
+						</motion.div>
 
-        setIsCreatingFolder(true);
-        try {
-            if (onCreateFolder) {
-                const newFolderId = await onCreateFolder(name.trim());
-                if (newFolderId) {
-                    setSelectedFolderId(newFolderId);
-                }
-            }
-        } catch (err) {
-            console.error('Failed to create folder:', err);
-        } finally {
-            setIsCreatingFolder(false);
-        }
-    };
+						{/* Quick Organize Zone */}
+						<motion.div
+							className={`dropzone-card organize-zone ${hoveredZone === "organize" ? "active" : ""}`}
+							data-dropzone="organize"
+							initial={{ x: 50, opacity: 0 }}
+							animate={{ opacity: 1 }}
+							transition={{ delay: 0.1 }}
+						>
+							<div className="zone-icon">
+								<MdCreateNewFolder />
+							</div>
+							<h2>Quick Organize</h2>
+							<p>
+								This is for pre-configured mods that are already in the correct
+								format (.pak .utoc .ucas). Hover over a folder below, then drop to
+								install there
+							</p>
 
-    return (
-        <AnimatePresence>
-            {isVisible && (
-                <motion.div
-                    ref={overlayRef}
-                    className="dropzone-overlay"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                >
-                    <div className="dropzone-container">
-                        {/* Install Zone */}
-                        <motion.div
-                            className={`dropzone-card install-zone ${hoveredZone === 'install' ? 'active' : ''}`}
-                            data-dropzone="install"
-                            initial={{ x: -50, opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.1 }}
-                        >
-                            <div className="zone-icon">
-                                <MdInstallDesktop />
-                            </div>
-                            <h2>Install Mods</h2>
-                            <p>Drop files here to open the install panel with full configuration options for legacy .pak files from UE or single-pak old mods.</p>
-                            <div className="zone-hint">
-                                Supports .pak, .zip, .rar, .7z, folders
-                            </div>
-                        </motion.div>
+							{/* New Folder Drop Target */}
+							<div
+								className={`new-folder-drop-target ${hoveredZone === "new-folder" ? "active" : ""}`}
+								data-dropzone="new-folder"
+							>
+								<VscNewFolder />
+								<span>
+									{hoveredZone === "new-folder"
+										? "Drop to create new folder"
+										: "Drop here → New Folder"}
+								</span>
+							</div>
 
-                        {/* Quick Organize Zone */}
-                        <motion.div
-                            className={`dropzone-card organize-zone ${hoveredZone === 'organize' ? 'active' : ''}`}
-                            data-dropzone="organize"
-                            initial={{ x: 50, opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.1 }}
-                        >
-                            <div className="zone-icon">
-                                <MdCreateNewFolder />
-                            </div>
-                            <h2>Quick Organize</h2>
-                            <p>This is for pre-configured mods that are already in the correct format (.pak .utoc .ucas). Hover over a folder below, then drop to install there</p>
+							<div className="folder-tree-wrapper">
+								{/* Scroll zone - Top */}
+								{/* biome-ignore lint/a11y/noStaticElementInteractions: This edge zone only auto-scrolls during pointer drag operations. */}
+								<div
+									className="scroll-zone scroll-zone-top"
+									onMouseEnter={() => startScrolling("up")}
+									onMouseLeave={stopScrolling}
+								/>
 
-                            {/* New Folder Drop Target */}
-                            <div
-                                className={`new-folder-drop-target ${hoveredZone === 'new-folder' ? 'active' : ''}`}
-                                data-dropzone="new-folder"
-                            >
-                                <VscNewFolder />
-                                <span>{hoveredZone === 'new-folder' ? 'Drop to create new folder' : 'Drop here → New Folder'}</span>
-                            </div>
+								<div className="folder-tree-container" ref={folderTreeRef}>
+									{/* Root folder */}
+									{rootFolder && (
+										<button
+											type="button"
+											className={`drop-folder-item root-item unstyled-button ${selectedFolderId === rootFolder.id ? "selected" : ""}`}
+											data-folder-id={rootFolder.id}
+											data-dropzone="folder"
+											onClick={() => setSelectedFolderId(rootFolder.id)}
+										>
+											<span className="folder-icon">
+												<VscFolderOpened />
+											</span>
+											<span className="folder-name">{rootFolder.name}</span>
+										</button>
+									)}
 
-                            <div className="folder-tree-wrapper">
-                                {/* Scroll zone - Top */}
-                                <div
-                                    className="scroll-zone scroll-zone-top"
-                                    onMouseEnter={() => startScrolling('up')}
-                                    onMouseLeave={stopScrolling}
-                                />
+									{/* Subfolders */}
+									<div className="drop-folder-tree">
+										{treeData.map((node) => (
+											<DropFolderNode
+												key={node.fullPath || node.id}
+												node={node}
+												selectedFolderId={selectedFolderId}
+												onSelect={setSelectedFolderId}
+											/>
+										))}
+									</div>
+								</div>
 
-                                <div className="folder-tree-container" ref={folderTreeRef}>
-                                    {/* Root folder */}
-                                    {rootFolder && (
-                                        <div
-                                            className={`drop-folder-item root-item ${selectedFolderId === rootFolder.id ? 'selected' : ''}`}
-                                            data-folder-id={rootFolder.id}
-                                            data-dropzone="folder"
-                                            onClick={() => setSelectedFolderId(rootFolder.id)}
-                                        >
-                                            <span className="folder-icon"><VscFolderOpened /></span>
-                                            <span className="folder-name">{rootFolder.name}</span>
-                                        </div>
-                                    )}
+								{/* Scroll zone - Bottom */}
+								{/* biome-ignore lint/a11y/noStaticElementInteractions: This edge zone only auto-scrolls during pointer drag operations. */}
+								<div
+									className="scroll-zone scroll-zone-bottom"
+									onMouseEnter={() => startScrolling("down")}
+									onMouseLeave={stopScrolling}
+								/>
+							</div>
 
-                                    {/* Subfolders */}
-                                    <div className="drop-folder-tree">
-                                        {treeData.map(node => (
-                                            <DropFolderNode
-                                                key={node.fullPath || node.id}
-                                                node={node}
-                                                selectedFolderId={selectedFolderId}
-                                                onSelect={setSelectedFolderId}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Scroll zone - Bottom */}
-                                <div
-                                    className="scroll-zone scroll-zone-bottom"
-                                    onMouseEnter={() => startScrolling('down')}
-                                    onMouseLeave={stopScrolling}
-                                />
-                            </div>
-
-                            {selectedFolderId && (
-                                <div className="selected-folder-hint">
-                                    Drop to install into: <strong>{selectedFolderId}</strong>
-                                </div>
-                            )}
-                        </motion.div>
-                    </div>
-                </motion.div>
-            )}
-        </AnimatePresence>
-    );
+							{selectedFolderId && (
+								<div className="selected-folder-hint">
+									Drop to install into: <strong>{selectedFolderId}</strong>
+								</div>
+							)}
+						</motion.div>
+					</div>
+				</motion.div>
+			)}
+		</AnimatePresence>
+	);
 };
 
 export default DropZoneOverlay;
-

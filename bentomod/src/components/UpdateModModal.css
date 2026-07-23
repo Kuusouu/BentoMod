@@ -1,202 +1,202 @@
 .update-mod-modal {
-  width: 500px;
-  max-width: 95vw;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
+	width: 500px;
+	max-width: 95vw;
+	background: var(--bg-secondary);
+	border: 1px solid var(--border-color);
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+	display: flex;
+	flex-direction: column;
 }
 
 .update-mod-modal .modal-header h2 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--accent-primary);
-  font-size: 1.25rem;
-  margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	color: var(--accent-primary);
+	font-size: 1.25rem;
+	margin: 0;
 }
 
 .update-info-grid {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--bg-tertiary);
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid var(--border-dim);
-  margin-bottom: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: var(--bg-tertiary);
+	padding: 16px;
+	border-radius: 8px;
+	border: 1px solid var(--border-dim);
+	margin-bottom: 20px;
 }
 
 .mod-info-box {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  overflow: hidden;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	overflow: hidden;
 }
 
 .mod-info-box.new {
-  text-align: right;
-  align-items: flex-end;
+	text-align: right;
+	align-items: flex-end;
 }
 
 .info-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  color: var(--text-dim);
-  text-transform: uppercase;
+	font-size: 0.7rem;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	color: var(--text-dim);
+	text-transform: uppercase;
 }
 
 .info-name {
-  font-family: 'Segoe UI Mono', monospace;
-  font-size: 0.9rem;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
+	font-family: "Segoe UI Mono", monospace;
+	font-size: 0.9rem;
+	color: var(--text-primary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
 }
 
 .arrow-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
-  color: var(--accent-primary);
-  font-size: 1.2rem;
-  opacity: 0.8;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 16px;
+	color: var(--accent-primary);
+	font-size: 1.2rem;
+	opacity: 0.8;
 }
 
 .options-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
 .checkbox-option {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  cursor: pointer;
-  padding: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 6px;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	cursor: pointer;
+	padding: 12px;
+	background: rgba(255, 255, 255, 0.03);
+	border-radius: 6px;
+	border: 1px solid transparent;
+	transition: all 0.2s ease;
 }
 
 .checkbox-option:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: var(--border-dim);
+	background: rgba(255, 255, 255, 0.06);
+	border-color: var(--border-dim);
 }
 
 .checkbox-option input[type="checkbox"] {
-  margin-top: 4px;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  accent-color: var(--accent-primary);
+	margin-top: 4px;
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+	accent-color: var(--accent-primary);
 }
 
 .option-text {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 }
 
 .option-title {
-  font-weight: 600;
-  color: var(--text-primary);
+	font-weight: 600;
+	color: var(--text-primary);
 }
 
 .option-desc {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
+	font-size: 0.85rem;
+	color: var(--text-secondary);
+	line-height: 1.4;
 }
 
 .option-desc code {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1px 4px;
-  border-radius: 3px;
-  font-family: monospace;
-  color: var(--accent-secondary);
+	background: rgba(0, 0, 0, 0.3);
+	padding: 1px 4px;
+	border-radius: 3px;
+	font-family: monospace;
+	color: var(--accent-secondary);
 }
 
 .name-warning {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.85rem;
-  color: var(--status-warning);
-  padding: 8px 12px;
-  background: rgba(255, 179, 0, 0.1);
-  border-radius: 6px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 0.85rem;
+	color: var(--status-warning);
+	padding: 8px 12px;
+	background: rgba(255, 179, 0, 0.1);
+	border-radius: 6px;
 }
 
 .name-warning svg {
-  font-size: 1.1rem;
-  flex-shrink: 0;
+	font-size: 1.1rem;
+	flex-shrink: 0;
 }
 
 .update-obfuscation-toggle {
-  margin-bottom: 16px;
+	margin-bottom: 16px;
 }
 
 .update-obfuscation-toggle .obfuscate-toggle {
-  background: rgba(66, 165, 245, 0.08);
-  border: 1px solid rgba(66, 165, 245, 0.2);
-  border-radius: 12px;
-  transition: all 0.2s ease;
+	background: rgba(66, 165, 245, 0.08);
+	border: 1px solid rgba(66, 165, 245, 0.2);
+	border-radius: 12px;
+	transition: all 0.2s ease;
 }
 
 .update-obfuscation-toggle .obfuscate-toggle:hover {
-  background: rgba(66, 165, 245, 0.12);
-  border-color: rgba(66, 165, 245, 0.3);
+	background: rgba(66, 165, 245, 0.12);
+	border-color: rgba(66, 165, 245, 0.3);
 }
 
 .update-obfuscation-toggle .obfuscate-toggle.active {
-  background: rgba(66, 165, 245, 0.15);
-  border-color: rgba(66, 165, 245, 0.4);
+	background: rgba(66, 165, 245, 0.15);
+	border-color: rgba(66, 165, 245, 0.4);
 }
 
 .update-obfuscation-toggle .install-toggle__label {
-  color: #42a5f5;
+	color: #42a5f5;
 }
 
 .update-obfuscation-toggle .install-toggle__hint {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+	font-size: 0.8rem;
+	color: var(--text-secondary);
 }
 
 .update-obfuscation-toggle .install-toggle__text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
 }
 
 .update-obfuscation-toggle .install-toggle__label {
-  font-weight: 600;
+	font-weight: 600;
 }
 
 .update-mod-modal .btn-install {
-  padding: 0.75rem 2rem;
-  background: var(--accent-primary);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
+	padding: 0.75rem 2rem;
+	background: var(--accent-primary);
+	color: white;
+	border: none;
+	border-radius: 4px;
+	font-size: 1rem;
+	font-weight: bold;
+	cursor: pointer;
+	transition: background 0.2s;
 }
 
 .update-mod-modal .btn-install:hover {
-  background: var(--accent-secondary);
+	background: var(--accent-secondary);
 }
 
 .update-mod-modal .modal-footer {
-  margin-top: 8px;
+	margin-top: 8px;
 }

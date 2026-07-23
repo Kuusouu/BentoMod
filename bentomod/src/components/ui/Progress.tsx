@@ -1,9 +1,8 @@
-import React from 'react';
-import './Progress.css';
+import "./Progress.css";
 
 /**
  * bentomod-style Progress component
- * 
+ *
  * @param {Object} props
  * @param {number} [props.value=0] - Current value (0-100)
  * @param {number} [props.minValue=0] - Minimum value
@@ -17,57 +16,62 @@ import './Progress.css';
  * @param {string} [props.className] - Additional classes
  */
 const Progress = ({
-  value = 0,
-  minValue = 0,
-  maxValue = 100,
-  label,
-  showValueLabel = false,
-  size = 'md',
-  color = 'primary',
-  isIndeterminate = false,
-  isStriped = false,
-  className = '',
-  ...props
+	value = 0,
+	minValue = 0,
+	maxValue = 100,
+	label,
+	showValueLabel = false,
+	size = "md",
+	color = "primary",
+	isIndeterminate = false,
+	isStriped = false,
+	className = "",
+	...props
 }: any) => {
-  // Calculate percentage for determinate progress
-  const percentage = Math.min(Math.max(((value - minValue) / (maxValue - minValue)) * 100, 0), 100);
-  
-  const classes = [
-    'bentomod-progress',
-    size,
-    color,
-    isIndeterminate ? 'indeterminate' : '',
-    isStriped ? 'striped' : '',
-    className
-  ].filter(Boolean).join(' ');
+	// Calculate percentage for determinate progress
+	const percentage = Math.min(
+		Math.max(((value - minValue) / (maxValue - minValue)) * 100, 0),
+		100,
+	);
 
-  return (
-    <div 
-      className={classes}
-      role="progressbar"
-      aria-valuenow={isIndeterminate ? undefined : value}
-      aria-valuemin={minValue}
-      aria-valuemax={maxValue}
-      aria-label={label || 'Loading...'}
-      {...props}
-    >
-      {(label || showValueLabel) && (
-        <div className="bentomod-progress-header">
-          {label && <span className="bentomod-progress-label">{label}</span>}
-          {showValueLabel && !isIndeterminate && (
-            <span className="bentomod-progress-value">{Math.round(percentage)}%</span>
-          )}
-        </div>
-      )}
-      
-      <div className="bentomod-progress-track">
-        <div 
-          className="bentomod-progress-indicator" 
-          style={{ width: isIndeterminate ? undefined : `${percentage}%` }}
-        />
-      </div>
-    </div>
-  );
+	const classes = [
+		"bentomod-progress",
+		size,
+		color,
+		isIndeterminate ? "indeterminate" : "",
+		isStriped ? "striped" : "",
+		className,
+	]
+		.filter(Boolean)
+		.join(" ");
+
+	return (
+		<div
+			className={classes}
+			role="progressbar"
+			aria-valuenow={isIndeterminate ? undefined : value}
+			aria-valuemin={minValue}
+			aria-valuemax={maxValue}
+			aria-label={label || "Loading..."}
+			{...props}
+		>
+			{(label || showValueLabel) && (
+				<div className="bentomod-progress-header">
+					{label && <span className="bentomod-progress-label">{label}</span>}
+					{showValueLabel && !isIndeterminate && (
+						<span className="bentomod-progress-value">{Math.round(percentage)}%</span>
+					)}
+				</div>
+			)}
+
+			<div className="bentomod-progress-track">
+				<div
+					className="bentomod-progress-indicator"
+					style={{ width: isIndeterminate ? undefined : `${percentage}%` }}
+				/>
+			</div>
+		</div>
+	);
 };
 
 export default Progress;
