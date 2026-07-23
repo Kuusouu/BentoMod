@@ -127,7 +127,9 @@ export default function ModDetailsPanel({
 
 		// 1. Use explicit field if available
 		if (details.additional_categories && Array.isArray(details.additional_categories)) {
-			details.additional_categories.forEach((c: string) => badges.add(c));
+			details.additional_categories.forEach((c: string) => {
+				badges.add(c);
+			});
 		}
 
 		// 2. Fallback: Parse from mod_type string
@@ -135,7 +137,9 @@ export default function ModDetailsPanel({
 		if (details.mod_type) {
 			const match = details.mod_type.match(/\[(.*?)\]/);
 			if (match && match[1]) {
-				match[1].split(",").forEach((s: string) => badges.add(s.trim()));
+				match[1].split(",").forEach((s: string) => {
+					badges.add(s.trim());
+				});
 			}
 		}
 

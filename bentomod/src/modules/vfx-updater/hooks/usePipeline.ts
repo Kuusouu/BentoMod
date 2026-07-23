@@ -447,7 +447,9 @@ export function usePipeline({
 			appliedCount = applyResults.reduce((sum, r) => sum + r.appliedToFile, 0);
 			for (const result of applyResults) {
 				if (result.fileWarnings.length > 0) {
-					result.fileWarnings.forEach((w) => addLog(`Warning: ${w}`, "warning"));
+					result.fileWarnings.forEach((w) => {
+						addLog(`Warning: ${w}`, "warning");
+					});
 					warnings.push(...result.fileWarnings);
 				}
 			}

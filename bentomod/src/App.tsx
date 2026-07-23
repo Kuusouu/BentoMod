@@ -1654,7 +1654,9 @@ function App() {
 				// Extract individual heroes from the mod's file list
 				if (d.files && Array.isArray(d.files)) {
 					const heroes = detectHeroesWithData(d.files, characterData);
-					heroes.forEach((h) => charSet.add(h));
+					heroes.forEach((h) => {
+						charSet.add(h);
+					});
 				}
 			}
 		});
@@ -1664,7 +1666,9 @@ function App() {
 			if (!d) return;
 			if (d.category) catSet.add(d.category);
 			const adds = getAdditionalCategories(d);
-			adds.forEach((cat: string) => catSet.add(cat));
+			adds.forEach((cat: string) => {
+				catSet.add(cat);
+			});
 		});
 		setAvailableCharacters(Array.from(charSet).sort((a, b) => a.localeCompare(b)));
 		setAvailableCategories(Array.from(catSet).sort((a, b) => a.localeCompare(b)));
@@ -2974,10 +2978,6 @@ function App() {
 			setBypassGameRunningLock(newBypassGameRunningLock);
 		if (overrides.launcherType !== undefined) setLauncherType(newLauncherType);
 
-		// 6. Handle side effects (DRP connection, theme, etc.)
-		if (false) {
-		}
-
 		if (
 			overrides.parallelProcessing !== undefined &&
 			newParallelProcessing !== parallelProcessing
@@ -3627,10 +3627,14 @@ function App() {
 														);
 														if (allSelected) {
 															// If all are selected, deselect all
-															target.forEach((t) => next.delete(t));
+															target.forEach((t) => {
+																next.delete(t);
+															});
 														} else {
 															// Otherwise, select all (add missing ones)
-															target.forEach((t) => next.add(t));
+															target.forEach((t) => {
+																next.add(t);
+															});
 														}
 													} else {
 														// Single toggle logic
