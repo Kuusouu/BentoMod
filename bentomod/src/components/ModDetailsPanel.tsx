@@ -407,8 +407,8 @@ export default function ModDetailsPanel({
 							<div className="detail-section">
 								<h3>Tags</h3>
 								<div className="tags-list">
-									{mod.custom_tags.map((tag, idx) => (
-										<span key={idx} className="tag">
+									{mod.custom_tags.map((tag) => (
+										<span key={tag} className="tag">
 											<FaTag />
 											{tag}
 										</span>

@@ -355,10 +355,10 @@ function OnboardingTour({ isOpen, onClose }: OnboardingTourProps) {
 
 					<div className="onboarding-tooltip-footer">
 						<div className="onboarding-dots">
-							{TOUR_STEPS.map((_, i) => (
+							{TOUR_STEPS.map((tourStep, i) => (
 								<button
 									type="button"
-									key={i}
+									key={tourStep.target}
 									className={`onboarding-dot ${i === currentStep ? "active" : ""}`}
 									onClick={() => setCurrentStep(i)}
 								/>

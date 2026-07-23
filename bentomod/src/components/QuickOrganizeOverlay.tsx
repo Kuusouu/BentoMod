@@ -185,7 +185,10 @@ const QuickOrganizeOverlay = ({
 		if (!paths || paths.length === 0) return [];
 		return paths.map((p: string) => {
 			const parts = p.split(/[/\\]/);
-			return parts[parts.length - 1];
+			return {
+				path: p,
+				name: parts[parts.length - 1] || p,
+			};
 		});
 	}, [paths]);
 
@@ -287,10 +290,10 @@ const QuickOrganizeOverlay = ({
 						{/* File List */}
 						{fileNames.length > 0 && (
 							<div className="qo-file-list">
-								{fileNames.slice(0, 5).map((name, idx) => (
-									<div key={idx} className="qo-file-item">
+								{fileNames.slice(0, 5).map((file) => (
+									<div key={file.path} className="qo-file-item">
 										<MdContentCopy className="file-icon" />
-										<span className="file-name">{name}</span>
+										<span className="file-name">{file.name}</span>
 									</div>
 								))}
 								{fileNames.length > 5 && (

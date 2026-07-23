@@ -24,6 +24,15 @@ type LogDrawerProps = {
 	onToggle: () => void;
 };
 
+function keyLogOccurrences(logs: string[]) {
+	const occurrences = new Map<string, number>();
+	return logs.map((text) => {
+		const occurrence = occurrences.get(text) ?? 0;
+		occurrences.set(text, occurrence + 1);
+		return { key: `${occurrence}:${text}`, text };
+	});
+}
+
 /**
  * LogDrawer - A terminal-style log drawer component
  *
@@ -54,6 +63,7 @@ export default function LogDrawer({
 	const resizingRef = useRef(false);
 	const logScrollRef = useRef<HTMLDivElement | null>(null);
 	const logCount = logs.length;
+	const keyedLogs = keyLogOccurrences(logs);
 
 	// Auto-scroll to bottom when new logs arrive
 	useEffect(() => {
@@ -225,10 +235,10 @@ export default function LogDrawer({
 							</div>
 						) : (
 							<div className="log-drawer-scroll" ref={logScrollRef}>
-								{logs.map((log, i) => (
+								{keyedLogs.map(({ key, text: log }, i) => (
 									<button
 										type="button"
-										key={i}
+										key={key}
 										className={`log-drawer-line unstyled-button ${getLogClass(log)}`}
 										onClick={() => handleCopyLine(log, i)}
 										onContextMenu={(e) => {

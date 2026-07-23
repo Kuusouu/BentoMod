@@ -166,6 +166,7 @@ const FolderNode = ({
 };
 
 interface LogEntry {
+	id: number;
 	message: string;
 	type: "info" | "success" | "warning" | "error" | "debug";
 	time: string;
@@ -184,6 +185,7 @@ export default function VfxUpdaterPanel() {
 
 	const [logs, setLogs] = useState<LogEntry[]>([]);
 	const logCount = logs.length;
+	const nextLogIdRef = useRef(0);
 	const logsEndRef = useRef<HTMLDivElement>(null);
 	const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
 
@@ -335,7 +337,8 @@ export default function VfxUpdaterPanel() {
 
 	const addLog = useCallback((message: string, type: LogEntry["type"] = "info") => {
 		const time = new Date().toLocaleTimeString();
-		setLogs((prev) => [...prev, { message, type, time }]);
+		const id = nextLogIdRef.current++;
+		setLogs((prev) => [...prev, { id, message, type, time }]);
 	}, []);
 
 	const [isFetchingUsmap, setIsFetchingUsmap] = useState(false);
@@ -869,8 +872,8 @@ export default function VfxUpdaterPanel() {
 					{logs.length === 0 && (
 						<span style={{ opacity: 0.5 }}>Awaiting pipeline execution...</span>
 					)}
-					{logs.map((log, i) => (
-						<div key={i} className={`vfx-log-entry log-${log.type}`}>
+					{logs.map((log) => (
+						<div key={log.id} className={`vfx-log-entry log-${log.type}`}>
 							<span className="log-time">[{log.time}]</span>
 							<span className="log-message">{log.message}</span>
 						</div>

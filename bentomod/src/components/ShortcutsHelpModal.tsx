@@ -43,11 +43,11 @@ function ShortcutsHelpModal({ isOpen, onClose }: ShortcutsHelpModalProps) {
 					</button>
 				</div>
 				<div className="shortcuts-list">
-					{shortcuts.map((shortcut, index) => (
-						<div key={index} className="shortcut-row">
+					{shortcuts.map((shortcut) => (
+						<div key={shortcut.action} className="shortcut-row">
 							<div className="shortcut-keys">
 								{shortcut.keys.map((key, i) => (
-									<span key={i}>
+									<span key={key}>
 										<kbd>{key}</kbd>
 										{i < shortcut.keys.length - 1 && (
 											<span className="key-separator">+</span>

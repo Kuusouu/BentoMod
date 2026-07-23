@@ -65,8 +65,8 @@ const ClashPanel = ({ clashes, mods = [], onSetPriority, onClose }: ClashPanelPr
 						</div>
 					) : (
 						<div className="clash-list">
-							{clashes.map((clash, i) => (
-								<div key={i} className="clash-card">
+							{clashes.map((clash) => (
+								<div key={clash.file_path} className="clash-card">
 									<div className="clash-file-path">
 										<InsertDriveFileOutlined
 											fontSize="small"

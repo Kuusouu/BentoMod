@@ -112,7 +112,7 @@ const CustomDropdown = ({
 					{options.length === 0 ? (
 						<div className="custom-dropdown-item disabled">No options</div>
 					) : (
-						options.map((option, index) => {
+						options.map((option) => {
 							const optValue = typeof option === "string" ? option : option.value;
 							const optLabel = typeof option === "string" ? option : option.label;
 							const optShowDelete =
@@ -122,7 +122,7 @@ const CustomDropdown = ({
 							// Optional separator logic could be passed in, but for now simple list
 							return (
 								<div
-									key={`${optValue}-${index}`}
+									key={optValue}
 									className={`custom-dropdown-item ${isSelected ? "selected" : ""}`}
 								>
 									<button

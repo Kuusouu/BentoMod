@@ -11,23 +11,23 @@ type ChangelogModalProps = {
 };
 
 type ParsedBlock =
-	| { type: "heading"; text: string }
-	| { type: "listItem"; text: string }
-	| { type: "text"; text: string };
+	| { type: "heading"; text: string; sourceLine: number }
+	| { type: "listItem"; text: string; sourceLine: number }
+	| { type: "text"; text: string; sourceLine: number };
 
 function parseChangelog(raw: string): ParsedBlock[] {
 	const blocks: ParsedBlock[] = [];
-	for (const line of raw.split("\n")) {
+	for (const [sourceLine, line] of raw.split("\n").entries()) {
 		const trimmed = line.trim();
 		if (!trimmed) continue;
 
 		if (trimmed.startsWith("### ")) {
-			blocks.push({ type: "heading", text: trimmed.slice(4) });
+			blocks.push({ type: "heading", text: trimmed.slice(4), sourceLine });
 		} else if (trimmed.startsWith("## ")) {
 		} else if (trimmed.startsWith("- ")) {
-			blocks.push({ type: "listItem", text: trimmed.slice(2) });
+			blocks.push({ type: "listItem", text: trimmed.slice(2), sourceLine });
 		} else {
-			blocks.push({ type: "text", text: trimmed });
+			blocks.push({ type: "text", text: trimmed, sourceLine });
 		}
 	}
 	return blocks;
@@ -37,31 +37,34 @@ function renderInlineMarkdown(text: string): React.ReactNode {
 	// Handles markdown-style inline formatting inside normal lines
 	// Supported: **bold**, __bold__, *italic*
 	const parts = text.split(/(\*\*[^*]+\*\*|__[^_]+__|\*[^*\n]+\*)/g);
-	return parts.map((part, index) => {
+	let sourceOffset = 0;
+	return parts.map((part) => {
+		const sourceKey = `${sourceOffset}:${part}`;
+		sourceOffset += part.length;
+
 		if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
-			return <strong key={index}>{part.slice(2, -2)}</strong>;
+			return <strong key={sourceKey}>{part.slice(2, -2)}</strong>;
 		}
 		if (part.startsWith("__") && part.endsWith("__") && part.length > 4) {
-			return <strong key={index}>{part.slice(2, -2)}</strong>;
+			return <strong key={sourceKey}>{part.slice(2, -2)}</strong>;
 		}
 		if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
-			return <em key={index}>{part.slice(1, -1)}</em>;
+			return <em key={sourceKey}>{part.slice(1, -1)}</em>;
 		}
-		return <React.Fragment key={index}>{part}</React.Fragment>;
+		return <React.Fragment key={sourceKey}>{part}</React.Fragment>;
 	});
 }
 
 function renderBlocks(blocks: ParsedBlock[]) {
 	const elements: React.ReactNode[] = [];
-	let currentList: string[] = [];
-	let key = 0;
+	let currentList: Array<{ text: string; sourceLine: number }> = [];
 
 	const flushList = () => {
 		if (currentList.length > 0) {
 			elements.push(
-				<ul key={key++} className="changelog-list">
-					{currentList.map((item, i) => (
-						<li key={i}>{renderInlineMarkdown(item)}</li>
+				<ul key={`list-${currentList[0].sourceLine}`} className="changelog-list">
+					{currentList.map((item) => (
+						<li key={`item-${item.sourceLine}`}>{renderInlineMarkdown(item.text)}</li>
 					))}
 				</ul>,
 			);
@@ -71,18 +74,18 @@ function renderBlocks(blocks: ParsedBlock[]) {
 
 	for (const block of blocks) {
 		if (block.type === "listItem") {
-			currentList.push(block.text);
+			currentList.push(block);
 		} else {
 			flushList();
 			if (block.type === "heading") {
 				elements.push(
-					<h3 key={key++} className="changelog-section-title">
+					<h3 key={`heading-${block.sourceLine}`} className="changelog-section-title">
 						{renderInlineMarkdown(block.text)}
 					</h3>,
 				);
 			} else {
 				elements.push(
-					<p key={key++} className="changelog-text">
+					<p key={`text-${block.sourceLine}`} className="changelog-text">
 						{renderInlineMarkdown(block.text)}
 					</p>,
 				);

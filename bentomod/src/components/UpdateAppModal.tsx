@@ -17,23 +17,23 @@ type UpdateDownloadProgress = {
 };
 
 type ParsedBlock =
-	| { type: "heading"; text: string }
-	| { type: "listItem"; text: string }
-	| { type: "text"; text: string };
+	| { type: "heading"; text: string; sourceLine: number }
+	| { type: "listItem"; text: string; sourceLine: number }
+	| { type: "text"; text: string; sourceLine: number };
 
 function parseChangelog(raw: string): ParsedBlock[] {
 	const blocks: ParsedBlock[] = [];
-	for (const line of raw.split("\n")) {
+	for (const [sourceLine, line] of raw.split("\n").entries()) {
 		const trimmed = line.trim();
 		if (!trimmed) continue;
 
 		if (trimmed.startsWith("### ")) {
-			blocks.push({ type: "heading", text: trimmed.slice(4) });
+			blocks.push({ type: "heading", text: trimmed.slice(4), sourceLine });
 		} else if (trimmed.startsWith("## ")) {
 		} else if (trimmed.startsWith("- ")) {
-			blocks.push({ type: "listItem", text: trimmed.slice(2) });
+			blocks.push({ type: "listItem", text: trimmed.slice(2), sourceLine });
 		} else {
-			blocks.push({ type: "text", text: trimmed });
+			blocks.push({ type: "text", text: trimmed, sourceLine });
 		}
 	}
 	return blocks;
@@ -41,33 +41,39 @@ function parseChangelog(raw: string): ParsedBlock[] {
 
 function renderInlineMarkdown(text: string): React.ReactNode {
 	const parts = text.split(/(\*\*[^*]+\*\*|__[^_]+__|\*[^*\n]+\*)/g);
-	return parts.map((part, index) => {
+	let sourceOffset = 0;
+	return parts.map((part) => {
+		const sourceKey = `${sourceOffset}:${part}`;
+		sourceOffset += part.length;
+
 		if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
-			return <strong key={index}>{part.slice(2, -2)}</strong>;
+			return <strong key={sourceKey}>{part.slice(2, -2)}</strong>;
 		}
 		if (part.startsWith("__") && part.endsWith("__") && part.length > 4) {
-			return <strong key={index}>{part.slice(2, -2)}</strong>;
+			return <strong key={sourceKey}>{part.slice(2, -2)}</strong>;
 		}
 		if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
-			return <em key={index}>{part.slice(1, -1)}</em>;
+			return <em key={sourceKey}>{part.slice(1, -1)}</em>;
 		}
-		return <React.Fragment key={index}>{part}</React.Fragment>;
+		return <React.Fragment key={sourceKey}>{part}</React.Fragment>;
 	});
 }
 
 function renderChangelogBlocks(raw: string): React.ReactNode {
 	const blocks = parseChangelog(raw);
 	const elements: React.ReactNode[] = [];
-	let listItems: string[] = [];
-	let key = 0;
+	let listItems: Array<{ text: string; sourceLine: number }> = [];
 
 	const flushList = () => {
 		if (listItems.length === 0) return;
 		elements.push(
-			<ul key={key++} style={{ listStyle: "none", paddingLeft: "1rem", margin: "0.25rem 0" }}>
-				{listItems.map((item, index) => (
+			<ul
+				key={`list-${listItems[0].sourceLine}`}
+				style={{ listStyle: "none", paddingLeft: "1rem", margin: "0.25rem 0" }}
+			>
+				{listItems.map((item) => (
 					<li
-						key={index}
+						key={`item-${item.sourceLine}`}
 						style={{
 							position: "relative",
 							padding: "0.2rem 0 0.2rem 0.75rem",
@@ -85,7 +91,7 @@ function renderChangelogBlocks(raw: string): React.ReactNode {
 								background: "var(--accent-primary, #4a9eff)",
 							}}
 						/>
-						{renderInlineMarkdown(item)}
+						{renderInlineMarkdown(item.text)}
 					</li>
 				))}
 			</ul>,
@@ -95,7 +101,7 @@ function renderChangelogBlocks(raw: string): React.ReactNode {
 
 	for (const block of blocks) {
 		if (block.type === "listItem") {
-			listItems.push(block.text);
+			listItems.push(block);
 			continue;
 		}
 
@@ -103,7 +109,7 @@ function renderChangelogBlocks(raw: string): React.ReactNode {
 		if (block.type === "heading") {
 			elements.push(
 				<h3
-					key={key++}
+					key={`heading-${block.sourceLine}`}
 					style={{
 						fontSize: "0.95rem",
 						fontWeight: 700,
@@ -117,7 +123,7 @@ function renderChangelogBlocks(raw: string): React.ReactNode {
 		} else {
 			elements.push(
 				<p
-					key={key++}
+					key={`text-${block.sourceLine}`}
 					style={{
 						fontSize: "0.9rem",
 						lineHeight: 1.5,
