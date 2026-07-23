@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import type React from "react";
+import { useState, useMemo } from "react";
 import { VscFolder, VscFolderOpened, VscFile } from "react-icons/vsc";
 import "./FileTree.css";
 
@@ -165,7 +166,7 @@ const FileTree = ({ files }: FileTreeProps) => {
 			// Actually, pre-order (top-down) is fine for "A" -> "A/B" -> "A/B/C".
 
 			for (let i = 0; i < node.children.length; i++) {
-				let child = node.children[i];
+				const child = node.children[i];
 
 				// While child is a folder and has exactly one child that is ALSO a folder
 				while (

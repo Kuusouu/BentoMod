@@ -128,7 +128,7 @@ export function findColorsRecursive(
 			});
 		} else {
 			for (const key in currentObject) {
-				if (Object.prototype.hasOwnProperty.call(currentObject, key)) {
+				if (Object.hasOwn(currentObject, key)) {
 					findColorsRecursive(
 						currentObject[key],
 						[...currentPath, key],

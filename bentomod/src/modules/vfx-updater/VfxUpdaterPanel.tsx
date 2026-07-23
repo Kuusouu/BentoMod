@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
+import type React from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
 import { usePipeline } from "./hooks/usePipeline";

@@ -247,7 +247,7 @@ function parseModType(modType: string | undefined): {
 	const additional = bracketMatch ? bracketMatch[1].split(",").map((s) => s.trim()) : [];
 
 	// Clean base string
-	let base = modType.replace(/\[.*?\]/, "").trim();
+	const base = modType.replace(/\[.*?\]/, "").trim();
 	let character: string | null = null;
 	let category = base;
 
@@ -822,7 +822,7 @@ export default function InstallModPanel({
 																mod.contains_raw_assets,
 														)
 													}
-													className={`install-toggle legacy-toggle ${mod.contains_uassets === false ? "active locked" : modSettings[idx]?.hybrid || Boolean(mod.contains_uassets && mod.contains_raw_assets) ? "locked" : modSettings[idx]?.forceLegacy ? "active" : ""}`}
+													className={`install-toggle legacy-toggle ${mod.contains_uassets === false ? "active locked" : modSettings[idx]?.hybrid || mod.contains_uassets && mod.contains_raw_assets ? "locked" : modSettings[idx]?.forceLegacy ? "active" : ""}`}
 													title="Use when making Audio/Config mods (mods that don't contain uassets)"
 												>
 													<div className="install-toggle__text">
@@ -832,10 +832,8 @@ export default function InstallModPanel({
 														<span className="install-toggle__hint">
 															{mod.contains_uassets === false
 																? "Forced for non-UAsset mods"
-																: Boolean(
-																			mod.contains_uassets &&
-																				mod.contains_raw_assets,
-																		)
+																: mod.contains_uassets &&
+																				mod.contains_raw_assets
 																	? "Unavailable for Hybrid mods"
 																	: modSettings[idx]?.forceLegacy
 																		? "Skipping IoStore conversion"

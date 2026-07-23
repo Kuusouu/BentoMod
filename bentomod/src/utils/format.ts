@@ -13,7 +13,7 @@ export function formatFileSize(bytes: number): string {
 	const sizes = ["B", "KB", "MB", "GB"];
 	const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
 	const unit = sizes[i] ?? "B";
-	return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + unit;
+	return Math.round((bytes / k ** i) * 100) / 100 + " " + unit;
 }
 
 /**
@@ -26,7 +26,7 @@ export function formatFileSize(bytes: number): string {
  */
 export function normalizeModBaseName(name: string, minNines = 7): string {
 	// Clean the name: remove existing suffixes and extension
-	let cleanName = name
+	const cleanName = name
 		.replace(/\.pak$/i, "") // Remove .pak extension
 		.replace(/_\d+_P$/gi, "") // Remove existing priority suffix
 		.replace(/\s+/g, "_") // Replace spaces with underscores

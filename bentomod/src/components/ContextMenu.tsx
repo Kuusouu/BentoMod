@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import type React from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { IoMdWarning } from "react-icons/io";
 import "./ContextMenu.css";

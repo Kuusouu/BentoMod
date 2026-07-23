@@ -43,7 +43,7 @@ const NumberInput = ({
 			return;
 		}
 
-		let clamped = Math.max(min, Math.min(max, newValue));
+		const clamped = Math.max(min, Math.min(max, newValue));
 
 		setLocalValue(clamped);
 		if (onChange && clamped !== value) {

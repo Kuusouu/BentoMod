@@ -8,7 +8,7 @@ export const useGlobalTooltips = () => {
 	useEffect(() => {
 		let activeTooltip: HTMLDivElement | null = null;
 		let showTimeout: ReturnType<typeof setTimeout> | null = null;
-		let hideTimeout: ReturnType<typeof setTimeout> | null = null;
+		const hideTimeout: ReturnType<typeof setTimeout> | null = null;
 		let currentTarget: HTMLElement | null = null;
 
 		const restoreTitle = (target: HTMLElement | null) => {

@@ -24,8 +24,6 @@ function parseChangelog(raw: string): ParsedBlock[] {
 		if (trimmed.startsWith("### ")) {
 			blocks.push({ type: "heading", text: trimmed.slice(4) });
 		} else if (trimmed.startsWith("## ")) {
-			// Skip version headers — we already show it in the modal title
-			continue;
 		} else if (trimmed.startsWith("- ")) {
 			blocks.push({ type: "listItem", text: trimmed.slice(2) });
 		} else {

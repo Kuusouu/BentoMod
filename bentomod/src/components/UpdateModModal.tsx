@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import type React from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaExchangeAlt } from "react-icons/fa";
 import { IoWarningOutline } from "react-icons/io5";

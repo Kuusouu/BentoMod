@@ -929,7 +929,7 @@ function App() {
 
 			const modPaths = Array.from(selectedMods);
 			let deletedCount = 0;
-			let errors: string[] = [];
+			const errors: string[] = [];
 
 			for (const path of modPaths) {
 				try {

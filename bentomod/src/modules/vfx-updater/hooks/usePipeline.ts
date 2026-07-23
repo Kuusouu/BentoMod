@@ -382,7 +382,7 @@ export function usePipeline({
 						const jsonContent = await invoke<string>("vfx_read_json_file", {
 							path: jsonPath,
 						});
-						let json = JSON.parse(jsonContent);
+						const json = JSON.parse(jsonContent);
 						const relativePath = jsonPath
 							.replace(tempDirs.vanillaJson, "")
 							.replace(/^[\\/]/, "");

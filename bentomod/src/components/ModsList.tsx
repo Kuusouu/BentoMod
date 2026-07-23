@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect, memo } from "react";
+import type React from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import { motion } from "framer-motion";
 import { Tooltip } from "@mui/material";
 import { RiDeleteBin2Fill } from "react-icons/ri";
