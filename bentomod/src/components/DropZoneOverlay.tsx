@@ -1,15 +1,15 @@
-import type React from "react";
-import { useState, useMemo, useEffect, useRef } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import type React from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { MdCreateNewFolder, MdInstallDesktop } from "react-icons/md";
 import {
+	VscChevronDown,
+	VscChevronRight,
 	VscFolder,
 	VscFolderOpened,
-	VscChevronRight,
-	VscChevronDown,
 	VscNewFolder,
 } from "react-icons/vsc";
-import { MdInstallDesktop, MdCreateNewFolder } from "react-icons/md";
 import "./DropZoneOverlay.css";
 
 type FolderRecord = {

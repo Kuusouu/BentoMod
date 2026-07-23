@@ -1,6 +1,6 @@
+import { AnimatePresence, motion } from "framer-motion";
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { VscClose, VscNewFolder } from "react-icons/vsc";
 import "./InputPromptModal.css";
 

@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { open } from "@tauri-apps/plugin-shell";
 import { save } from "@tauri-apps/plugin-dialog";
+import { open } from "@tauri-apps/plugin-shell";
+import { motion } from "framer-motion";
+import React, { useEffect, useMemo, useState } from "react";
 import { IoIosSkipForward } from "react-icons/io";
-import { MdRemoveModerator, MdBackup } from "react-icons/md";
-import Switch from "./ui/Switch";
+import { MdBackup, MdRemoveModerator } from "react-icons/md";
 import Progress from "./ui/Progress";
+import Switch from "./ui/Switch";
 import "./SettingsPanel.css"; // Reuse the same styles
 
 type ModRecord = {

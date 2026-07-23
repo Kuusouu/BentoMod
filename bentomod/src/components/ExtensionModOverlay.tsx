@@ -1,15 +1,15 @@
+import { AnimatePresence, motion } from "framer-motion";
 import type React from "react";
-import { useState, useMemo, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { MdCreateNewFolder, MdExtension } from "react-icons/md";
 import {
+	VscChevronDown,
+	VscChevronRight,
+	VscClose,
 	VscFolder,
 	VscFolderOpened,
-	VscChevronRight,
-	VscChevronDown,
-	VscClose,
 	VscNewFolder,
 } from "react-icons/vsc";
-import { MdExtension, MdCreateNewFolder } from "react-icons/md";
 import "./ExtensionModOverlay.css";
 
 type FolderRecord = {

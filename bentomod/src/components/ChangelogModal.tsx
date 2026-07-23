@@ -1,5 +1,5 @@
+import { AnimatePresence, motion } from "framer-motion";
 import React, { useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { MdClose } from "react-icons/md";
 import "./ChangelogModal.css";
 

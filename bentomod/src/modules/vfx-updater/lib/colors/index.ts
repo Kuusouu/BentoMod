@@ -1,8 +1,8 @@
 // VFX Updater - Colors Module Export
 
+export { applyColorToJson, setNestedValue } from "./applyColors";
 export {
-	getColorPropertyNames,
 	findColorsRecursive,
+	getColorPropertyNames,
 	parseJsonAndExtractColors,
 } from "./extractColors";
-export { setNestedValue, applyColorToJson } from "./applyColors";

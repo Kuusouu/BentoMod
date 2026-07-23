@@ -1,17 +1,17 @@
-import { useState, useEffect, useMemo } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { motion } from "framer-motion";
-import Switch from "./ui/Switch";
-import Checkbox from "./ui/Checkbox";
+import { useEffect, useMemo, useState } from "react";
 import { FaTag } from "react-icons/fa6";
+import { MdCreateNewFolder } from "react-icons/md";
 import {
+	VscChevronDown,
+	VscChevronRight,
 	VscFolder,
 	VscFolderOpened,
-	VscChevronRight,
-	VscChevronDown,
 	VscNewFolder,
 } from "react-icons/vsc";
-import { MdCreateNewFolder } from "react-icons/md";
+import Checkbox from "./ui/Checkbox";
+import Switch from "./ui/Switch";
 import "./InstallModPanel.css";
 
 const heroImages = import.meta.glob("../assets/hero/*.png", { eager: true }) as Record<
@@ -822,7 +822,7 @@ export default function InstallModPanel({
 																mod.contains_raw_assets,
 														)
 													}
-													className={`install-toggle legacy-toggle ${mod.contains_uassets === false ? "active locked" : modSettings[idx]?.hybrid || mod.contains_uassets && mod.contains_raw_assets ? "locked" : modSettings[idx]?.forceLegacy ? "active" : ""}`}
+													className={`install-toggle legacy-toggle ${mod.contains_uassets === false ? "active locked" : modSettings[idx]?.hybrid || (mod.contains_uassets && mod.contains_raw_assets) ? "locked" : modSettings[idx]?.forceLegacy ? "active" : ""}`}
 													title="Use when making Audio/Config mods (mods that don't contain uassets)"
 												>
 													<div className="install-toggle__text">
@@ -833,7 +833,7 @@ export default function InstallModPanel({
 															{mod.contains_uassets === false
 																? "Forced for non-UAsset mods"
 																: mod.contains_uassets &&
-																				mod.contains_raw_assets
+																		mod.contains_raw_assets
 																	? "Unavailable for Hybrid mods"
 																	: modSettings[idx]?.forceLegacy
 																		? "Skipping IoStore conversion"

@@ -1,20 +1,20 @@
-import type React from "react";
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { motion, AnimatePresence, useMotionValue, useTransform, animate } from "framer-motion";
-import { usePipeline } from "./hooks/usePipeline";
-import { PIPELINE_STEPS } from "./types";
-import { ShineBorder } from "../../components/ui/ShineBorder";
-import { AuroraText } from "../../components/ui/AuroraText";
+import { AnimatePresence, animate, motion, useMotionValue, useTransform } from "framer-motion";
+import type React from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { BiCopyAlt } from "react-icons/bi";
+import { MdCheckCircle } from "react-icons/md";
 import {
+	VscChevronDown,
+	VscChevronRight,
+	VscClose,
 	VscFolder,
 	VscFolderOpened,
-	VscChevronRight,
-	VscChevronDown,
-	VscClose,
 } from "react-icons/vsc";
-import { MdCheckCircle } from "react-icons/md";
-import { BiCopyAlt } from "react-icons/bi";
+import { AuroraText } from "../../components/ui/AuroraText";
+import { ShineBorder } from "../../components/ui/ShineBorder";
+import { usePipeline } from "./hooks/usePipeline";
+import { PIPELINE_STEPS } from "./types";
 
 import "../../components/ExtensionModOverlay.css";
 import "./VfxUpdater.css";

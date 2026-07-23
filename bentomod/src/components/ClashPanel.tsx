@@ -1,12 +1,12 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { IoMdWarning } from "react-icons/io";
 import {
-	Close,
-	WarningAmberRounded,
-	InsertDriveFileOutlined,
 	CheckCircleOutline,
+	Close,
+	InsertDriveFileOutlined,
+	WarningAmberRounded,
 } from "@mui/icons-material";
+import { motion } from "framer-motion";
+import React from "react";
+import { IoMdWarning } from "react-icons/io";
 import NumberInput from "./ui/NumberInput";
 import "./ClashPanel.css";
 

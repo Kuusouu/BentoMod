@@ -1,6 +1,6 @@
+import { AnimatePresence, motion } from "framer-motion";
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { MdDownload, MdOpenInNew, MdClose } from "react-icons/md";
+import { MdClose, MdDownload, MdOpenInNew } from "react-icons/md";
 import "./UpdateAppModal.css";
 
 type UpdateInfo = {

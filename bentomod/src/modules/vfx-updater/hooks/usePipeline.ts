@@ -1,18 +1,18 @@
 // VFX Updater - Pipeline Hook
 // Orchestrates the 8-step VFX update pipeline
 
-import { useState, useCallback, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { useCallback, useRef, useState } from "react";
+import { applyColorToJson } from "../lib/colors/applyColors";
+import { parseJsonAndExtractColors } from "../lib/colors/extractColors";
 import type {
 	ColorParam,
+	PIPELINE_STEPS,
+	PipelineStep,
 	VfxPipelineProgress,
 	VfxTempDirectories,
-	PipelineStep,
-	PIPELINE_STEPS,
 } from "../types";
-import { parseJsonAndExtractColors } from "../lib/colors/extractColors";
-import { applyColorToJson } from "../lib/colors/applyColors";
 
 interface StepStatus {
 	message?: string;

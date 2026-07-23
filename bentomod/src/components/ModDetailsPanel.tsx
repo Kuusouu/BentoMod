@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Tooltip } from "@mui/material";
-import { FaTag, FaExchangeAlt } from "react-icons/fa";
-import FileTree from "./FileTree";
+import { invoke } from "@tauri-apps/api/core";
+import { useEffect, useMemo, useState } from "react";
+import { FaExchangeAlt, FaTag } from "react-icons/fa";
 import { formatFileSize } from "../utils/format";
 import { detectHeroesWithData } from "../utils/heroes";
+import FileTree from "./FileTree";
 import "./ModDetailsPanel.css";
 
 const heroImages = import.meta.glob("../assets/hero/*.png", { eager: true }) as Record<

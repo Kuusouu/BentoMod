@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { AnimatedThemeToggler } from "./ui/AnimatedThemeToggler";
-import Switch from "./ui/Switch";
-import Checkbox from "./ui/Checkbox";
-import { LuFolderInput } from "react-icons/lu";
-import { RiSparkling2Fill } from "react-icons/ri";
-import { CgPerformance } from "react-icons/cg";
-import { MdRefresh, MdArticle } from "react-icons/md";
-import { FaSteam } from "react-icons/fa";
-import { SiEpicgames } from "react-icons/si";
-import { RiGraduationCapFill } from "react-icons/ri";
+import React, { useEffect, useState } from "react";
 import { BsKeyboardFill } from "react-icons/bs";
+import { CgPerformance } from "react-icons/cg";
+import { FaSteam } from "react-icons/fa";
+import { LuFolderInput } from "react-icons/lu";
+import { MdArticle, MdRefresh } from "react-icons/md";
+import { RiGraduationCapFill, RiSparkling2Fill } from "react-icons/ri";
+import { SiEpicgames } from "react-icons/si";
+import { AnimatedThemeToggler } from "./ui/AnimatedThemeToggler";
+import Checkbox from "./ui/Checkbox";
+import Switch from "./ui/Switch";
 
 import "./SettingsPanel.css";
-import { useAlert } from "./AlertHandler";
 import { motion } from "framer-motion";
+import { useAlert } from "./AlertHandler";
 
 const ACCENT_COLORS = {
 	bentoRed: "#be1c1c",

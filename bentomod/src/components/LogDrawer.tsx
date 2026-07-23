@@ -1,9 +1,9 @@
+import { AnimatePresence, motion } from "framer-motion";
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { BiCopyAlt } from "react-icons/bi";
 import { FaTerminal } from "react-icons/fa";
 import { VscClearAll } from "react-icons/vsc";
-import { BiCopyAlt } from "react-icons/bi";
 import "./LogDrawer.css";
 
 type CopyFeedback = {

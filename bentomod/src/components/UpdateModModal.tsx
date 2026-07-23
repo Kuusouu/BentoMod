@@ -1,6 +1,6 @@
+import { AnimatePresence, motion } from "framer-motion";
 import type React from "react";
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
 import { FaExchangeAlt } from "react-icons/fa";
 import { IoWarningOutline } from "react-icons/io5";
 import Switch from "./ui/Switch";

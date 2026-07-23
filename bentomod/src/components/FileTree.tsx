@@ -1,6 +1,6 @@
 import type React from "react";
-import { useState, useMemo } from "react";
-import { VscFolder, VscFolderOpened, VscFile } from "react-icons/vsc";
+import { useMemo, useState } from "react";
+import { VscFile, VscFolder, VscFolderOpened } from "react-icons/vsc";
 import "./FileTree.css";
 
 type TreeNodeData = {

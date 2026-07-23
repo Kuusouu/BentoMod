@@ -1,11 +1,11 @@
-import React from "react";
-import Button from "@mui/material/Button";
-import ButtonGroup from "@mui/material/ButtonGroup";
-import type { ButtonGroupProps } from "@mui/material/ButtonGroup";
-import { GrInstall } from "react-icons/gr";
 import { CreateNewFolder as CreateNewFolderIcon } from "@mui/icons-material";
-import { open } from "@tauri-apps/plugin-dialog";
+import Button from "@mui/material/Button";
+import type { ButtonGroupProps } from "@mui/material/ButtonGroup";
+import ButtonGroup from "@mui/material/ButtonGroup";
 import { styled } from "@mui/material/styles";
+import { open } from "@tauri-apps/plugin-dialog";
+import React from "react";
+import { GrInstall } from "react-icons/gr";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
 	boxShadow: "0 4px 15px rgba(0,0,0,0.3)",

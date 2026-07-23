@@ -1,17 +1,17 @@
+import { AnimatePresence, motion } from "framer-motion";
 import type React from "react";
-import { useState, useMemo, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { BsFiletypeRaw } from "react-icons/bs";
+import { MdContentCopy, MdCreateNewFolder } from "react-icons/md";
 import {
+	VscCheck,
+	VscChevronDown,
+	VscChevronRight,
+	VscClose,
 	VscFolder,
 	VscFolderOpened,
-	VscChevronRight,
-	VscChevronDown,
-	VscClose,
 	VscNewFolder,
-	VscCheck,
 } from "react-icons/vsc";
-import { MdContentCopy, MdCreateNewFolder } from "react-icons/md";
-import { BsFiletypeRaw } from "react-icons/bs";
 import "./QuickOrganizeOverlay.css";
 
 type FolderRecord = {

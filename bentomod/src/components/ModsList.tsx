@@ -1,15 +1,15 @@
-import type React from "react";
-import { useState, useRef, useEffect, memo } from "react";
-import { motion } from "framer-motion";
 import { Tooltip } from "@mui/material";
-import { RiDeleteBin2Fill } from "react-icons/ri";
+import { motion } from "framer-motion";
+import type React from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { FaTag } from "react-icons/fa6";
-import Checkbox from "./ui/Checkbox";
-import Switch from "./ui/Switch";
-import NumberInput from "./ui/NumberInput";
-import { toTagArray } from "../utils/tags";
+import { RiDeleteBin2Fill } from "react-icons/ri";
 import { formatFileSize } from "../utils/format";
 import { detectHeroesWithData } from "../utils/heroes";
+import { toTagArray } from "../utils/tags";
+import Checkbox from "./ui/Checkbox";
+import NumberInput from "./ui/NumberInput";
+import Switch from "./ui/Switch";
 import "./ModsList.css";
 import "./ModDetailsPanel.css";
 

@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { CgMinimizeAlt } from "react-icons/cg";
-import { CgMaximizeAlt } from "react-icons/cg";
-import { MdMinimize } from "react-icons/md";
+import { useEffect, useState } from "react";
+import { CgMaximizeAlt, CgMinimizeAlt } from "react-icons/cg";
 import { GrClose } from "react-icons/gr";
+import { MdMinimize } from "react-icons/md";
 import "./TitleBar.css";
 
 interface TitleBarProps {

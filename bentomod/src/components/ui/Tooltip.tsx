@@ -1,6 +1,6 @@
+import { AnimatePresence, motion } from "framer-motion";
 import type React from "react";
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import "./Tooltip.css";
 
 type TooltipProps = {

@@ -1,74 +1,73 @@
-import { useState, useEffect, useRef } from "react";
-import type { ChangeEvent } from "react";
-import type { UnlistenFn } from "@tauri-apps/api/event";
-import { invoke } from "@tauri-apps/api/core";
-import { open } from "@tauri-apps/plugin-dialog";
-import { listen } from "@tauri-apps/api/event";
-import { motion, AnimatePresence } from "framer-motion";
-import { useDebouncedCallback } from "use-debounce";
-import { IconButton, Tooltip } from "@mui/material";
 import {
-	Refresh as RefreshIcon,
-	CreateNewFolder as CreateNewFolderIcon,
-	Search as SearchIcon,
-	Clear as ClearIcon,
-	ExpandMore as ExpandMoreIcon,
+	Check as CheckIcon,
 	ChevronRight as ChevronRightIcon,
+	Clear as ClearIcon,
+	CreateNewFolder as CreateNewFolderIcon,
+	ExpandMore as ExpandMoreIcon,
 	Folder as FolderIcon,
 	GridView as GridViewIcon,
-	ViewModule as ViewModuleIcon,
-	ViewList as ViewListIcon,
-	ViewHeadline as ViewHeadlineIcon,
-	ViewSidebar as ViewSidebarIcon,
 	PlayArrow as PlayArrowIcon,
-	Check as CheckIcon,
-	ToggleOn as ToggleOnIcon,
+	Refresh as RefreshIcon,
+	Search as SearchIcon,
 	ToggleOff as ToggleOffIcon,
+	ToggleOn as ToggleOnIcon,
+	ViewHeadline as ViewHeadlineIcon,
+	ViewList as ViewListIcon,
+	ViewModule as ViewModuleIcon,
+	ViewSidebar as ViewSidebarIcon,
 } from "@mui/icons-material";
-import { RiDeleteBin2Fill } from "react-icons/ri";
-import { MdDriveFileMoveOutline } from "react-icons/md";
-import { FaTag, FaToolbox, FaSort } from "react-icons/fa6";
-import { IoMdWifi, IoIosSettings, IoMdWarning } from "react-icons/io";
-import { GrInstall } from "react-icons/gr";
+import { IconButton, Tooltip } from "@mui/material";
+import { invoke } from "@tauri-apps/api/core";
+import type { UnlistenFn } from "@tauri-apps/api/event";
+import { listen } from "@tauri-apps/api/event";
+import { open } from "@tauri-apps/plugin-dialog";
+import { AnimatePresence, motion } from "framer-motion";
+import type { ChangeEvent } from "react";
+import { useEffect, useRef, useState } from "react";
+import { FaSort, FaTag, FaToolbox } from "react-icons/fa6";
 import { GiLightningTrio } from "react-icons/gi";
-import Checkbox from "./components/ui/Checkbox";
-import ModDetailsPanel from "./components/ModDetailsPanel";
-import ModsList from "./components/ModsList";
-import FileTree from "./components/FileTree";
-import FolderTree from "./components/FolderTree";
+import { GrInstall } from "react-icons/gr";
+import { IoIosSettings, IoMdWarning, IoMdWifi } from "react-icons/io";
+import { MdDriveFileMoveOutline } from "react-icons/md";
+import { RiDeleteBin2Fill } from "react-icons/ri";
+import { useDebouncedCallback } from "use-debounce";
+import { AlertProvider, useAlert } from "./components/AlertHandler";
+import ChangelogModal from "./components/ChangelogModal";
 import ContextMenu from "./components/ContextMenu";
-import LogDrawer from "./components/LogDrawer";
 import DropZoneOverlay from "./components/DropZoneOverlay";
 import ExtensionModOverlay from "./components/ExtensionModOverlay";
-import QuickOrganizeOverlay from "./components/QuickOrganizeOverlay";
+import FileTree from "./components/FileTree";
+import FolderTree from "./components/FolderTree";
 import InputPromptModal from "./components/InputPromptModal";
-import UpdateModModal from "./components/UpdateModModal";
-import UpdateAppModal from "./components/UpdateAppModal";
-import ChangelogModal from "./components/ChangelogModal";
+import LogDrawer from "./components/LogDrawer";
+import ModDetailsPanel from "./components/ModDetailsPanel";
+import ModsList from "./components/ModsList";
 import PromiseTransitionLoader from "./components/PromiseTransitionLoader";
+import QuickOrganizeOverlay from "./components/QuickOrganizeOverlay";
+import UpdateAppModal from "./components/UpdateAppModal";
+import UpdateModModal from "./components/UpdateModModal";
 import { AuroraText } from "./components/ui/AuroraText";
-import { AlertProvider, useAlert } from "./components/AlertHandler";
-import { useGlobalTooltips } from "./hooks/useGlobalTooltips";
+import Checkbox from "./components/ui/Checkbox";
+import NumberInput from "./components/ui/NumberInput";
 
 import Switch from "./components/ui/Switch";
-import NumberInput from "./components/ui/NumberInput";
+import { useGlobalTooltips } from "./hooks/useGlobalTooltips";
 import "./App.css";
 import "./styles/theme.css";
 import "./styles/Badges.css";
 import "./styles/Fonts.css";
 import "./styles/GlobalTooltips.css";
 
-import HeroFilterDropdown from "./components/HeroFilterDropdown";
-import CustomDropdown from "./components/CustomDropdown";
-import ShortcutsHelpModal from "./components/ShortcutsHelpModal";
 import AddModSplitButton from "./components/AddModSplitButton";
+import CustomDropdown from "./components/CustomDropdown";
+import HeroFilterDropdown from "./components/HeroFilterDropdown";
 import OnboardingTour from "./components/OnboardingTour";
-
+import ShortcutsHelpModal from "./components/ShortcutsHelpModal";
+import { formatFileSize, normalizeModBaseName } from "./utils/format";
+import { detectHeroesWithData } from "./utils/heroes";
+import { getAdditionalCategories } from "./utils/mods";
 // Utility functions
 import { toTagArray } from "./utils/tags";
-import { detectHeroesWithData } from "./utils/heroes";
-import { formatFileSize, normalizeModBaseName } from "./utils/format";
-import { getAdditionalCategories } from "./utils/mods";
 
 const ACCENT_COLORS_MAP: Record<string, string> = {
 	red: "#be1c1c",
@@ -90,14 +89,12 @@ const AURORA_PALETTES: Record<string, string[]> = {
 
 const VFX_UPDATER_MOD_PREFILL_KEY = "bentomod:vfxUpdater:modPath";
 
-import TitleBar from "./components/TitleBar";
+import ClashPanel from "./components/ClashPanel";
 
 import InstallModPanel from "./components/InstallModPanel";
 import SettingsPanel from "./components/SettingsPanel";
-
+import TitleBar from "./components/TitleBar";
 import ToolsPanel from "./components/ToolsPanel";
-
-import ClashPanel from "./components/ClashPanel";
 
 type ModRecord = {
 	path: string;

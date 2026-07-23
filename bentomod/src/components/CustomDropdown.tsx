@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./CustomDropdown.css";
 
 type DropdownOption = string | { value: string; label: string; showDelete?: boolean };

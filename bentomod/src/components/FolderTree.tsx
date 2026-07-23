@@ -1,11 +1,11 @@
 import type React from "react";
-import { useState, useMemo, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+	VscChevronDown,
+	VscChevronRight,
 	VscFolder,
 	VscFolderOpened,
 	VscLibrary,
-	VscChevronRight,
-	VscChevronDown,
 } from "react-icons/vsc";
 import "./FolderTree.css";
 

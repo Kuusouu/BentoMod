@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import "./HeroFilterDropdown.css";
 
 type ModDetailsRecord = {
