@@ -50,6 +50,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
           submodules: recursive
+          lfs: true
 
       # ========== Setup Tools ==========
       - name: Setup Rust
